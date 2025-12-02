@@ -1,0 +1,12 @@
+.App {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+button {
+  transition: all 0.3s ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
