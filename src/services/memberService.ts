@@ -1,6 +1,7 @@
 import {
   collection,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -16,22 +17,42 @@ import { Member, CreateMemberDTO } from '../types';
 
 const MEMBERS_COLLECTION = 'members';
 
+
+const buildMemberId = (nombre: string, apellido: string) => {
+  const random3 = Math.floor(100 + Math.random() * 900); // 100–999
+  const clean = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // sin tildes
+      .replace(/\s+/g, ''); // sin espacios
+
+  const firstName = clean(nombre).charAt(0).toUpperCase() + clean(nombre).slice(1);
+  const lastName = clean(apellido).charAt(0).toUpperCase() + clean(apellido).slice(1);
+
+  return `${lastName}${firstName}-${random3}`; // Ej: VegaJoel-123
+};
 export const memberService = {
   // Create
   async addMember(data: CreateMemberDTO): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, MEMBERS_COLLECTION), {
+      const customId = buildMemberId(data.nombre, data.apellido);
+
+      const docRef = doc(collection(db, MEMBERS_COLLECTION), customId);
+
+      await setDoc(docRef, {
         ...data,
         joinDate: Timestamp.now(),
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
-      return docRef.id;
+
+      return docRef.id; // ApellidoNombre-123
     } catch (error) {
       console.error('Error adding member:', error);
       throw error;
     }
   },
+
 
   // Read
   async getMember(id: string): Promise<Member | null> {

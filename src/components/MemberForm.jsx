@@ -7,7 +7,8 @@ const MemberForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     // Page 1
     class: '',
-    nombreCompleto: '',
+   nombre: '',
+  apellido: '',
     celular: '',
     zona: '',
     clase: '',
@@ -105,11 +106,11 @@ const MemberForm = ({ onSuccess, onCancel }) => {
 
   const validatePage = (page) => {
     if (page === 1) {
-      if (!formData.nombreCompleto.trim()) {
-        alert('Por favor ingresa tu nombre completo');
-        return false;
-      }
+    if (!formData.nombre.trim() || !formData.apellido.trim()) {
+      alert('Por favor ingresa tu nombre y apellido');
+      return false;
     }
+  }
     if (page === 3) {
       if (!formData.enfermedadCronica) {
         alert('Por favor responde si padeces de enfermedad crónica');
@@ -225,19 +226,35 @@ const MemberForm = ({ onSuccess, onCancel }) => {
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Datos Personales</h3>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre Completo *
-              </label>
-              <input
-                type="text"
-                name="nombreCompleto"
-                value={formData.nombreCompleto}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Tu nombre completo"
-              />
-            </div>
+            {/* Nombre */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Nombres *
+  </label>
+  <input
+    type="text"
+    name="nombre"
+    value={formData.nombre}
+    onChange={handleInputChange}
+    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Tus nombres"
+  />
+</div>
+
+{/* Apellido */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Apellidos *
+  </label>
+  <input
+    type="text"
+    name="apellido"
+    value={formData.apellido}
+    onChange={handleInputChange}
+    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Tus apellidos"
+  />
+</div>
              <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Fecha de nacimiento
