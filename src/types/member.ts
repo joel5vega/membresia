@@ -1,17 +1,85 @@
 // Member types based on IEDB Canaán form
+
+// Genograma
+export interface GenogramaPersona {
+  key?: number;
+  nombre: string;
+  relacion: string;
+  edad: string;
+  viveConElMiembro: boolean;
+}
+
+// Modelo interno de Firestore (lo que realmente se guarda)
 export interface Member {
   id: string;
-  fullName: string; // Nombre Completo
-  phone: string; // Celular
-  zone: string; // ¿En qué zona vive?
-  educationLevel: string; // Nivel máximo de educación alcanzado
-  currentlyStudying: boolean; // ¿Actualmente estudia?
-  incomeSource: string; // ¿Cómo obtiene sus ingresos?
-  profession: string; // ¿Cuál es su profesión u oficio?
-  playsInstrument: boolean; // ¿Sabe tocar algún instrumento musical?
-  talents: string; // ¿Qué talento o habilidad tiene?
-  class: string; // Clase/Curso ("ninos", "adolescentes", "adultos", "padres")
-  // Additional fields
+
+  // Página 1
+  nombreCompleto: string;
+  fechaNacimiento?: string;
+  celular?: string;
+  zona?: string;
+  clase?: string;
+
+  // Página 2 - Formación
+  nivelEducacion?: string;
+  estudiaActualmente?: string;
+  ingresos?: string;
+  profesion?: string;
+  instrumento?: string;
+  talentosHabilidades?: string;
+
+  // Situación económica
+  ingresoDescripcion?: string;
+  ingresoMonto?: number | string;
+  egresoMonto?: number | string;
+
+  // Condiciones de habitabilidad
+  tipoVivienda?: string;
+  materialVivienda?: string;
+  numHabitaciones?: number | string;
+  numBanos?: number | string;
+  numCocinas?: number | string;
+  otrosAmbientes?: string;
+  condicionHabitabilidad?: string;
+
+  // Página 3 - Salud y familia
+  enfermedadCronica?: string;
+  estadoCivil?: string;
+  padresCreyentes?: string;
+  familiaAsiste?: string;
+  relacion?: string;
+  parejaCristiana?: string;
+  nombrePareja?: string;
+  numHijos?: string;
+
+  // Genograma
+  genograma?: GenogramaPersona[];
+
+  // Página 4 - Información eclesiástica
+  aniosIglesia?: string;
+  bautizado?: string;
+  salvo?: string;
+  aniosCristiano?: string;
+  familia2doGrado?: string;
+  escuelaDominical?: string;
+  discipulado?: string;
+  formacionTeologica?: string;
+  estudiosBiblicos?: string;
+  seminario?: string;
+
+  iglesiaProcedencia?: string;
+  tiempoConversion?: number | string;
+  ministerios?: string;
+
+  // Página 5 - Liderazgo
+  areasInteres: string[];
+  donesEspirituales: string[];
+  liderazgo?: string;
+  cargoPosible?: string;
+  mejorIglesia?: string;
+  cambiosIglesia?: string;
+
+  // Metadatos generales
   email?: string;
   address?: string;
   joinDate: Date;
@@ -21,17 +89,70 @@ export interface Member {
   updatedAt: Date;
 }
 
+// DTO para crear (lo que manda el MemberForm)
+// Puedes mantenerlo cercano al shape del form para no hacer mapping extra.
 export interface CreateMemberDTO {
-  fullName: string;
-  phone: string;
-  zone: string;
-  educationLevel: string;
-  currentlyStudying: boolean;
-  incomeSource: string;
-  profession: string;
-  playsInstrument: boolean;
-  talents: string;
-  class: string;
+  // Página 1
+  nombreCompleto: string;
+  fechaNacimiento?: string;
+  celular?: string;
+  zona?: string;
+  clase?: string;
+
+  // Página 2
+  nivelEducacion?: string;
+  estudiaActualmente?: string;
+  ingresos?: string;
+  profesion?: string;
+  instrumento?: string;
+  talentosHabilidades?: string;
+
+  ingresoDescripcion?: string;
+  ingresoMonto?: number | string;
+  egresoMonto?: number | string;
+  tipoVivienda?: string;
+  materialVivienda?: string;
+  numHabitaciones?: number | string;
+  numBanos?: number | string;
+  numCocinas?: number | string;
+  otrosAmbientes?: string;
+  condicionHabitabilidad?: string;
+
+  // Página 3
+  enfermedadCronica?: string;
+  estadoCivil?: string;
+  padresCreyentes?: string;
+  familiaAsiste?: string;
+  relacion?: string;
+  parejaCristiana?: string;
+  nombrePareja?: string;
+  numHijos?: string;
+  genograma?: GenogramaPersona[];
+
+  // Página 4
+  aniosIglesia?: string;
+  bautizado?: string;
+  salvo?: string;
+  aniosCristiano?: string;
+  familia2doGrado?: string;
+  escuelaDominical?: string;
+  discipulado?: string;
+  formacionTeologica?: string;
+  estudiosBiblicos?: string;
+  seminario?: string;
+  iglesiaProcedencia?: string;
+  tiempoConversion?: number | string;
+  ministerios?: string;
+
+  // Página 5
+  areasInteres: string[];
+  donesEspirituales: string[];
+  liderazgo?: string;
+  cargoPosible?: string;
+  mejorIglesia?: string;
+  cambiosIglesia?: string;
+
+  // Metadatos opcionales al crear
   email?: string;
   address?: string;
   status?: 'active' | 'inactive' | 'visitor';

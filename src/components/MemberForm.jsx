@@ -11,6 +11,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     celular: '',
     zona: '',
     clase: '',
+    fechaNacimiento:'',
     // Page 2
     nivelEducacion: '',
     estudiaActualmente: '',
@@ -18,6 +19,17 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     profesion: '',
     instrumento: '',
     talentosHabilidades: '',
+    // NUEVO: situación económica y vivienda
+    ingresoDescripcion: '',
+    ingresoMonto: '',
+    egresoMonto: '',
+    tipoVivienda: '',
+    materialVivienda: '',
+    numHabitaciones: '',
+    numBanos: '',
+    numCocinas: '',
+    otrosAmbientes: '',
+    condicionHabitabilidad: '',
     // Page 3
     enfermedadCronica: '',
     estadoCivil: '',
@@ -27,6 +39,10 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     parejaCristiana: '',
     nombrePareja: '',
     numHijos: '',
+    // NUEVO: genograma
+    genograma: [
+      { nombre: '', relacion: '', edad: '', viveConElMiembro: false },
+    ],
     // Page 4
     aniosIglesia: '',
     bautizado: '',
@@ -38,6 +54,10 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     formacionTeologica: '',
     estudiosBiblicos: '',
     seminario: '',
+    // NUEVO: info eclesiástica extra
+    iglesiaProcedencia: '',
+    tiempoConversion: '',
+    ministerios: '',
     // Page 5
     areasInteres: [],
     donesEspirituales: [],
@@ -48,8 +68,12 @@ const MemberForm = ({ onSuccess, onCancel }) => {
   });
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    // Soportar checkbox simple si lo necesitas luego
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const handleCheckboxChange = (e, field) => {
@@ -59,6 +83,23 @@ const MemberForm = ({ onSuccess, onCancel }) => {
       [field]: checked 
         ? [...prev[field], value] 
         : prev[field].filter(item => item !== value)
+    }));
+  };
+
+  // NUEVO: handlers para genograma
+  const handleGenogramaChange = (index, field, value) => {
+    const copia = [...formData.genograma];
+    copia[index][field] = value;
+    setFormData(prev => ({ ...prev, genograma: copia }));
+  };
+
+  const addGenogramaRow = () => {
+    setFormData(prev => ({
+      ...prev,
+      genograma: [
+        ...prev.genograma,
+        { nombre: '', relacion: '', edad: '', viveConElMiembro: false },
+      ],
     }));
   };
 
@@ -197,7 +238,19 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 placeholder="Tu nombre completo"
               />
             </div>
-
+             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fecha de nacimiento
+              </label>
+              <input
+                type="date"
+                name="fechaNacimiento"
+                value={formData.fechaNacimiento}
+                onChange={handleInputChange}
+                max={new Date().toISOString().split("T")[0]}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Celular
@@ -248,7 +301,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
           </div>
         )}
 
-        {/* PAGE 2: Formación */}
+        {/* PAGE 2: Formación + Situación económica y vivienda */}
         {currentPage === 2 && (
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Formación</h3>
@@ -349,10 +402,163 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 rows="3"
               />
             </div>
+
+            {/* NUEVA SECCIÓN: Situación económica */}
+            <h3 className="text-lg font-semibold text-gray-800 mt-6">Situación económica</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ingresos - descripción
+              </label>
+              <input
+                type="text"
+                name="ingresoDescripcion"
+                value={formData.ingresoDescripcion}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej. sueldo, negocio propio, etc."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ingresos - monto mensual (Bs.)
+              </label>
+              <input
+                type="number"
+                name="ingresoMonto"
+                value={formData.ingresoMonto}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Monto aproximado de ingresos mensuales"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Egresos - monto mensual aproximado (Bs.)
+              </label>
+              <input
+                type="number"
+                name="egresoMonto"
+                value={formData.egresoMonto}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Gastos mensuales aproximados"
+              />
+            </div>
+
+            {/* NUEVA SECCIÓN: Condiciones de habitabilidad */}
+            <h3 className="text-lg font-semibold text-gray-800 mt-6">Condiciones de habitabilidad</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tipo de vivienda
+              </label>
+              <select
+                name="tipoVivienda"
+                value={formData.tipoVivienda}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona...</option>
+                <option value="propia">Propia</option>
+                <option value="alquilada">Alquilada</option>
+                <option value="cedida">Cedida</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Material de la vivienda
+              </label>
+              <select
+                name="materialVivienda"
+                value={formData.materialVivienda}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona...</option>
+                <option value="ladrillo">Ladrillo</option>
+                <option value="adobe">Adobe</option>
+                <option value="madera">Madera</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Número de habitaciones
+              </label>
+              <input
+                type="number"
+                name="numHabitaciones"
+                value={formData.numHabitaciones}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Número de baños
+              </label>
+              <input
+                type="number"
+                name="numBanos"
+                value={formData.numBanos}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Cocina (ambientes)
+              </label>
+              <input
+                type="number"
+                name="numCocinas"
+                value={formData.numCocinas}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Otros ambientes
+              </label>
+              <input
+                type="text"
+                name="otrosAmbientes"
+                value={formData.otrosAmbientes}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej. patio, garaje, local comercial, etc."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Condiciones de habitabilidad
+              </label>
+              <select
+                name="condicionHabitabilidad"
+                value={formData.condicionHabitabilidad}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona...</option>
+                <option value="normal">Normal</option>
+                <option value="hacinamiento">Hacinamiento</option>
+              </select>
+            </div>
           </div>
         )}
 
-        {/* PAGE 3: Salud y Familia */}
+        {/* PAGE 3: Salud, Familia y Genograma */}
         {currentPage === 3 && (
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Salud y Familia</h3>
@@ -490,6 +696,57 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 <option value="5+">5+</option>
               </select>
             </div>
+
+            {/* NUEVA SECCIÓN: Genograma familiar */}
+            <h3 className="text-lg font-semibold text-gray-800 mt-6">Genograma familiar</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Registre a los miembros de su familia, relación y si viven en la misma vivienda.
+            </p>
+
+            {formData.genograma.map((p, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 bg-gray-50 p-2 rounded">
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nombre"
+                  value={p.nombre}
+                  onChange={(e) => handleGenogramaChange(index, 'nombre', e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Relación (padre, madre, hijo...)"
+                  value={p.relacion}
+                  onChange={(e) => handleGenogramaChange(index, 'relacion', e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Edad"
+                  value={p.edad}
+                  onChange={(e) => handleGenogramaChange(index, 'edad', e.target.value)}
+                />
+                <label className="inline-flex items-center text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                    checked={p.viveConElMiembro}
+                    onChange={(e) =>
+                      handleGenogramaChange(index, 'viveConElMiembro', e.target.checked)
+                    }
+                  />
+                  <span className="ml-2">Vive en la misma vivienda</span>
+                </label>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addGenogramaRow}
+              className="mt-2 inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
+            >
+              Añadir familiar
+            </button>
           </div>
         )}
 
@@ -664,6 +921,49 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 <option value="No">No</option>
               </select>
             </div>
+
+            {/* NUEVOS CAMPOS: info eclesiástica adicional */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Iglesia de procedencia
+              </label>
+              <input
+                type="text"
+                name="iglesiaProcedencia"
+                value={formData.iglesiaProcedencia}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Nombre de la iglesia anterior (si aplica)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tiempo de conversión (años)
+              </label>
+              <input
+                type="number"
+                name="tiempoConversion"
+                value={formData.tiempoConversion}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Años de conversión aproximados"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ministerios en los que sirve
+              </label>
+              <input
+                type="text"
+                name="ministerios"
+                value={formData.ministerios}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej. alabanza, escuela dominical, misiones, etc."
+              />
+            </div>
           </div>
         )}
 
@@ -812,4 +1112,3 @@ const MemberForm = ({ onSuccess, onCancel }) => {
 };
 
 export default MemberForm;
-
