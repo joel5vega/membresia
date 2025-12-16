@@ -9,7 +9,9 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     class: '',
    nombre: '',
   apellido: '',
+  ci:'',
     celular: '',
+    correo:'',
     zona: '',
     clase: '',
     fechaNacimiento:'',
@@ -56,6 +58,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     estudiosBiblicos: '',
     seminario: '',
     // NUEVO: info eclesiástica extra
+    cargos:'',
     iglesiaProcedencia: '',
     tiempoConversion: '',
     ministerios: '',
@@ -65,7 +68,8 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     liderazgo: '',
     cargoPosible: '',
     mejorIglesia: '',
-    cambiosIglesia: ''
+    cambiosIglesia: '',
+    notasFamilia:''
   });
 
   const handleInputChange = (e) => {
@@ -121,12 +125,12 @@ const MemberForm = ({ onSuccess, onCancel }) => {
         return false;
       }
     }
-    if (page === 5) {
-      if (formData.areasInteres.length === 0) {
-        alert('Por favor selecciona al menos un área de interés');
-        return false;
-      }
-    }
+    // if (page === 5) {
+    //   if (formData.areasInteres.length === 0) {
+    //     alert('Por favor selecciona al menos un área de interés');
+    //     return false;
+    //   }
+    // }
     return true;
   };
 
@@ -158,13 +162,13 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     }
   };
 
-  const zonas = [
-    '1º de mayo', 'La Ceja', '16 de julio', 'Alto Lima', 'Ballivián', 'Complejo',
+  const zonas = ['25 de julio',
+    '1º de mayo', 'La Ceja', '16 de julio', 'Alto de la alianza','Alto Lima', 'Ballivián', 'Complejo',
     'Convifag', 'Ciudad Satélite', 'El Kenko', 'Germán Busch', 'Kollpani', 
-    'Mercedario', 'Villa Ingenio', 'Nuevos Horizontes', 'Cupilupaca', 'Río Seco',
+    'Mercedario','Mururata', 'Villa Ingenio', 'Nuevos Horizontes', 'Cupilupaca', 'Río Seco',
     'Senkata', 'Villa Santa Rosa', 'Santiago I', 'Santiago II', 'Villa Adela',
     'Villa Alemania', 'Villa Exaltación', 'Villa Dolores', 'Villa Ingavi',
-    'Villa Bolívar E', 'Villa Bolívar B'
+    'Villa Bolívar E', 'Villa Bolívar B','Villa Mercedes','Villa Juliana','Villa Salome'
   ];
 
   const clases = [
@@ -175,12 +179,11 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     'Sociedad de prejuveniles "Vencedores"',
     'Clase de Exploradores',
     'Clase de Estrellitas',
-    'Clase de joyitas'
+    'Clase de joyitas','Avanzada'
   ];
 
-  const profesiones = [
-    'ama de casa', 'transportista', 'comerciante', 'estudiante', 'jubilado',
-    'abogado', 'médico', 'ingeniero', 'contador', 'carpintero', 'cocinero', 'electricista'
+  const profesiones = ['artesano','ama de casa', 'transportista', 'comerciante', 'estudiante', 'jubilado',
+    'abogado', 'médico', 'ingeniero', 'contador', 'constructor','carpintero', 'cocinero', 'electricista','otro'
   ];
 
   const opciones = [
@@ -270,6 +273,19 @@ const MemberForm = ({ onSuccess, onCancel }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                Carnet
+              </label>
+              <input
+                type="tel"
+                name="ci"
+                value={formData.ci}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tu número de Carnet"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Celular
               </label>
               <input
@@ -281,7 +297,19 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 placeholder="Tu número de celular"
               />
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Correo
+              </label>
+              <input
+                type="mail"
+                name="correo"
+                value={formData.correo}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tu correo electrónico"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ¿En qué zona vive?
@@ -335,6 +363,8 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               >
                 <option value="">Selecciona...</option>
                 <option value="Colegio">Colegio</option>
+                <option value="TecnicoMedio">Técnico medio</option>
+                <option value="TecnicoSuperior">Técnico superior</option>
                 <option value="Universidad">Universidad</option>
                 <option value="Instituto">Instituto</option>
               </select>
@@ -390,35 +420,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                ¿Sabe tocar algún instrumento musical?
-              </label>
-              <select
-                name="instrumento"
-                value={formData.instrumento}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecciona...</option>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                ¿Qué talento o habilidad tiene?
-              </label>
-              <textarea
-                name="talentosHabilidades"
-                value={formData.talentosHabilidades}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Describe tus talentos y habilidades"
-                rows="3"
-              />
-            </div>
+           
 
             {/* NUEVA SECCIÓN: Situación económica */}
             <h3 className="text-lg font-semibold text-gray-800 mt-6">Situación económica</h3>
@@ -646,8 +648,20 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 <option value="Algunos asisten">Algunos asisten</option>
               </select>
             </div>
-
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notas familiares
+              </label>
+              <input
+                type="text"
+                name="notasFamilia"
+                value={formData.notasFamilia}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Notas familiares"
+              />
+            </div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ¿Está en una relación amorosa actualmente?
               </label>
@@ -692,7 +706,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nombre de tu pareja (si aplica)"
               />
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -805,22 +819,21 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               </select>
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ¿Cree ud que es salvo?
+                Actualmente padece de alguna enfermedad crónica *
               </label>
               <select
-                name="salvo"
-                value={formData.salvo}
+                name="enfermedadCronica"
+                value={formData.enfermedadCronica}
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecciona...</option>
                 <option value="Sí">Sí</option>
                 <option value="No">No</option>
-                <option value="Tal vez">Tal vez</option>
               </select>
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -841,7 +854,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ¿Su familia de 2do grado asiste a la iglesia?
+                ¿Su familia de 1er grado asiste a la iglesia?
               </label>
               <select
                 name="familia2doGrado"
@@ -907,7 +920,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               </select>
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Desearía participar en estudios bíblicos semanales
               </label>
@@ -921,9 +934,9 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 <option value="Sí">Sí</option>
                 <option value="No">No</option>
               </select>
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ¿Desearía estudiar en el seminario bíblico de la denominación?
               </label>
@@ -937,10 +950,10 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 <option value="Sí">Sí</option>
                 <option value="No">No</option>
               </select>
-            </div>
+            </div> */}
 
             {/* NUEVOS CAMPOS: info eclesiástica adicional */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Iglesia de procedencia
               </label>
@@ -952,8 +965,37 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nombre de la iglesia anterior (si aplica)"
               />
+            </div> */}
+            
+ <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ¿Sabe tocar algún instrumento musical?
+              </label>
+              <select
+                name="instrumento"
+                value={formData.instrumento}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona...</option>
+                <option value="Sí">Sí</option>
+                <option value="No">No</option>
+              </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ¿Qué talento o habilidad tiene?
+              </label>
+              <textarea
+                name="talentosHabilidades"
+                value={formData.talentosHabilidades}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe tus talentos y habilidades"
+                rows="3"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tiempo de conversión (años)
@@ -968,6 +1010,20 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Cargos que ocupo
+              </label>
+              <input
+                type="text"
+                name="cargos"
+                value={formData.cargos}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="¿Qué cargos ocupo?
+                "
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Ministerios en los que sirve
@@ -989,9 +1045,9 @@ const MemberForm = ({ onSuccess, onCancel }) => {
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Liderazgo</h3>
             
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ¿Qué áreas te interesaría estudiar? *
+                ¿Qué áreas te interesaría estudiar? 
               </label>
               <div className="space-y-2 bg-gray-50 p-3 rounded">
                 {areasEstudio.map(area => (
@@ -1007,7 +1063,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1059,7 +1115,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
               />
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ¿Qué es lo que más le gusta de la iglesia Canaán?
               </label>
@@ -1085,7 +1141,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 placeholder="Tus sugerencias para mejorar"
                 rows="3"
               />
-            </div>
+            </div> */}
           </div>
         )}
 

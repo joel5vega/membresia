@@ -95,11 +95,11 @@ export interface CreateMemberDTO {
   // Página 1
   nombre: string;
   apellido: string;
-  fechaNacimiento?: string;
-  celular?: string;
-  zona?: string;
-  clase?: string;
-
+  fechaNacimiento: string;
+  celular: string;
+  zona: string;
+  clase: string;
+  correo:string;
   // Página 2
   nivelEducacion?: string;
   estudiaActualmente?: string;
@@ -144,7 +144,7 @@ export interface CreateMemberDTO {
   iglesiaProcedencia?: string;
   tiempoConversion?: number | string;
   ministerios?: string;
-
+  notasFamilia?: string;
   // Página 5
   areasInteres: string[];
   donesEspirituales: string[];
