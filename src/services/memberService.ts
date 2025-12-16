@@ -70,6 +70,7 @@ export const memberService = {
     try {
       const q = constraints?.length ? query(collection(db, MEMBERS_COLLECTION), ...constraints) : collection(db, MEMBERS_COLLECTION);
       const querySnapshot = await getDocs(q);
+          console.log('Firestore members snapshot size:', querySnapshot.size, 'docs:', querySnapshot.docs);
       return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Member));
     } catch (error) {
       console.error('Error getting members:', error);

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import MemberForm from './components/MemberForm';
+import MembersListView from "./components/MembersListView";
+import ClassesAndAttendance from "./components/ClassesAndAttendance";
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('panel');
@@ -83,19 +85,13 @@ const App = () => {
           </div>
         )}
         {currentPage === 'members' && (
-          <div>
-            <h1>Listado de Miembros</h1>
-            <p>Aquí se mostrarán los miembros de la iglesia.</p>
-          </div>
+        <MembersListView />
         )}
         {currentPage === 'add-member' && (
           <MemberForm onSuccess={() => setCurrentPage('panel')} onCancel={() => setCurrentPage('panel')} />
         )}
         {currentPage === 'classes' && (
-          <div>
-            <h1>Gestión de Clases</h1>
-            <p>Aquí se pueden gestionar las clases de la escuela dominical.</p>
-          </div>
+<ClassesAndAttendance />
         )}
         {currentPage === 'attendance' && (
           <div>
