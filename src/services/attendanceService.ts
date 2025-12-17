@@ -95,6 +95,7 @@ export const attendanceService = {
       const constraints = [
         where('date', '>=', Timestamp.fromDate(startOfDay)),
         where('date', '<=', Timestamp.fromDate(endOfDay)),
+              where('clase', '==', classValue),
       ];
 
       return await this.getAttendances(constraints);

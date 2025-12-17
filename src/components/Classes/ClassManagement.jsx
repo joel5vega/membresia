@@ -11,7 +11,7 @@ const TABS = [
   { id: 'statistics', label: 'Estadísticas' }
 ];
 
-export const ClassManagement = () => {
+const ClassManagement = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [activeTab, setActiveTab] = useState('members');
   
@@ -60,3 +60,5 @@ export const ClassManagement = () => {
     </div>
   );
 };
+
+export default ClassManagement;

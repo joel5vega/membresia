@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -15,22 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
-// Initialize auth with error handling for development environments
-let authInstance = null;
-try {
-  authInstance = getAuth(app);
-} catch (error) {
-  console.warn('Firebase Auth initialization warning:', error);
-}
-
-export const auth = authInstance;
-
-// Initialize anonymous auth for public access to members data
-if (authInstance) {
-  signInAnonymously(authInstance).catch((error) => {
-    console.warn('Anonymous sign-in not required for development:', error);
-  });
-}
+export const auth = getAuth(app);
 export const storage = getStorage(app);
 
 export default app;

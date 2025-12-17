@@ -12,25 +12,31 @@ const ClassAttendance = ({ teacher }) => {
   const [error, setError] = useState(null);
 
   const classOptions = {
-    ninos: 'Niños',
-    adolescentes: 'Adolescentes',
-    adultos: 'Adultos',
-    padres: 'Padres'
-  };
+    'Sociedad de Caballeros "Emanuel"': 'Sociedad de Caballeros "Emanuel"',
+    'Sociedad de Señoras "Shaddai"': 'Sociedad de Señoras "Shaddai"',
+    'Sociedad de Matrimonios jóvenes "Ebenezer"': 'Sociedad de Matrimonios jóvenes "Ebenezer"',
+    'Sociedad de Jóvenes "Soldados de la Fe"': 'Sociedad de Jóvenes "Soldados de la Fe"',
+    'Sociedad de prejuveniles "Vencedores"': 'Sociedad de prejuveniles "Vencedores"',
+    'Clase de Exploradores': 'Clase de Exploradores',
+    'Clase de Estrellitas': 'Clase de Estrellitas',
+    'Clase de joyitas': 'Clase de joyitas',
+    'Avanzada': 'Avanzada'
+  }
 
   // Load members of the selected class
   useEffect(() => {
     const loadClassMembers = async () => {
       setLoading(true);
       setSaved(false);
-      try {
-        // Get all members
-        const allMembers = await memberService.getMembers();
-        // Filter by selected class
-        const filtered = allMembers.filter(m => m.class === selectedClass && m.status === 'active');
-        setClassMembers(filtered);
+            setError(null);
+      // Get all members first
+      const allMembers = await memberService.getMembers();
+      // Filter by selected class
+      const filtered = allMembers.filter(m => m.clase === selectedClass);
+      setClassMembers(filtered);
 
-        // Load today's attendance for this class
+      // Load attendance data (this is optional, don't let errors here prevent member display)
+      try {
         const selectedDate = new Date(todayDate);
         const attendances = await attendanceService.getAttendanceByClassAndDate(selectedClass, selectedDate);
 
@@ -40,10 +46,12 @@ const ClassAttendance = ({ teacher }) => {
           map[att.memberId] = att.status;
         });
         setAttendanceMap(map);
+        setError(false);
       } catch (err) {
-        setError('Error al cargar los miembros');
-        console.error(err);
-      } finally {
+        // Silently fail - attendance data is optional
+        console.warn('Could not load attendance data:', err);
+      }
+            finally {
         setLoading(false);
       }
     };
@@ -139,7 +147,7 @@ const ClassAttendance = ({ teacher }) => {
                 <tbody>
                   {classMembers.map((member) => (
                     <tr key={member.id} className="border-b hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{member.fullName}</td>
+                                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{member.nombre} {member.apellido}</td>
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => handleAttendanceChange(member.id, 'present')}
