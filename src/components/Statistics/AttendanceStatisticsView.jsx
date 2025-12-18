@@ -22,6 +22,7 @@ const AttendanceStatisticsView = () => {
       setLoading(true);
       setError(null);
       
+              console.log('=== INICIANDO FETCH ESTADISTICAS ===');
       try {
         let data;
         const year = selectedDate.getFullYear();
@@ -29,7 +30,10 @@ const AttendanceStatisticsView = () => {
         
         switch (selectedPeriod) {
           case 'weekly':
+                    console.log('CASO: weekly - Llamando getWeeklyStatistics con:', selectedDate);
+
             data = await getWeeklyStatistics(selectedDate);
+                    console.log('DATA RETORNADA de getWeeklyStatistics:', data);
             break;
           case 'monthly':
             data = await getMonthlyStatistics(selectedDate);
@@ -44,6 +48,12 @@ const AttendanceStatisticsView = () => {
             throw new Error('Período no válido');
         }
         setStatistics(data);
+              console.log('Datos de estadísticas:', data);
+                      console.log('classesByName:', data?.classesByName, 'Keys:', Object.keys(data?.classesByName || {}));
+                      console.log('Type of classesByName:', typeof data?.classesByName, 'Is it object?', data?.classesByName instanceof Object);
+                      console.log('classesByName JSON:', JSON.stringify(data?.classesByName));
+                      
+        
       } catch (err) {
         console.error('Error fetching statistics:', err);
         setError('Error cargando estadísticas');
@@ -153,40 +163,38 @@ const AttendanceStatisticsView = () => {
       </div>
 
       <div className="statistics-section">
+        
         <h2>Estadísticas por Clase</h2>
-        {statistics.classesByClass?.length > 0 ? (
+{statistics?.classesByName ? (
           <div className="stats-grid">
-            {statistics.classesByClass.map((classStats) => (
-              <StatisticsCard
-                key={classStats.classId}
-                memberName={classStats.className}
-                stats={classStats}
-                period={selectedPeriod}
-              />
-            ))}
+                                {Object.entries(statistics.classesByName).map(([className, classStats]) => (
+            
+            <div className="class-card">
+                  <h4>{className}</h4>
+                  <div className="class-stats">
+                    <div><span>Total Sesiones:</span> <span>{classStats.totalSessions}</span></div>
+                    <div><span>Presentes:</span> <span>{classStats.totalAttendances}</span></div>
+                    <div><span>Tasa de Asistencia:</span> <span>{classStats.attendanceRate.toFixed(1)}%</span></div>
+                  </div>
+                </div>
+                                    ))}
           </div>
         ) : (
-          <p className="no-data">No hay datos de clases para este período</p>
+          <p className="no-data">Las estadísticas por clase se están procesando para este período</p>
         )}
-      </div>
-
+              </div>
       <div className="statistics-section">
         <h2>Estadísticas por Miembro</h2>
         {statistics.memberStats?.length > 0 ? (
           <div className="members-table-wrapper">
             <table className="members-table">
-              <thead>
-                <tr>
-                  <th>Miembro</th>
-                  <th>Presentes</th>
-                  <th>Ausentes</th>
-                  <th>Justificado</th>
-                  <th>Tasa de Asistencia</th>
+          <thead>
+                <tr>                  <th>Miembro</th>
+                  <th>Presentes</th>                  <th>Ausentes</th>                  <th>Justificado</th>                  <th>Tasa de Asistencia</th>
                 </tr>
               </thead>
               <tbody>
-                {statistics.memberStats.map((memberStat) => (
-                  <tr key={memberStat.memberId}>
+                {statistics.memberStats.map((memberStat) => (                  <tr key={memberStat.memberId}>
                 <td className="member-name">{(memberStat.memberName || '').replace(/^Member-/, '').replace(/-\d+$/, '')}</td>                    <td className="present">{memberStat.totalAttendances?.toLocaleString() || 0}</td>
                     <td className="absent">{memberStat.totalAbsences?.toLocaleString() || 0}</td>
                     <td className="justified">{memberStat.totalJustified?.toLocaleString() || 0}</td>

@@ -202,7 +202,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     'Profecía', 'Servicio', 'Enseñanza', 'Exhortación', 'Administración',
     'Liderazgo', 'Misericordia', 'Sabiduría', 'Ciencia', 'Sanidad', 'Fe',
     'Milagros', 'Discernimiento de espíritus', 'Lenguas', 'Interpretación de lenguas',
-    'Predicación', 'Evangelista', 'Pastor', 'Otros'
+    'Predicación', 'Evangelista', 'Pastor', 'Oración','Otros'
   ];
 
   return (

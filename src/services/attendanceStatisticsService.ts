@@ -49,14 +49,26 @@ export interface PeriodStatistics {
 
 // Helper to get week start and end dates
 function getWeekRange(date: Date = new Date()): { start: Date; end: Date } {
-  const currentDate = new Date(date);
-  const first = currentDate.getDate() - currentDate.getDay();
-  const start = new Date(currentDate.setDate(first));
+  // Create a copy to avoid mutating the input
+  const d = new Date(date);
+  
+  // Get the day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+  const dayOfWeek = d.getDay();
+  
+  // Calculate the start of the week (Monday)
+  // If dayOfWeek is 0 (Sunday), go back 6 days; otherwise go back (dayOfWeek - 1) days
+  const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  
+  const start = new Date(d);
+  start.setDate(start.getDate() - diffToMonday);
   start.setHours(0, 0, 0, 0);
   
+  // Calculate the end of the week (Sunday)
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
   end.setHours(23, 59, 59, 999);
+  
+  console.log('Week Range:', { start: start.toISOString(), end: end.toISOString() });
   
   return { start, end };
 }
@@ -80,12 +92,13 @@ export async function getAttendanceRecords(
     const attendanceCol = collection(db, 'attendance');
         const q = query(
       attendanceCol,
-      where('date', '>=', startTimestamp),
+where('date', '>=', startTimestamp),
       where('date', '<=', endTimestamp),
       orderBy('date', 'desc')
     );
     
       const snapshot = await getDocs(q);
+          console.log('Snapshot docs:', snapshot.docs.length, 'startDate:', startDate, 'endDate:', endDate, 'startTimestamp:', startTimestamp, 'endTimestamp:', endTimestamp);
       return snapshot.docs.map((doc) => ({
         ...doc.data(),
         date: doc.data().date instanceof Timestamp
@@ -184,9 +197,12 @@ function calculateMemberStats(records: AttendanceRecord[]): MemberStats[] {
 export async function getWeeklyStatistics(date?: Date): Promise<PeriodStatistics> {
   const { start, end } = getWeekRange(date);
   const records = await getAttendanceRecords(start, end);
+      console.log('DEBUG: Records length:', records.length, 'First record:', records[0]);
   
   const classStatsByClass = calculateClassStats(records);
-  let classStatsList = Object.values(classStatsByClass);
+  
+      const classStatsList = Object.values(classStatsByClass);
+
   
   // Calculate overall attendance rate
   const totalAttendances = classStatsList.reduce((sum, cs) => sum + cs.totalAttendances, 0);
@@ -199,7 +215,9 @@ export async function getWeeklyStatistics(date?: Date): Promise<PeriodStatistics
     startDate: start,
     endDate: end,
     totalSessions,
-    classesByName: classStatsByClass,
+classesByName: classStatsByClass,
+    
+
     classesByClass: classStatsList.sort((a, b) => b.attendanceRate - a.attendanceRate),
     memberStats,
     overallAttendanceRate,
@@ -299,4 +317,89 @@ export async function getYearlyStatistics(date?: Date): Promise<PeriodStatistics
     memberStats,
     overallAttendanceRate,
   };
+
+}
+  // Get attendance records filtered by className and date range (uses Firebase index)
+export async function getAttendanceByClassAndDate(
+  className: string,
+  startDate: Date,
+  endDate: Date
+): Promise<AttendanceRecord[]> {
+  try {
+    const startTimestamp = Timestamp.fromDate(startDate);
+    const endTimestamp = Timestamp.fromDate(endDate);
+    
+    const attendanceCol = collection(db, 'attendance');
+    const q = query(
+      attendanceCol,
+      where('date', '>=', startTimestamp),
+      where('date', '<=', endTimestamp),
+      where('className', '==', className),
+      orderBy('date', 'desc')
+    );
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      date: doc.data().date instanceof Timestamp
+        ? doc.data().date.toDate()
+        : doc.data().date,
+    })) as AttendanceRecord[];
+  } catch (error: unknown) {
+    console.error('Error fetching attendance records by class:', error);
+    return [];
+  }
+}
+
+// Calculate class statistics optimized using the Firebase index
+export async function calculateClassStatisticsOptimized(
+  startDate: Date,
+  endDate: Date
+): Promise<{ [key: string]: ClassStats }> {
+  try {
+    // Get all records (this will be optimized later to use batch queries)
+    const allRecords = await getAttendanceRecords(startDate, endDate);
+    
+    // Group by className
+    const classMap: { [key: string]: ClassStats } = {};
+    
+    allRecords.forEach((record) => {
+      const key = record.className;
+      
+      if (!classMap[key]) {
+        classMap[key] = {
+          className: record.className,
+          classId: record.classId,
+          totalSessions: 0,
+          totalAttendances: 0,
+          totalAbsences: 0,
+          totalJustified: 0,
+          attendanceRate: 0,
+        };
+      }
+      
+      classMap[key].totalSessions++;
+      
+      if (record.status === 'present') {
+        classMap[key].totalAttendances++;
+      } else if (record.status === 'absent') {
+        classMap[key].totalAbsences++;
+      } else if (record.status === 'justified') {
+        classMap[key].totalJustified++;
+      }
+    });
+    
+    // Calculate attendance rates
+    Object.keys(classMap).forEach((key) => {
+      const stats = classMap[key];
+      if (stats.totalSessions > 0) {
+        stats.attendanceRate = (stats.totalAttendances / stats.totalSessions) * 100;
+      }
+    });
+    
+    return classMap;
+  } catch (error) {
+    console.error('Error calculating class statistics:', error);
+    return {};
+  }
 }
