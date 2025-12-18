@@ -15,6 +15,7 @@ export interface CreateAttendanceDTO {
   date: Date;
   status: AttendanceStatus;
   notes?: string;
+    className?: string;
 }
 
 export interface AttendanceReport {

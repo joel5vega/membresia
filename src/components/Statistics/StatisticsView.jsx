@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { PeriodSelector } from './PeriodSelector';
-import { StatisticsCard } from './StatisticsCard';
+import PeriodSelector from './PeriodSelector';
+import  StatisticsCard from './StatisticsCard';
 
 export const StatisticsView = ({ classStats, loading, error }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');

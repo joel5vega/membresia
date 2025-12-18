@@ -72,7 +72,9 @@ const ClassAttendance = ({ teacher }) => {
         await attendanceService.addAttendance({
           memberId,
           date: selectedDate,
+          
           status,
+                className: classMembers.find(m => m.id === memberId)?.clase,
         });
       }
 

@@ -1,7 +1,10 @@
-export const StatisticsCard = ({ memberName, stats, period }) => {
+// StatisticsCard.jsx
+const StatisticsCard = ({ memberName, stats, period }) => {
   if (!stats) return null;
 
   const periodStats = stats[period];
+  if (!periodStats) return null; // extra safety
+
   const { presente, ausente, tardio, total, percentage } = periodStats;
 
   return (
@@ -37,3 +40,5 @@ export const StatisticsCard = ({ memberName, stats, period }) => {
     </div>
   );
 };
+
+export default StatisticsCard;

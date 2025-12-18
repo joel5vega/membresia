@@ -1,0 +1,219 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  getWeeklyStatistics, 
+  getMonthlyStatistics, 
+  getQuarterlyStatistics, 
+  getYearlyStatistics 
+} from '../../services/attendanceStatisticsService';
+import PeriodSelector from './PeriodSelector';
+import StatisticsCard from './StatisticsCard'; 
+import './AttendanceStatisticsView.css';
+
+const AttendanceStatisticsView = () => {
+                            
+  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [statistics, setStatistics] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        let data;
+        const year = selectedDate.getFullYear();
+        const month = selectedDate.getMonth();
+        
+        switch (selectedPeriod) {
+          case 'weekly':
+            data = await getWeeklyStatistics(selectedDate);
+            break;
+          case 'monthly':
+            data = await getMonthlyStatistics(selectedDate);
+            break;
+          case 'quarterly':
+            data = await getQuarterlyStatistics(year, month);
+            break;
+          case 'yearly':
+            data = await getYearlyStatistics(year);
+            break;
+          default:
+            throw new Error('Período no válido');
+        }
+        setStatistics(data);
+      } catch (err) {
+        console.error('Error fetching statistics:', err);
+        setError('Error cargando estadísticas');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatistics();
+  }, [selectedPeriod, selectedDate]);
+
+  const handlePeriodChange = (period) => {
+    setSelectedPeriod(period);
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  if (loading && !statistics) {
+    return (
+      <div className="attendance-stats-container">
+        <div className="loading">Cargando estadísticas...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="attendance-stats-container error">
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
+
+  if (!statistics) {
+    return (
+      <div className="attendance-stats-container">
+        <div className="no-data">No hay datos disponibles</div>
+      </div>
+    );
+  }
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const getPeriodLabel = () => {
+    if (selectedPeriod === 'weekly') {
+      return `Semana del ${formatDate(statistics.startDate)} al ${formatDate(statistics.endDate)}`;
+    } else if (selectedPeriod === 'monthly') {
+      const month = new Date(statistics.startDate).toLocaleDateString('es-ES', {
+        month: 'long',
+        year: 'numeric'
+      });
+      return `Mes de ${month}`;
+    } else if (selectedPeriod === 'quarterly') {
+      return `Trimestre ${statistics.quarter || 'Actual'} ${statistics.year || selectedDate.getFullYear()}`;
+    } else {
+      return `Año ${statistics.year || selectedDate.getFullYear()}`;
+    }
+  };
+
+  return (
+    <div className="attendance-stats-container">
+      <h1>Estadísticas de Asistencia</h1>
+      
+      <div className="period-selector-wrapper">
+        <PeriodSelector
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={handlePeriodChange}
+          selectedDate={selectedDate}
+          onDateChange={handleDateChange}
+        />
+      </div>
+
+      <div className="period-label">{getPeriodLabel()}</div>
+
+      <div className="stats-summary">
+        <div className="summary-card overall">
+          <h3>Resumen General</h3>
+          <div className="summary-stats">
+            <div className="stat-item">
+              <span className="label">Total Sesiones:</span>
+              <span className="value">{statistics.totalSessions?.toLocaleString() || 0}</span>
+            </div>
+            <div className="stat-item">
+              <span className="label">Tasa de Asistencia:</span>
+              <span className="value percentage">
+                {statistics.overallAttendanceRate?.toFixed(1) || 0}%
+              </span>
+            </div>
+          </div>
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ 
+                width: `${Math.min(statistics.overallAttendanceRate || 0, 100)}%` 
+              }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="statistics-section">
+        <h2>Estadísticas por Clase</h2>
+        {statistics.classesByClass?.length > 0 ? (
+          <div className="stats-grid">
+            {statistics.classesByClass.map((classStats) => (
+              <StatisticsCard
+                key={classStats.classId}
+                memberName={classStats.className}
+                stats={classStats}
+                period={selectedPeriod}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="no-data">No hay datos de clases para este período</p>
+        )}
+      </div>
+
+      <div className="statistics-section">
+        <h2>Estadísticas por Miembro</h2>
+        {statistics.memberStats?.length > 0 ? (
+          <div className="members-table-wrapper">
+            <table className="members-table">
+              <thead>
+                <tr>
+                  <th>Miembro</th>
+                  <th>Presentes</th>
+                  <th>Ausentes</th>
+                  <th>Justificado</th>
+                  <th>Tasa de Asistencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {statistics.memberStats.map((memberStat) => (
+                  <tr key={memberStat.memberId}>
+                <td className="member-name">{(memberStat.memberName || '').replace(/^Member-/, '').replace(/-\d+$/, '')}</td>                    <td className="present">{memberStat.totalAttendances?.toLocaleString() || 0}</td>
+                    <td className="absent">{memberStat.totalAbsences?.toLocaleString() || 0}</td>
+                    <td className="justified">{memberStat.totalJustified?.toLocaleString() || 0}</td>
+                    <td className="attendance-rate">
+                      <span className="percentage">
+                        {memberStat.attendanceRate?.toFixed(1) || 0}%
+                      </span>
+                      <div className="mini-progress">
+                        <div 
+                          className="mini-progress-fill" 
+                          style={{ 
+                            width: `${Math.min(memberStat.attendanceRate || 0, 100)}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="no-data">No hay datos de miembros para este período</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AttendanceStatisticsView;

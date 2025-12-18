@@ -1,3 +1,4 @@
+// PeriodSelector.jsx
 const PERIODS = [
   { id: 'weekly', label: 'Semanal' },
   { id: 'monthly', label: 'Mensual' },
@@ -5,7 +6,7 @@ const PERIODS = [
   { id: 'yearly', label: 'Anual' }
 ];
 
-export const PeriodSelector = ({ selectedPeriod, onPeriodChange }) => {
+const PeriodSelector = ({ selectedPeriod, onPeriodChange }) => {
   return (
     <div className="period-selector">
       <label htmlFor="period-select">Período:</label>
@@ -24,3 +25,5 @@ export const PeriodSelector = ({ selectedPeriod, onPeriodChange }) => {
     </div>
   );
 };
+
+export default PeriodSelector;

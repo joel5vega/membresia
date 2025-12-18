@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ClassManagement from './Classes/ClassManagement';
 import ClassAttendance from './ClassAttendance';
+import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
 
 const ClassesAndAttendance = () => {
   const [activeTab, setActiveTab] = useState('classes');
@@ -41,11 +42,18 @@ const ClassesAndAttendance = () => {
         >
           Registrar Asistencia
         </button>
+                <button
+          style={buttonStyle(activeTab === 'statistics')}
+          onClick={() => setActiveTab('statistics')}
+        >
+          Estadísticas
+        </button>
       </div>
 
       <div>
         {activeTab === 'classes' && <ClassManagement />}
         {activeTab === 'attendance' && <ClassAttendance />}
+                {activeTab === 'statistics' && <AttendanceStatisticsView />}
       </div>
     </div>
   );
