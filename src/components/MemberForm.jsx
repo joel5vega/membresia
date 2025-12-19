@@ -162,13 +162,14 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     }
   };
 
-  const zonas = ['25 de julio',
-    '1º de mayo', 'La Ceja', '16 de julio', 'Alto de la alianza','Alto Lima', 'Ballivián', 'Complejo',
-    'Convifag', 'Cosmos 78','Cosmos 79','Ciudad Satélite', 'El Kenko', 'Germán Busch', 'Kollpani', 
-    'Mercedario','Mururata', 'Villa Ingenio', 'Nuevos Horizontes', 'Cupilupaca', 'Río Seco',
-    'Senkata', 'Villa Santa Rosa', 'Santiago I', 'Santiago II', 'Villa Adela',
-    'Villa Alemania', 'Villa Exaltación', 'Villa Dolores', 'Villa Ingavi',
-    'Villa Bolívar E', 'Villa Bolívar B','Villa Mercedes','Villa Juliana','Villa Salome'
+  const zonas = ['1º de mayo', '16 de julio', '25 de julio', 'Alto de la alianza', 'Alto Lima', 'Ballivián', 
+'Ciudad Satélite', 'Complejo', 'Convifag', 'Cosmos 77', 'Cosmos 78', 'Cosmos 79', 
+'Cupilupaca', 'El Kenko', 'Germán Busch', 'Júpiter', 'Julio Cesar Valdez', 'Kollpani', 
+'La Ceja', 'Mercedario', 'Mururata', 'Nuevos Horizontes', 'Paraiso', 'Río Seco', 'San Jose de Charapaqui', 
+'Santiago I', 'Santiago II', 'Senkata', 'Urb San Carlos', 
+'V. Alemania', 'V. Adela', 'V. Bolivar B', 'V. Bolivar E', 'V. Bolivar F', 'V. Candelaria', 
+'V. Cooperativa', 'V. Dolores', 'V. Dolores F', 'V. Exaltación', 'V. Ingenio', 'V. Ingavi', 
+'V. Juliana', 'V. Kakingara', 'V. Mercedes', 'V. Pacajes', 'V. Salome', 'V. Santa Rosa', 'V. Yunguyo'
   ];
 
   const clases = [

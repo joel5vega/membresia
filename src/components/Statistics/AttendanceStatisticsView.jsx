@@ -273,15 +273,15 @@ getClassStatistics(selectedClass).then(stats => {
         
         {selectedClass && (
           <div className="member-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
-{Object.entries(baptizedStats).map(([key, value]) => (
+{Object.entries(baptizedStats|| {}).map(([key, value]) => (
               <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
                         ))}
 
-{Object.entries(giftStats).map(([key, value]) => (
+{Object.entries(giftStats|| {}).map(([key, value]) => (
               <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
                         ))}
 
-{Object.entries(maritalStats).map(([key, value]) => (
+{Object.entries(maritalStats|| {}).map(([key, value]) => (
               <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
                         ))}
 
