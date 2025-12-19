@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MemberForm from './components/MemberForm';
 import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
+import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';  // ← IMPORTAR
+import Dashboard from './components/Dashboard';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
@@ -56,7 +58,7 @@ const AppLayout = () => {
   };
 
   const contentStyle = {
-    padding: '20px',
+    padding: '0',
     flex: 1,
     overflow: 'auto',
   };
@@ -71,40 +73,47 @@ const AppLayout = () => {
     <div style={containerStyle}>
       {/* Navigation Bar */}
       <nav style={navStyle}>
-       <div style={leftNavStyle}>
-  <button
-    onClick={() => setCurrentPage('panel')}
-    style={{
-      ...buttonStyle(currentPage === 'panel'),
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 0,
-    }}
-    aria-label="Panel de miembros"
-  >
-    <img
-      src={MembresiaIcon}
-      alt=""
-      style={{ height: '32px', width: '32px', display: 'block' }}
-    />
-  </button>
+        <div style={leftNavStyle}>
+          <button
+            onClick={() => setCurrentPage('panel')}
+            style={{
+              ...buttonStyle(currentPage === 'panel'),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+            }}
+            aria-label="Panel de miembros"
+          >
+            <img
+              src={MembresiaIcon}
+              alt=""
+              style={{ height: '32px', width: '32px', display: 'block' }}
+            />
+          </button>
 
-  <button
-    onClick={() => setCurrentPage('members')}
-    style={buttonStyle(currentPage === 'members')}
-  >
-    Miembros
-  </button>
+          <button
+            onClick={() => setCurrentPage('members')}
+            style={buttonStyle(currentPage === 'members')}
+          >
+            Miembros
+          </button>
 
-  <button
-    onClick={() => setCurrentPage('classes')}
-    style={buttonStyle(currentPage === 'classes')}
-  >
-    Clases
-  </button>
-</div>
+          <button
+            onClick={() => setCurrentPage('classes')}
+            style={buttonStyle(currentPage === 'classes')}
+          >
+            Clases
+          </button>
 
+          {/* ← NUEVO BOTÓN DE ESTADÍSTICAS */}
+          <button
+            onClick={() => setCurrentPage('statistics')}
+            style={buttonStyle(currentPage === 'statistics')}
+          >
+            Estadísticas
+          </button>
+        </div>
 
         {/* info de usuario y logout */}
         <div style={rightNavStyle}>
@@ -112,46 +121,49 @@ const AppLayout = () => {
           <button
             onClick={logout}
             style={{
- backgroundColor: 'transparent',
+              backgroundColor: 'transparent',
               border: 'none',
               cursor: 'pointer',
               padding: 4,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-            }}   aria-label="Cerrar sesión"
+            }}
+            aria-label="Cerrar sesión"
             title="Cerrar sesión"
           >
-          <span style={{ fontSize: '18px' }}>⏏️</span>
+            <span style={{ fontSize: '18px' }}>⏏️</span>
           </button>
         </div>
       </nav>
 
       {/* Content Area */}
       <div style={contentStyle}>
-        {currentPage === 'panel' && (
-          <div>
-            <h1>Panel Principal</h1>
-            <p>Bienvenido a IglesiaFlow - Gestión de Iglesia</p>
-            <p>Selecciona una opción del menú superior para comenzar.</p>
-          </div>
-        )}
+        {/* Panel Principal con Dashboard */}
+        {currentPage === 'panel' && <Dashboard onNavigate={setCurrentPage} />}
+        
+        {/* Miembros */}
         {currentPage === 'members' && (
-  <MembersListView
-    onAddMember={() => setCurrentPage('add-member')}
-  />
-)}
-        {currentPage === 'add-member' && (
-          <MemberForm
-            onSuccess={() => setCurrentPage('panel')}
-            onCancel={() => setCurrentPage('panel')}
+          <MembersListView
+            onAddMember={() => setCurrentPage('add-member')}
           />
         )}
+        
+        {/* Agregar Miembro */}
+        {currentPage === 'add-member' && (
+          <MemberForm
+            onSuccess={() => setCurrentPage('members')}
+            onCancel={() => setCurrentPage('members')}
+          />
+        )}
+        
+        {/* Clases y Asistencia */}
         {currentPage === 'classes' && <ClassesAndAttendance />}
-        {currentPage === 'attendance' && (
-          <div>
-            <h1>Registro de Asistencia</h1>
-            <p>Aquí se puede registrar la asistencia de los miembros.</p>
+        
+        {/* ← NUEVA PÁGINA DE ESTADÍSTICAS */}
+        {currentPage === 'statistics' && (
+          <div style={{ padding: '20px' }}>
+            <AttendanceStatisticsView />
           </div>
         )}
       </div>

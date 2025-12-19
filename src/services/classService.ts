@@ -1,4 +1,6 @@
-import { db, collection, doc, getDocs, getDoc, addDoc, updateDoc, query, where, Timestamp } from '../firebaseConfig';
+// src/services/classService.ts
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
+import { db } from './firebaseConfig';
 
 // Interfaces
 export interface Class {
@@ -63,4 +65,13 @@ export const createOrUpdateAttendance = async (classId: string, memberId: string
     attended: attended,
     attendedAt: Timestamp.now(),
   });
+};
+
+export const classService = {
+  getClasses,
+  getClass,
+  addClass,
+  getAttendanceForClass,
+  getMemberAttendanceInClass,
+  createOrUpdateAttendance
 };
