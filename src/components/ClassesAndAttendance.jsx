@@ -4,7 +4,7 @@ import ClassAttendance from './ClassAttendance';
 import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
 
 const ClassesAndAttendance = () => {
-  const [activeTab, setActiveTab] = useState('classes');
+  const [activeTab, setActiveTab] = useState('attendance');
 
   const tabStyle = {
     display: 'flex',
