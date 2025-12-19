@@ -164,7 +164,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
 
   const zonas = ['25 de julio',
     '1º de mayo', 'La Ceja', '16 de julio', 'Alto de la alianza','Alto Lima', 'Ballivián', 'Complejo',
-    'Convifag', 'Cosmos 78','Ciudad Satélite', 'El Kenko', 'Germán Busch', 'Kollpani', 
+    'Convifag', 'Cosmos 78','Cosmos 79','Ciudad Satélite', 'El Kenko', 'Germán Busch', 'Kollpani', 
     'Mercedario','Mururata', 'Villa Ingenio', 'Nuevos Horizontes', 'Cupilupaca', 'Río Seco',
     'Senkata', 'Villa Santa Rosa', 'Santiago I', 'Santiago II', 'Villa Adela',
     'Villa Alemania', 'Villa Exaltación', 'Villa Dolores', 'Villa Ingavi',

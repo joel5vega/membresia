@@ -5,6 +5,13 @@ import {
   getQuarterlyStatistics, 
   getYearlyStatistics 
 } from '../../services/attendanceStatisticsService';
+import {
+  getDonesEspirituales,
+  getEstadoCivil,
+  getClassStatistics,
+  getBaptizedCount
+} from '../../services/memberStatisticsService';
+
 import PeriodSelector from './PeriodSelector';
 import StatisticsCard from './StatisticsCard'; 
 import './AttendanceStatisticsView.css';
@@ -16,6 +23,11 @@ const AttendanceStatisticsView = () => {
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedClass, setSelectedClass] = useState('');
+  const [baptizedStats, setBaptizedStats] = useState(null);
+  const [giftStats, setGiftStats] = useState(null);
+  const [maritalStats, setMaritalStats] = useState(null);
+
 
   useEffect(() => {
     const fetchStatistics = async () => {
@@ -64,6 +76,28 @@ const AttendanceStatisticsView = () => {
 
     fetchStatistics();
   }, [selectedPeriod, selectedDate]);
+
+  // Fetch member statistics when class is selected
+  useEffect(() => {
+    if (selectedClass) {
+getClassStatistics(selectedClass).then(stats => {
+        if (stats) {
+          setBaptizedStats({
+            'Bautizados': stats.baptizedCount,
+            'No Bautizados': stats.unBaptizedCount
+          });
+          setGiftStats(stats.donesEspirituales || {});
+          setMaritalStats(stats.estadoCivil || {});
+        }
+      }).catch(err => console.error('Error fetching class statistics:', err));
+    }  }, [selectedClass]);
+
+  // DEBUG: Log the stats
+  console.log('baptizedStats:', baptizedStats);
+  console.log('giftStats:', giftStats);
+  console.log('maritalStats:', maritalStats);
+  console.log('selectedClass:', selectedClass);
+
 
   const handlePeriodChange = (period) => {
     setSelectedPeriod(period);
@@ -215,6 +249,46 @@ const AttendanceStatisticsView = () => {
                 ))}
               </tbody>
             </table>
+
+      {/* Miembro Estadísticas Section */}
+      <div className="members-statistics-section">
+        <h2>Estadísticas Adicionales de Miembros</h2>
+        <div className="class-selector">
+          <label htmlFor="class-select">Seleccionar Clase: </label>
+          <select
+            id="class-select"
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            style={{ padding: '8px', marginLeft: '10px' }}
+          >
+                            {statistics && Object.keys(statistics.classesByName || {}).map(className => (
+                  <option key={className} value={className}>{className}</option>
+                ))
+                
+
+            }
+                        </select>
+                                </div>
+                                
+        
+        {selectedClass && (
+          <div className="member-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
+{Object.entries(baptizedStats).map(([key, value]) => (
+              <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
+                        ))}
+
+{Object.entries(giftStats).map(([key, value]) => (
+              <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
+                        ))}
+
+{Object.entries(maritalStats).map(([key, value]) => (
+              <StatisticsCard key={key} title={key} value={value} stats={{[key]: value}} />
+                        ))}
+
+          </div>
+        )}
+      </div>
+
           </div>
         ) : (
           <p className="no-data">No hay datos de miembros para este período</p>
