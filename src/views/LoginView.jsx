@@ -1,9 +1,11 @@
-// src/views/LoginView.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import './LoginView.css';
 
 const LoginView = () => {
   const { login, register } = useAuth();
+    const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -17,8 +19,10 @@ const LoginView = () => {
     try {
       if (mode === 'login') {
         await login(email, password);
+                navigate('/dashboard');
       } else {
         await register(email, password);
+                navigate('/dashboard');
       }
     } catch (err) {
       console.error(err);
@@ -29,38 +33,76 @@ const LoginView = () => {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 400, margin: '0 auto' }}>
-      <h1>{mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}</h1>
+    <div className="login-container">
+      <div className="login-wrapper">
+        <div className="login-header">
+          <h1>{mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}</h1>
+          <p className="subtitle">
+            {mode === 'login' 
+              ? 'Bienvenido de vuelta' 
+              : 'Únete a IglesiaFlow'}
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Procesando...' : mode === 'login' ? 'Entrar' : 'Registrarse'}
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="submit-button"
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Procesando...
+              </>
+            ) : mode === 'login' ? (
+              'Entrar'
+            ) : (
+              'Registrarse'
+            )}
+          </button>
+        </form>
+
+        <div className="divider"></div>
+
+        <button
+          type="button"
+          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          className="toggle-button"
+        >
+          {mode === 'login' 
+            ? '¿No tienes cuenta? Crear una' 
+            : '¿Ya tienes cuenta? Inicia sesión'}
         </button>
-      </form>
-
-      {error && <p style={{ color: 'red', marginTop: 10 }}>{error}</p>}
-
-      <button
-        type="button"
-        onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-        style={{ marginTop: 10 }}
-      >
-        {mode === 'login' ? 'Crear una nueva cuenta' : 'Ya tengo una cuenta'}
-      </button>
+      </div>
     </div>
   );
 };

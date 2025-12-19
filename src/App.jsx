@@ -106,13 +106,13 @@ const AppLayout = () => {
             Clases
           </button>
 
-          {/* ← NUEVO BOTÓN DE ESTADÍSTICAS */}
+          {/* ← NUEVO BOTÓN DE ESTADÍSTICAS
           <button
             onClick={() => setCurrentPage('statistics')}
             style={buttonStyle(currentPage === 'statistics')}
           >
             Estadísticas
-          </button>
+          </button> */}
         </div>
 
         {/* info de usuario y logout */}
@@ -173,7 +173,7 @@ const AppLayout = () => {
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/membresia">
       <Routes>
         {/* Login público */}
         <Route path="/login" element={<LoginView />} />
