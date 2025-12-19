@@ -5,6 +5,7 @@ import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
+import MembresiaIcon from './assets/membresia-icon.png';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -18,6 +19,7 @@ function ProtectedRoute({ children }) {
 const AppLayout = () => {
   const [currentPage, setCurrentPage] = useState('panel');
   const { user, logout } = useAuth();
+  const username = user?.email ? user.email.split('@')[0] : ''; 
 
   const buttonStyle = (isActive) => ({
     backgroundColor: isActive ? '#1e40af' : '#1e3a8a',
@@ -69,54 +71,58 @@ const AppLayout = () => {
     <div style={containerStyle}>
       {/* Navigation Bar */}
       <nav style={navStyle}>
-        <div style={leftNavStyle}>
-          <button
-            onClick={() => setCurrentPage('panel')}
-            style={buttonStyle(currentPage === 'panel')}
-          >
-            Panel
-          </button>
-          <button
-            onClick={() => setCurrentPage('members')}
-            style={buttonStyle(currentPage === 'members')}
-          >
-            Miembros
-          </button>
-          <button
-            onClick={() => setCurrentPage('add-member')}
-            style={buttonStyle(currentPage === 'add-member')}
-          >
-            Nuevo Miembro
-          </button>
-          <button
-            onClick={() => setCurrentPage('classes')}
-            style={buttonStyle(currentPage === 'classes')}
-          >
-            Clases
-          </button>
-          <button
-            onClick={() => setCurrentPage('attendance')}
-            style={buttonStyle(currentPage === 'attendance')}
-          >
-            Asistencia
-          </button>
-        </div>
+       <div style={leftNavStyle}>
+  <button
+    onClick={() => setCurrentPage('panel')}
+    style={{
+      ...buttonStyle(currentPage === 'panel'),
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+    }}
+    aria-label="Panel de miembros"
+  >
+    <img
+      src={MembresiaIcon}
+      alt=""
+      style={{ height: '32px', width: '32px', display: 'block' }}
+    />
+  </button>
+
+  <button
+    onClick={() => setCurrentPage('members')}
+    style={buttonStyle(currentPage === 'members')}
+  >
+    Miembros
+  </button>
+
+  <button
+    onClick={() => setCurrentPage('classes')}
+    style={buttonStyle(currentPage === 'classes')}
+  >
+    Clases
+  </button>
+</div>
+
 
         {/* info de usuario y logout */}
         <div style={rightNavStyle}>
-          <span>{user?.email}</span>
+          <span>{username}</span>
           <button
             onClick={logout}
             style={{
-              backgroundColor: '#ef4444',
-              color: 'white',
+ backgroundColor: 'transparent',
               border: 'none',
-              padding: '6px 12px',
-              borderRadius: '4px',
               cursor: 'pointer',
-            }}
+              padding: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}   aria-label="Cerrar sesión"
+            title="Cerrar sesión"
           >
-            Cerrar sesión
+          <span style={{ fontSize: '18px' }}>⏏️</span>
           </button>
         </div>
       </nav>
@@ -130,7 +136,11 @@ const AppLayout = () => {
             <p>Selecciona una opción del menú superior para comenzar.</p>
           </div>
         )}
-        {currentPage === 'members' && <MembersListView />}
+        {currentPage === 'members' && (
+  <MembersListView
+    onAddMember={() => setCurrentPage('add-member')}
+  />
+)}
         {currentPage === 'add-member' && (
           <MemberForm
             onSuccess={() => setCurrentPage('panel')}

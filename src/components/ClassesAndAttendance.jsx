@@ -27,15 +27,15 @@ const ClassesAndAttendance = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Gestion de Clases y Asistencia</h2>
+      <h1>Gestion de Clases y Asistencia</h1>
       
       <div style={tabStyle}>
-        <button
+        {/* <button
           style={buttonStyle(activeTab === 'classes')}
           onClick={() => setActiveTab('classes')}
         >
           Gestionar Clases
-        </button>
+        </button> */}
         <button
           style={buttonStyle(activeTab === 'attendance')}
           onClick={() => setActiveTab('attendance')}

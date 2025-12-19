@@ -14,16 +14,15 @@ const clases = [
   'Avanzada'
 ];
 
-
-const MembersListView = () => {
-  const { user, loading: authLoading, logout } = useAuth();
+const MembersListView = ({ onAddMember }) => {
+  const { user, loading: authLoading } = useAuth();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('all');
 
-useEffect(() => {
+  useEffect(() => {
     if (authLoading) return;
 
     if (!user) {
@@ -51,11 +50,13 @@ useEffect(() => {
   }, [user, authLoading]);
 
   const filteredMembers = members.filter(member => {
-    const matchesSearch = member.nombreCompleto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          member.celular?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      member.nombreCompleto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.celular?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesClass = filterClass === 'all' || member.clase === filterClass;
     return matchesSearch && matchesClass;
   });
+
   if (authLoading) {
     return <p>Cargando autenticación...</p>;
   }
@@ -63,16 +64,48 @@ useEffect(() => {
   if (!user) {
     return <p style={{ color: 'red' }}>Debe iniciar sesión para ver los miembros.</p>;
   }
+
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', position: 'relative' }}>
+      {/* Botón fijo con + para nuevo miembro */}
+      <button
+        onClick={onAddMember}
+        style={{
+          position: 'fixed',
+          top: '80px',
+          right: '20px',
+          width: '40px',
+          height: '40px',
+          borderRadius: '999px',
+          border: 'none',
+          backgroundColor: '#1e40af',
+          color: 'white',
+          fontSize: '24px',
+          lineHeight: '24px',
+          cursor: 'pointer',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+        aria-label="Nuevo miembro"
+        title="Nuevo miembro"
+      >
+        +
+      </button>
+
       <h1>Listado de Miembros</h1>
-      <div>
-          <span style={{ marginRight: 10 }}>{user.email}</span>
-          <button onClick={logout}>Cerrar sesión</button>
-        </div>
-     
+
       {/* Barra de búsqueda */}
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+      <div
+        style={{
+          marginBottom: '20px',
+          marginTop: '10px',
+          display: 'flex',
+          gap: '10px'
+        }}
+      >
         <input
           type="text"
           placeholder="Buscar miembros por nombre o email"
@@ -85,8 +118,10 @@ useEffect(() => {
             flex: 1
           }}
         />
-                </div>
-        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+      </div>
+
+      {/* Filtro por clase */}
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
         <select
           value={filterClass}
           onChange={(e) => setFilterClass(e.target.value)}
@@ -98,12 +133,11 @@ useEffect(() => {
           }}
         >
           <option value="all">Todas las clases</option>
-            {clases.map((clase) => (
-              <option key={clase} value={clase}>
-                {clase}
-              </option>
-                        ))
-                      }
+          {clases.map((clase) => (
+            <option key={clase} value={clase}>
+              {clase}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -119,11 +153,13 @@ useEffect(() => {
           <p style={{ marginBottom: '15px', color: '#666' }}>
             Total: {filteredMembers.length} miembro(s)
           </p>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '15px'
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '15px'
+            }}
+          >
             {filteredMembers.map((member) => (
               <div
                 key={member.id}
@@ -135,8 +171,14 @@ useEffect(() => {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
-                <h3 style={{ margin: '0 0 10px 0', color: '#1e3a8a' }}>
-{`${member.nombre || ''} ${member.apellido || ''}`.trim()}                </h3>
+                <h3
+                  style={{
+                    margin: '0 0 10px 0',
+                    color: '#1e3a8a'
+                  }}
+                >
+                  {`${member.nombre || ''} ${member.apellido || ''}`.trim()}
+                </h3>
                 <p style={{ margin: '5px 0', fontSize: '0.9em' }}>
                   <strong>Teléfono:</strong> {member.celular || 'No registrado'}
                 </p>
