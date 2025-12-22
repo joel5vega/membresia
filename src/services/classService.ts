@@ -1,77 +1,117 @@
-// src/services/classService.ts
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import { Class, ClassAttendance } from '../types';
 
-// Interfaces
-export interface Class {
-  id?: string;
-  name: string;
-  date: Timestamp;
-  instructor: string;
-  maxParticipants?: number;
-  attendedCount: number;
-  description?: string;
-}
+// Crear o actualizar una clase
+export const createOrUpdateClass = async (classData: Omit<Class, 'id'> & { id?: string }): Promise<string> => {
+  try {
+    const classRef = collection(db, 'classes');
+    if (classData.id) {
+      // Actualizar clase existente
+      const docRef = doc(db, 'classes', classData.id);
+      await updateDoc(docRef, {
+        ...classData,
+        actualizadoEn: Timestamp.now(),
+      });
+      return classData.id;
+    } else {
+      // Crear nueva clase
+      const newClass = {
+        ...classData,
+        creadoEn: Timestamp.now(),
+        actualizadoEn: Timestamp.now(),
+      };
+      const docRef = await addDoc(classRef, newClass);
+      return docRef.id;
+    }
+  } catch (error) {
+    console.error('Error creando/actualizando clase:', error);
+    throw error;
+  }
+};
 
-export interface AttendanceRecord {
-  id?: string;
-  memberId: string;
-  attended: boolean;
-  attendedAt?: Timestamp;
-}
-
-// Funciones para Clases
+// Obtener todas las clases
 export const getClasses = async (): Promise<Class[]> => {
-  const classesCol = collection(db, 'classes');
-  const classSnapshot = await getDocs(classesCol);
-  return classSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Class }));
-};
-
-export const getClass = async (classId: string): Promise<Class | null> => {
-  const classDocRef = doc(db, 'classes', classId);
-  const classSnap = await getDoc(classDocRef);
-  if (classSnap.exists()) {
-    return { id: classSnap.id, ...classSnap.data() as Class };
+  try {
+    const classesCol = collection(db, 'classes');
+    const classesSnapshot = await getDocs(classesCol);
+    return classesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    } as Class));
+  } catch (error) {
+    console.error('Error obteniendo clases:', error);
+    throw error;
   }
-  return null;
 };
 
-export const addClass = async (classData: Omit<Class, 'id' | 'attendedCount'>): Promise<string> => {
-  const classesCol = collection(db, 'classes');
-  const newClassRef = await addDoc(classesCol, { ...classData, attendedCount: 0 });
-  return newClassRef.id;
-};
-
-// Funciones para Asistencia
-export const getAttendanceForClass = async (classId: string): Promise<AttendanceRecord[]> => {
-  const attendanceCol = collection(db, 'classes', classId, 'attendance');
-  const attendanceSnapshot = await getDocs(attendanceCol);
-  return attendanceSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as AttendanceRecord }));
-};
-
-export const getMemberAttendanceInClass = async (classId: string, memberId: string): Promise<AttendanceRecord | null> => {
-  const attendanceDocRef = doc(db, 'classes', classId, 'attendance', memberId);
-  const attendanceSnap = await getDoc(attendanceDocRef);
-  if (attendanceSnap.exists()) {
-    return { id: attendanceSnap.id, ...attendanceSnap.data() as AttendanceRecord };
+// Obtener una clase por ID
+export const getClassById = async (classId: string): Promise<Class | null> => {
+  try {
+    const docRef = doc(db, 'classes', classId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Class;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error obteniendo clase:', error);
+    throw error;
   }
-  return null;
 };
 
-export const createOrUpdateAttendance = async (classId: string, memberId: string, attended: boolean): Promise<void> => {
-  const attendanceDocRef = doc(db, 'classes', classId, 'attendance', memberId);
-  await updateDoc(attendanceDocRef, {
-    memberId: memberId,
-    attended: attended,
-    attendedAt: Timestamp.now(),
-  });
+// Obtener clases por rango de fechas
+export const getClassesByDateRange = async (startDate: Date, endDate: Date): Promise<Class[]> => {
+  try {
+    const classesCol = collection(db, 'classes');
+    const q = query(
+      classesCol,
+      where('fecha', '>=', Timestamp.fromDate(startDate)),
+      where('fecha', '<=', Timestamp.fromDate(endDate))
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    } as Class));
+  } catch (error) {
+    console.error('Error obteniendo clases por fecha:', error);
+    throw error;
+  }
 };
 
-export const classService = {
+// Obtener clases por maestro
+export const getClassesByTeacher = async (maestroId: string): Promise<Class[]> => {
+  try {
+    const classesCol = collection(db, 'classes');
+    const q = query(classesCol, where('maestroId', '==', maestroId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    } as Class));
+  } catch (error) {
+    console.error('Error obteniendo clases por maestro:', error);
+    throw error;
+  }
+};
+
+// Eliminar una clase
+export const deleteClass = async (classId: string): Promise<void> => {
+  try {
+    const docRef = doc(db, 'classes', classId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error eliminando clase:', error);
+    throw error;
+  }
+};
+
+export default {
+  createOrUpdateClass,
   getClasses,
-  getClass,
-  addClass,
-  getAttendanceForClass,
-  getMemberAttendanceInClass,
-  createOrUpdateAttendance
+  getClassById,
+  getClassesByDateRange,
+  getClassesByTeacher,
+  deleteClass,
 };

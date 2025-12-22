@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MemberForm from './components/MemberForm';
 import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
+import ClassHistoryView from './components/ClassHistoryView';
 import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';  // ← IMPORTAR
 import Dashboard from './components/Dashboard';
 import LoginView from './views/LoginView';
@@ -166,6 +167,13 @@ const AppLayout = () => {
             <AttendanceStatisticsView />
           </div>
         )}
+        {/* Historiales y Reportes */}
+        {currentPage === 'history' && (
+          <div style={{ padding: '20px' }}>
+            <ClassHistoryView />
+          </div>
+        )}
+       
       </div>
     </div>
   );

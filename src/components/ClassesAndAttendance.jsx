@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ClassManagement from './Classes/ClassManagement';
+import ClassForm from './ClassForm';
+import ClassReportView from './ClassReportView';
 import ClassAttendance from './ClassAttendance';
 import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
 
@@ -51,7 +53,7 @@ const ClassesAndAttendance = () => {
       </div>
 
       <div>
-        {activeTab === 'classes' && <ClassManagement />}
+        {activeTab === 'classes' && <ClassForm />}
         {activeTab === 'attendance' && <ClassAttendance />}
                 {activeTab === 'statistics' && <AttendanceStatisticsView />}
       </div>

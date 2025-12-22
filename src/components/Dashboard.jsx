@@ -1,10 +1,11 @@
 // src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
+import { Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
 import { memberService } from '../services/memberService';
 import { getWeeklyStatistics } from '../services/attendanceStatisticsService';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
+import ClassHistoryView from './ClassHistoryView';
 
 const Dashboard = ({ onNavigate }) => {
   const { user, loading: authLoading } = useAuth();
@@ -349,9 +350,18 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
             className="action-btn action-btn-info"
             onClick={() => onNavigate && onNavigate('statistics')}
           >
-            <TrendingUp size={24} />
+<TrendingUp size={24} />
             <span>Ver Estadísticas</span>
+
           </button>
+                        <button
+              className="action-btn action-btn-warning"
+              onClick={() => onNavigate && onNavigate('history')}
+            >
+              <BarChart3 size={24} />
+              <span>Historiales y Reportes</span>
+            </button>
+     
           <button 
             className="action-btn action-btn-warning"
             onClick={() => onNavigate && onNavigate('members')}
