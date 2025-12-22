@@ -98,6 +98,10 @@ const ClassAttendance = ({ teacher }) => {
 
     const handleSaveAttendance = async () => {
           try {
+                  if (!teacher) {
+                            setError('Teacher information is missing');
+                                    return;
+                                          }
                   const db = getFirestore();
                         await addDoc(collection(db, 'attendance'), {
                                   teacherId: teacher.id,
