@@ -3,7 +3,7 @@ import { memberService, attendanceService } from '../services';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const ClassAttendance = ({ teacher }) => {
+const ClassAttendance = ({ teacher, classId }) => {
   const [classMembers, setClassMembers] = useState([]);
   const [attendanceMap, setAttendanceMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -98,13 +98,12 @@ const ClassAttendance = ({ teacher }) => {
 
     const handleSaveAttendance = async () => {
           try {
-                  if (!teacher) {
-                            setError('Teacher information is missing');
+if (!classId) {                            setError('Teacher information is missing');
                                     return;
                                           }
                   const db = getFirestore();
                         await addDoc(collection(db, 'attendance'), {
-                                  teacherId: teacher.id,
+                                        classId: classId || teacher?.id,
                                           date: todayDate,
                                                   maestro,
                                                           varomes,
