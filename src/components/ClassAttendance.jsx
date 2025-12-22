@@ -15,8 +15,9 @@ const ClassAttendance = ({ teacher }) => {
   const [numeroMujeres, setNumeroMujeres] = useState(0);
   const [total, setTotal] = useState(0);
   const [ofrenda, setOfrenda] = useState('');
-  const [biblia, setBiblia] = useState('');
+  const [biblia, setBiblia] = useState(0);
   const [anuncios, setAnuncios] = useState('');
+    const [tema, setTema] = useState('');
 
   const classOptions = {
     'Sociedad de Caballeros "Emanuel"': 'Sociedad de Caballeros "Emanuel"',
@@ -349,6 +350,39 @@ const ClassAttendance = ({ teacher }) => {
           marginBottom: '12px'
         }}>
           {/* Ofrenda */}
+        {/* Tema - nueva fila */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: '10px',
+          marginBottom: '12px'
+        }}>
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Tema
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: La Resurrección de Cristo"
+              value={tema}
+              onChange={(e) => setTema(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        </div>
+
           <div>
             <label style={{
               display: 'block',
