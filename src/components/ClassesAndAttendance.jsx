@@ -4,13 +4,88 @@ import ClassForm from './ClassForm';
 import ClassReportView from './ClassReportView';
 import ClassAttendance from './ClassAttendance';
 import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const ClassesAndAttendance = () => {
   const [activeTab, setActiveTab] = useState('attendance');
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
 
-  const tabStyle = {
+  // Form states
+  const [classId, setClassId] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [maestro, setMaestro] = useState('');
+  const [varones, setVarones] = useState(0);
+  const [mujeres, setMujeres] = useState(0);
+  const [tema, setTema] = useState('');
+  const [ofrenda, setOfrenda] = useState('');
+  const [biblia, setBiblia] = useState(0);
+  const [anuncios, setAnuncios] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      // Validate required fields
+      if (!classId || !fecha || !maestro) {
+        setError('Por favor completa los campos requeridos: Clase, Fecha y Maestro');
+        setLoading(false);
+        return;
+      }
+
+      // Calculate total
+      const total = parseInt(varones) + parseInt(mujeres);
+
+      // Prepare attendance data
+      const attendanceData = {
+        classId,
+        className: classId, // You might want to get the actual class name
+        fecha,
+        maestro,
+        varones: parseInt(varones),
+        mujeres: parseInt(mujeres),
+        total,
+        tema,
+        ofrenda,
+        biblia: parseInt(biblia),
+        anuncios,
+        createdBy: user?.uid || 'unknown',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Save to Firebase (you'll need to implement this service call)
+      // Example: await saveAttendance(attendanceData);
+      console.log('Attendance data to save:', attendanceData);
+
+      // Reset form
+      setClassId('');
+      setFecha(new Date().toISOString().split('T')[0]);
+      setMaestro('');
+      setVarones(0);
+      setMujeres(0);
+      setTema('');
+      setOfrenda('');
+      setBiblia(0);
+      setAnuncios('');
+
+      setSuccess(true);
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error('Error saving attendance:', err);
+      setError('Error al guardar la asistencia: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+      const tabStyle = {
     display: 'flex',
     gap: '10px',
     marginBottom: '20px',
@@ -56,7 +131,30 @@ const ClassesAndAttendance = () => {
 
       <div>
         {activeTab === 'classes' && <ClassForm />}
-        {activeTab === 'attendance' && <ClassAttendanc teacher={user}e />}
+        {activeTab === 'attendance' && <ClassAttendance
+          classId={classId}
+          setClassId={setClassId}
+          fecha={fecha}
+          setFecha={setFecha}
+          maestro={maestro}
+          setMaestro={setMaestro}
+          varones={varones}
+          setVarones={setVarones}
+          mujeres={mujeres}
+          setMujeres={setMujeres}
+          tema={tema}
+          setTema={setTema}
+          ofrenda={ofrenda}
+          setOfrenda={setOfrenda}
+          biblia={biblia}
+          setBiblia={setBiblia}
+          anuncios={anuncios}
+          setAnuncios={setAnuncios}
+          loading={loading}
+          error={error}
+          success={success}
+          onSubmit={handleSubmit} />}
+          
                 {activeTab === 'statistics' && <AttendanceStatisticsView />}
       </div>
     </div>
