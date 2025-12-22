@@ -10,6 +10,13 @@ const ClassAttendance = ({ teacher }) => {
   const [todayDate, setTodayDate] = useState(new Date().toISOString().split('T')[0]);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+    const [maestro, setMaestro] = useState('');
+  const [numeroVarones, setNumeroVarones] = useState(0);
+  const [numeroMujeres, setNumeroMujeres] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [ofrenda, setOfrenda] = useState('');
+  const [biblia, setBiblia] = useState('');
+  const [anuncios, setAnuncios] = useState('');
 
   const classOptions = {
     'Sociedad de Caballeros "Emanuel"': 'Sociedad de Caballeros "Emanuel"',
@@ -222,6 +229,203 @@ const ClassAttendance = ({ teacher }) => {
                 }}
               />
             </div>
+
+        {/* Nueva fila: Maestro y contador de géneros */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '10px',
+          marginBottom: '12px'
+        }}>
+          {/* Maestro */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Maestro
+            </label>
+            <input
+              type="text"
+              value={maestro}
+              onChange={(e) => setMaestro(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Número de Varones */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Varones
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={numeroVarones}
+              onChange={(e) => setNumeroVarones(parseInt(e.target.value) || 0)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Número de Mujeres */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Mujeres
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={numeroMujeres}
+              onChange={(e) => setNumeroMujeres(parseInt(e.target.value) || 0)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Total */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Total
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={total}
+              onChange={(e) => setTotal(parseInt(e.target.value) || 0)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Nueva fila: Ofrenda, Biblia, Anuncios */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '10px',
+          marginBottom: '12px'
+        }}>
+          {/* Ofrenda */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Ofrenda
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: $50 o descripción"
+              value={ofrenda}
+              onChange={(e) => setOfrenda(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Biblia */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Biblia
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Juan 3:16"
+              value={biblia}
+              onChange={(e) => setBiblia(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+
+          {/* Anuncios */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '13px',
+              fontWeight: 600,
+              marginBottom: '4px'
+            }}>
+              Anuncios
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Retiro el próximo mes"
+              value={anuncios}
+              onChange={(e) => setAnuncios(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        </div>
           </div>
 
           {/* Lista de asistencia: cards en vez de tabla completa */}
