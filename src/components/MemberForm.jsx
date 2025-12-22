@@ -10,6 +10,7 @@ const MemberForm = ({ onSuccess, onCancel }) => {
    nombre: '',
   apellido: '',
   ci:'',
+  sexo:'',
     celular: '',
     correo:'',
     zona: '',
@@ -271,6 +272,21 @@ const MemberForm = ({ onSuccess, onCancel }) => {
                 max={new Date().toISOString().split("T")[0]}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sexo
+              </label>
+              <select
+                name="sexo"
+                value={formData.sexo}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecciona...</option>
+                <option value="M">Varón</option>
+                <option value="F">Mujer</option>
+               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

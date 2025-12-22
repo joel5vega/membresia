@@ -19,7 +19,7 @@ export interface Member {
   celular?: string;
   zona?: string;
   clase?: string;
-
+  sexo?:string;
   // Página 2 - Formación
   nivelEducacion?: string;
   estudiaActualmente?: string;
