@@ -96,6 +96,29 @@ const ClassAttendance = ({ teacher }) => {
     }
   };
 
+    const handleSaveAttendance = async () => {
+          try {
+                  const db = getFirestore();
+                        await addDoc(collection(db, 'attendance'), {
+                                  teacherId: teacher.id,
+                                          date: todayDate,
+                                                  maestro,
+                                                          varomes,
+                                                                  mujeres,
+                                                                          tema,
+                                                                                  ofrenda,
+                                                                                          biblia,
+                                                                                                  anuncios,
+                                                                                                          createdAt: serverTimestamp()
+                                                                                                                });
+                                                                                                                      setSaved(true);
+                                                                                                                            setTimeout(() => setSaved(false), 2000);
+                                                                                                                                } catch (error) {
+                                                                                                                                        setError('Error saving attendance: ' + error.message);
+                                                                                                                                              console.error(error);
+                                                                                                                                                  }
+                                                                                                                                                    };
+
   if (loading) {
     return (
       <div className="text-center py-8 text-lg">
