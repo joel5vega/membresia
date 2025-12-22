@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState , useContext} from 'react';
 import ClassManagement from './Classes/ClassManagement';
 import ClassForm from './ClassForm';
 import ClassReportView from './ClassReportView';
 import ClassAttendance from './ClassAttendance';
 import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
+import { AuthContext } from '../context/AuthContext';
 
 const ClassesAndAttendance = () => {
   const [activeTab, setActiveTab] = useState('attendance');
+    const { user } = useContext(AuthContext);
 
   const tabStyle = {
     display: 'flex',
@@ -54,7 +56,7 @@ const ClassesAndAttendance = () => {
 
       <div>
         {activeTab === 'classes' && <ClassForm />}
-        {activeTab === 'attendance' && <ClassAttendance />}
+        {activeTab === 'attendance' && <ClassAttendanc teacher={user}e />}
                 {activeTab === 'statistics' && <AttendanceStatisticsView />}
       </div>
     </div>
