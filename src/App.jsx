@@ -10,7 +10,7 @@ import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
 import BirthdaysView from './components/BirthdaysView'
-
+import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -179,6 +179,13 @@ const AppLayout = () => {
           <BirthdaysView onNavigate={setCurrentPage} />
         )}
        
+       {/* Informe Escuela Dominical */}
+{currentPage === 'escuelaDominicalReport' && (
+  <div style={{ padding: '20px' }}>
+    <SundaySchoolReportPage />
+  </div>
+)}
+
       </div>
     </div>
   );
@@ -200,9 +207,11 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
+<Route path="/escuela-dominical/report" element={<SundaySchoolReportPage />} />
         {/* Cualquier otra ruta redirige al panel (protegido) */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
+        
       </Routes>
     </BrowserRouter>
   );

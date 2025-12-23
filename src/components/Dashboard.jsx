@@ -376,6 +376,14 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
             <BookOpen size={24} />
             <span>Ver Miembros</span>
           </button>
+          <button
+  className="action-btn action-btn-warning"
+  onClick={() => onNavigate && onNavigate('escuelaDominicalReport')}
+>
+  <BookOpen size={24} />
+  <span>Informe Escuela Dominical</span>
+</button>
+
         </div>
       </div>
     </div>
