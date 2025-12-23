@@ -75,6 +75,19 @@ const BirthdaysView = () => {
     return (birthdaysByMonth[month] || []).length;
   };
 
+  // Calculate age from birth date
+const getAge = (fechaNacimiento) => {
+  if (!fechaNacimiento) return null;
+  const today = new Date();
+  const birthDate = new Date(fechaNacimiento);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
   const currentBirthdays = getMonthBirthdays();
 
   return (
@@ -145,6 +158,11 @@ const BirthdaysView = () => {
                         </div>
                         <div className="member-info">
                           <h3>{member.nombreCompleto || `${member.nombre || ''} ${member.apellido || ''}`.trim()}</h3>
+                                        {getAge(member.fechaNacimiento) && (
+                                                          <p className="age-badge">
+                                                                              🎂 {getAge(member.fechaNacimiento)} años
+                                                                                              </p>
+                                                                                                            )}
                           {member.celular && (
                             <p className="contact">
                               <i className="phone-icon">📱</i> {member.celular}
