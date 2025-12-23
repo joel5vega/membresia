@@ -9,6 +9,7 @@ import Dashboard from './components/Dashboard';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
+import BirthdaysView from './components/BirthdaysView'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -172,6 +173,10 @@ const AppLayout = () => {
           <div style={{ padding: '20px' }}>
             <ClassHistoryView />
           </div>
+        )}
+                {/* Cumpleaños */}
+        {currentPage === 'cumpleanos' && (
+          <BirthdaysView onNavigate={setCurrentPage} />
         )}
        
       </div>

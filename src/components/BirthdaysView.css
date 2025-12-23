@@ -1,0 +1,298 @@
+/* Birthdays View Styles */
+
+.birthdays-view {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.birthdays-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+}
+
+.birthdays-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: bold;
+}
+
+.birthdays-header .subtitle {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin-top: 10px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  color: #721c24;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+/* Month Selector */
+.month-selector {
+  margin: 30px 0;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.month-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.month-button {
+  padding: 10px 12px;
+  border: 2px solid #bdc3c7;
+  background-color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.month-button:hover {
+  border-color: #3498db;
+  color: #3498db;
+  background-color: #ecf0f1;
+}
+
+.month-button.active {
+  background-color: #3498db;
+  border-color: #3498db;
+  color: white;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.month-button.has-birthdays {
+  font-weight: 600;
+}
+
+.month-name {
+  text-transform: capitalize;
+}
+
+.birthday-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.month-button.active .birthday-badge {
+  background-color: #fff;
+  color: #3498db;
+}
+
+/* Birthdays Container */
+.birthdays-container {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.birthdays-header-info {
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+.birthdays-header-info h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+}
+
+.count-info {
+  color: #7f8c8d;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Birthdays Grid */
+.birthdays-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.birthday-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+    flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.birthday-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.birthday-card.upcoming {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+}
+
+.birthday-card.upcoming:hover {
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.5);
+}
+
+.birthday-card-content {
+  flex: 1;
+}
+
+.birthday-date {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.birthday-date .day {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.birthday-date .month {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.member-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.contact i {
+  display: inline-block;
+  font-style: normal;
+  font-size: 1.1rem;
+}
+
+.birthday-icon {
+  font-size: 3rem;
+  text-align: center;
+  opacity: 0.3;
+  margin-left: 20px;
+  flex-shrink: 0;
+}
+
+/* No Birthdays Message */
+.no-birthdays {
+  text-align: center;
+  padding: 60px 20px;
+  color: #95a5a6;
+}
+
+.no-birthdays p {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .birthdays-view {
+    padding: 15px;
+  }
+
+  .birthdays-header h1 {
+    font-size: 2rem;
+  }
+
+  .month-buttons {
+    gap: 8px;
+  }
+
+  .month-button {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  .birthdays-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .birthday-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .birthday-icon {
+    margin-left: 0;
+    margin-top: 15px;
+    align-self: flex-end;
+  }
+
+  .birthdays-header-info h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .birthdays-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .birthdays-container {
+    padding: 20px;
+  }
+
+  .month-buttons {
+    gap: 6px;
+  }
+
+  .month-button {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+}
