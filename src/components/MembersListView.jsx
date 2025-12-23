@@ -49,10 +49,13 @@ const MembersListView = ({ onAddMember }) => {
     fetchMembers();
   }, [user, authLoading]);
 
+  // Fixed: Removed duplicate filteredMembers declaration
   const filteredMembers = members.filter(member => {
-    const matchesSearch =
-      member.nombreCompleto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.celular?.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.trim().toLowerCase();
+    const matchesSearch = !searchLower || 
+      (member.nombreCompleto?.toLowerCase().includes(searchLower) || 
+       member.celular?.toLowerCase().includes(searchLower) ||
+       member.correo?.toLowerCase().includes(searchLower));
     const matchesClass = filterClass === 'all' || member.clase === filterClass;
     return matchesSearch && matchesClass;
   });
@@ -112,10 +115,10 @@ const MembersListView = ({ onAddMember }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-                          width: '100%',
-                                        fontSize: '1rem',
-                                                      outline: 'none',
-                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            width: '100%',
+            fontSize: '1rem',
+            outline: 'none',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             padding: '8px 12px',
             borderRadius: '4px',
             border: '1px solid #ddd',
@@ -181,7 +184,9 @@ const MembersListView = ({ onAddMember }) => {
                     color: '#1e3a8a'
                   }}
                 >
-                  {`${member.nombre || ''} ${member.apellido || ''}`.trim()}
+                 {member.nombreCompleto ||
+   `${member.nombre || ''} ${member.apellido || ''}`.trim() ||
+   'Sin nombre'}
                 </h3>
                 <p style={{ margin: '5px 0', fontSize: '0.9em' }}>
                   <strong>Teléfono:</strong> {member.celular || 'No registrado'}
