@@ -112,6 +112,10 @@ const MembersListView = ({ onAddMember }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
+                          width: '100%',
+                                        fontSize: '1rem',
+                                                      outline: 'none',
+                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             padding: '8px 12px',
             borderRadius: '4px',
             border: '1px solid #ddd',
