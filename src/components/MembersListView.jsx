@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { memberService } from '../services/memberService';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const clases = [
   'Sociedad de Caballeros "Emanuel"',
@@ -16,6 +17,7 @@ const clases = [
 
 const MembersListView = ({ onAddMember }) => {
   const { user, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -194,6 +196,13 @@ const MembersListView = ({ onAddMember }) => {
                 <p style={{ margin: '5px 0', fontSize: '0.9em' }}>
                   <strong>Clase:</strong> {member.clase || 'No asignada'}
                 </p>
+                                <button
+                  onClick={() => navigate(`/members/${member.id}/edit`)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  title="Editar miembro"
+                >
+                  Editar
+                </button>
               </div>
             ))}
           </div>

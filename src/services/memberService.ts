@@ -112,5 +112,20 @@ export const memberService = {
       console.error('Error searching members:', error);
       throw error;
     }
+      },
+
+  async getMemberById(id: string): Promise<Member> {
+    try {
+      const docRef = doc(db, MEMBERS_COLLECTION, id);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) throw new Error('Member not found');
+      return { id: docSnap.id, ...docSnap.data() } as Member;
+    } catch (error) {
+      console.error('Error fetching member:', error);
+      throw error;
+    }
   },
+
+
+
 };

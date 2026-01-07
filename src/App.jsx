@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MemberForm from './components/MemberForm';
+import EditMemberPage from './pages/EditMemberPage';
 import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
 import ClassHistoryView from './components/ClassHistoryView';
@@ -211,7 +212,7 @@ const App = () => {
         {/* Cualquier otra ruta redirige al panel (protegido) */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
-        
+        <Route path="/members/:id/edit" element={<EditMemberPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { memberService } from '../services/memberService';
 
-const MemberForm = ({ onSuccess, onCancel }) => {
+const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false, memberId = null, initialMember = null}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialMember || initialData) {
+      setFormData(initialMember || initialData);
+    }
+  }, [initialMember, initialData]);
   const [formData, setFormData] = useState({
     // Page 1
     class: '',
@@ -152,7 +158,9 @@ const MemberForm = ({ onSuccess, onCancel }) => {
     
     setLoading(true);
     try {
-      await memberService.addMember(formData);
+      await memberId
+          ? memberService.updateMember(memberId, formData)
+          : memberService.addMember(formData);
       alert('Miembro guardado exitosamente!');
       onSuccess();
     } catch (error) {
