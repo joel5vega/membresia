@@ -76,13 +76,13 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     cargoPosible: '',
     mejorIglesia: '',
     cambiosIglesia: '',
-    notasFamilia:''
+    notasFamilia:'',
         // Page 6: Photo, Dates, and Family
     photoUrl: '',
     baptismDate: '',
     membershipDate: '',
     familyRelationships: [],
-    
+
   });
 
   const handleInputChange = (e) => {
@@ -103,6 +103,22 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
         : prev[field].filter(item => item !== value)
     }));
   };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, photoUrl: reader.result });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    }
+  };
+
 
   // NUEVO: handlers para genograma
   const handleGenogramaChange = (index, field, value) => {
@@ -244,6 +260,29 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
         {currentPage === 1 && (
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Datos Personales</h3>
+
+        {/* Foto de Perfil */}
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">
+            Foto de Perfil
+          </label>
+          <div className="flex items-center gap-4">
+            {formData.photoUrl && (
+              <img
+                src={formData.photoUrl}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border-2 border-blue-500"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
             
             {/* Nombre */}
 <div>
@@ -1195,6 +1234,7 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
               Siguiente
             </button>
           ) : (
+<>
             <button
               onClick={handleSubmit}
               disabled={loading}
@@ -1202,6 +1242,15 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
             >
               {loading ? 'Guardando...' : 'Guardar Miembro'}
             </button>
+            <button
+              onClick={async () => { await handleSubmit(); onSuccess(); }}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-semibold transition-colors"
+            >
+              Guardar y Salir
+            </button>
+                        </>
+                        
+            
           )}
 
           <button
