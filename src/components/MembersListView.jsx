@@ -180,6 +180,24 @@ const MembersListView = ({ onAddMember }) => {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
+                        {/* Avatar Section */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-shrink-0">
+            {member.photoUrl ? (
+              <img
+                src={member.photoUrl}
+                alt={member.nombre}
+                className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+              />
+            ) : (
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold ${
+                member.sexo === 'Masculino' ? 'bg-blue-500' : 'bg-pink-500'
+              }`}>
+                {member.nombre?.charAt(0).toUpperCase() || '👤'}
+              </div>
+            )}
+          </div>
+        </div>
                 <h3
                   style={{
                     margin: '0 0 10px 0',

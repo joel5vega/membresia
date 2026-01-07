@@ -9,6 +9,16 @@ export interface GenogramaPersona {
   viveConElMiembro: boolean;
 }
 
+// Family Member Information
+export interface FamilyMember {
+  id?: string;
+  name: string;
+  relationship: 'spouse' | 'child' | 'parent' | 'sibling' | 'other';
+  dateOfBirth?: string;
+  inChurch?: boolean;
+  notes?: string;
+}
+
 // Modelo interno de Firestore (lo que realmente se guarda)
 export interface Member {
   id: string;
@@ -158,4 +168,9 @@ export interface CreateMemberDTO {
   address?: string;
   status?: 'active' | 'inactive' | 'visitor';
   notes?: string;
+    // Photo and Membership Information
+  photoUrl?: string;
+  baptismDate?: string;
+  membershipDate?: string;
+  familyRelationships?: FamilyMember[];
 }

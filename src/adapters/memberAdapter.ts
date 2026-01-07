@@ -78,5 +78,11 @@ export function dbMemberToFormData(member: any): any {
     iglesiaProcedencia: member.iglesiaProcedencia || '',
     mejorIglesia: member.mejorIglesia || '',
     cambiosIglesia: member.cambiosIglesia || '',
+        // Photo and Membership Information
+    photoUrl: member?.photoUrl || '',
+    baptismDate: member?.baptismDate || '',
+    membershipDate: member?.membershipDate || '',
+    familyRelationships: member?.familyRelationships || [],
+    
   };
 }

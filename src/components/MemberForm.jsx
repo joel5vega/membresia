@@ -77,6 +77,12 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     mejorIglesia: '',
     cambiosIglesia: '',
     notasFamilia:''
+        // Page 6: Photo, Dates, and Family
+    photoUrl: '',
+    baptismDate: '',
+    membershipDate: '',
+    familyRelationships: [],
+    
   });
 
   const handleInputChange = (e) => {
