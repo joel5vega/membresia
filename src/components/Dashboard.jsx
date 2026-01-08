@@ -17,9 +17,9 @@ const Dashboard = ({ onNavigate }) => {
   escuelaDominicalPercentage: 0,
     weeklyAttendance: 0,
     classesSummary: [],
-    recentStats: null
-        maleCount: 0,
-    femaleCount: 0,
+    recentStats: null,
+          maleCount: 0,
+      femaleCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -221,7 +221,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
             )}
           </div>
 
-                {/* Males */}
+                
+        </div>
+{/* Males */}
                 <div className="stat-card stat-card-info">
                   <div className="stat-icon-wrapper">
                     <span style={{fontSize: '2rem'}}>👨</span>
@@ -242,8 +244,6 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
                     <div className="stat-label">Mujeres</div>
                   </div>
                 </div>
-        </div>
-
         {/* Active Classes */}
         <div className="stat-card stat-card-info">
           <div className="stat-icon-wrapper">
