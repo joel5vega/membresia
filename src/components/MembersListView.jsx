@@ -17,6 +17,17 @@ const clases = [
 
 const MembersListView = ({ onAddMember }) => {
   const { user, loading: authLoading } = useAuth();
+
+    // Helper function para obtener icono y color según género
+  const getGenderIconAndColor = (sexo) => {
+    if (sexo === 'Masculino') {
+      return { icon: '👨', bgColor: 'bg-blue-500' };
+    } else if (sexo === 'Femenino') {
+      return { icon: '👩', bgColor: 'bg-pink-500' };
+    } else {
+      return { icon: '👤', bgColor: 'bg-gray-500' }; // Gris/plomo para indefinido
+    }
+  };
     const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -190,11 +201,13 @@ const MembersListView = ({ onAddMember }) => {
                 className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
               />
             ) : (
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold ${
-                member.sexo === 'Masculino' ? 'bg-blue-500' : 'bg-pink-500'
-              }`}>
-                {member.nombre?.charAt(0).toUpperCase() || '👤'}
-              </div>
+<div
+                  className={`w-16 h-16 rounded-full flex items-center justify-center text-white  font-bold ${
+                    getGenderIconAndColor(member.sexo).bgColor
+                  }`}
+                >
+                  {getGenderIconAndColor(member.sexo).icon}
+                </div>
             )}
           </div>
         </div>
