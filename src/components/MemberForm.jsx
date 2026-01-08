@@ -193,6 +193,26 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     }
   };
 
+  const handleSaveAndExit = async () => {
+    if (!validatePage(currentPage)) return;
+    
+    setLoading(true);
+    try {
+      if (memberId) {
+        await memberService.updateMember(memberId, formData);
+      } else {
+        await memberService.addMember(formData);
+      }
+      alert('Miembro guardado exitosamente!');
+      onSuccess();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al guardar miembro: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const zonas = ['1º de mayo', '16 de julio', '25 de julio', 'Alto de la alianza', 'Alto Lima', 'Ballivián', 
 'Ciudad Satélite', 'Complejo', 'Convifag', 'Cosmos 77', 'Cosmos 78', 'Cosmos 79', 
 'Cupilupaca', 'El Kenko', 'Germán Busch', 'Júpiter', 'Julio Cesar Valdez', 'Kollpani', 
@@ -277,6 +297,7 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
             <input
               type="file"
               accept="image/*"
+                        capture="environment"
               onChange={handlePhotoUpload}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -1242,17 +1263,18 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
             >
               {loading ? 'Guardando...' : 'Guardar Miembro'}
             </button>
-            <button
-              onClick={async () => { await handleSubmit(); onSuccess(); }}
-              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-semibold transition-colors"
-            >
-              Guardar y Salir
-            </button>
                         </>
                         
             
           )}
 
+        <button
+          onClick={handleSaveAndExit}
+          disabled={loading}
+          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold transition"
+        >
+          {loading ? 'Guardando...' : 'Guardar y Salir'}
+        </button>
           <button
             onClick={onCancel}
             className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold transition"
