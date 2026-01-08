@@ -20,9 +20,9 @@ const MembersListView = ({ onAddMember }) => {
 
     // Helper function para obtener icono y color según género
   const getGenderIconAndColor = (sexo) => {
-    if (sexo === 'Masculino') {
+    if (sexo === 'M') {
       return { icon: '👨', bgColor: 'bg-blue-500' };
-    } else if (sexo === 'Femenino') {
+    } else if (sexo === 'F') {
       return { icon: '👩', bgColor: 'bg-pink-500' };
     } else {
       return { icon: '👤', bgColor: 'bg-gray-500' }; // Gris/plomo para indefinido
