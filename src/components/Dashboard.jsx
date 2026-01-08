@@ -18,6 +18,8 @@ const Dashboard = ({ onNavigate }) => {
     weeklyAttendance: 0,
     classesSummary: [],
     recentStats: null
+        maleCount: 0,
+    femaleCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +46,10 @@ const Dashboard = ({ onNavigate }) => {
       // Cargar miembros usando el servicio
       const members = await memberService.getMembers();
       console.log('Members loaded:', members?.length || 0);
+
+      // Count males and females
+      const maleCount = members?.filter(m => m.sexo === 'M')?.length || 0;
+      const femaleCount = members?.filter(m => m.sexo === 'F')?.length || 0;
 
       // Estadísticas de la semana actual
       let weeklyStats = null;
@@ -96,6 +102,8 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
         baptizedCount: baptized,
         escuelaDominicalCount: attendEscuelaDominical,
   escuelaDominicalPercentage: parseFloat(escuelaDominicalPercentage),
+          maleCount: maleCount,
+        femaleCount: femaleCount,
         totalClasses: classesMap.size,
         weeklyAttendance: weeklyStats?.overallAttendanceRate || 0,
         classesSummary,
@@ -212,6 +220,28 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
               </div>
             )}
           </div>
+
+                {/* Males */}
+                <div className="stat-card stat-card-info">
+                  <div className="stat-icon-wrapper">
+                    <span style={{fontSize: '2rem'}}>👨</span>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-value">{stats.maleCount}</div>
+                    <div className="stat-label">Varones</div>
+                  </div>
+                </div>
+
+                {/* Females */}
+                <div className="stat-card stat-card-pink">
+                  <div className="stat-icon-wrapper">
+                    <span style={{fontSize: '2rem'}}>👩</span>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-value">{stats.femaleCount}</div>
+                    <div className="stat-label">Mujeres</div>
+                  </div>
+                </div>
         </div>
 
         {/* Active Classes */}
