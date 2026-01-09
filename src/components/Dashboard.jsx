@@ -1,3 +1,4 @@
+
 // src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
@@ -380,6 +381,7 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
             className="action-btn action-btn-info"
             onClick={() => onNavigate && onNavigate('statistics')}
           >
+                          
 <TrendingUp size={24} />
             <span>Ver Estadísticas</span>
 
@@ -398,7 +400,13 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
           <Cake size={24} />
           <span>Cumpleaños</span>
         </button>
-     
+       <button
+                  className="action-btn action-btn-info"
+                  onClick={() => onNavigate && onNavigate('genograms')}
+                >
+                  <Users size={24} />
+                  <span>Árboles Familiares</span>
+                </button>
           <button 
             className="action-btn action-btn-warning"
             onClick={() => onNavigate && onNavigate('members')}

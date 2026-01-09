@@ -5,3 +5,4 @@ export * from './firebaseConfig';
 export * from './memberStatisticsService';
 export { default as classService } from './classService';
 export { default as classAttendanceService } from './classAttendanceService';
+export { familyService } from './genogramService';

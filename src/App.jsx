@@ -12,6 +12,10 @@ import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
 import BirthdaysView from './components/BirthdaysView'
 import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
+import GenogramEditor from './components/Genogram/GenogramEditor';
+import RelationshipManager from './components/Genogram/RelationshipManager';
+import FamilyDashboard from './components/Genogram/FamilyDashboard';
+import GenogramPage from './pages/GenogramPage';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -186,6 +190,8 @@ const AppLayout = () => {
     <SundaySchoolReportPage />
   </div>
 )}
+                {currentPage === "genograms" && (<GenogramEditor />)}
+
 
       </div>
     </div>
@@ -213,6 +219,8 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
 
         <Route path="/members/:id/edit" element={<EditMemberPage />} />
+                <Route path="/genogramas" element={<GenogramPage />} />
+
       </Routes>
     </BrowserRouter>
   );

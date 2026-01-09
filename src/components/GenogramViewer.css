@@ -1,0 +1,193 @@
+.genogram-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.genogram-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.genogram-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.genogram-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-control {
+  padding: 6px 12px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-control:hover {
+  background-color: #1565c0;
+}
+
+.zoom-level {
+  font-weight: 500;
+  color: #666;
+  min-width: 60px;
+  text-align: center;
+}
+
+.genogram-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  background-color: #fafafa;
+}
+
+.genogram-svg {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+.genogram-node {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.genogram-node:hover {
+  opacity: 0.8;
+}
+
+.loading,
+.error,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 16px;
+}
+
+.btn-retry {
+  padding: 8px 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+.btn-retry:hover {
+  background-color: #1565c0;
+}
+
+.member-details {
+  background-color: white;
+  border-top: 1px solid #e0e0e0;
+  max-height: 200px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.details-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.btn-close:hover {
+  color: #333;
+}
+
+.details-content {
+  padding: 16px;
+}
+
+.details-content p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.details-content strong {
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .genogram-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .genogram-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .member-details {
+    max-height: 150px;
+  }
+}
