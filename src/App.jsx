@@ -5,17 +5,17 @@ import EditMemberPage from './pages/EditMemberPage';
 import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
 import ClassHistoryView from './components/ClassHistoryView';
-import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';  // ← IMPORTAR
+import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';
 import Dashboard from './components/Dashboard';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
-import BirthdaysView from './components/BirthdaysView'
-import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
+import BirthdaysView from './components/BirthdaysView';
+import SundaySchoolReportPage from './pages/SundaySchoolReportPage';
 import GenogramEditor from './components/Genogram/GenogramEditor';
-import RelationshipManager from './components/Genogram/RelationshipManager';
-import FamilyDashboard from './components/Genogram/FamilyDashboard';
 import GenogramPage from './pages/GenogramPage';
+import MigrationPage from './pages/MigrationPage';
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -28,7 +28,7 @@ function ProtectedRoute({ children }) {
 const AppLayout = () => {
   const [currentPage, setCurrentPage] = useState('panel');
   const { user, logout } = useAuth();
-  const username = user?.email ? user.email.split('@')[0] : ''; 
+  const username = user?.email ? user.email.split('@')[0] : '';
 
   const buttonStyle = (isActive) => ({
     backgroundColor: isActive ? '#1e40af' : '#1e3a8a',
@@ -105,24 +105,36 @@ const AppLayout = () => {
           >
             Miembros
           </button>
-
+   {/* Botón de Migración - Temporal para configuración inicial */}
+          <button
+  onClick={() => setCurrentPage('migrate')}
+  style={{
+    ...buttonStyle(currentPage === 'migrate'),
+    backgroundColor: currentPage === 'migrate' ? '#dc2626' : '#991b1b',
+  }}
+>
+🔄 Migrar
+</button>
           <button
             onClick={() => setCurrentPage('classes')}
             style={buttonStyle(currentPage === 'classes')}
           >
-            Clases
+            Clase
           </button>
 
-          {/* ← NUEVO BOTÓN DE ESTADÍSTICAS
+       
           <button
-            onClick={() => setCurrentPage('statistics')}
-            style={buttonStyle(currentPage === 'statistics')}
+            onClick={() => setCurrentPage('migrate')}
+            style={{
+              ...buttonStyle(currentPage === 'migrate'),
+              backgroundColor: currentPage === 'migrate' ? '#dc2626' : '#991b1b',
+            }}
           >
-            Estadísticas
-          </button> */}
+            🔄 Migrar
+          </button>
         </div>
 
-        {/* info de usuario y logout */}
+        {/* Info de usuario y logout */}
         <div style={rightNavStyle}>
           <span>{username}</span>
           <button
@@ -148,14 +160,12 @@ const AppLayout = () => {
       <div style={contentStyle}>
         {/* Panel Principal con Dashboard */}
         {currentPage === 'panel' && <Dashboard onNavigate={setCurrentPage} />}
-        
+
         {/* Miembros */}
         {currentPage === 'members' && (
-          <MembersListView
-            onAddMember={() => setCurrentPage('add-member')}
-          />
+          <MembersListView onAddMember={() => setCurrentPage('add-member')} />
         )}
-        
+
         {/* Agregar Miembro */}
         {currentPage === 'add-member' && (
           <MemberForm
@@ -163,36 +173,41 @@ const AppLayout = () => {
             onCancel={() => setCurrentPage('members')}
           />
         )}
-        
+
         {/* Clases y Asistencia */}
         {currentPage === 'classes' && <ClassesAndAttendance />}
-        
-        {/* ← NUEVA PÁGINA DE ESTADÍSTICAS */}
+
+        {/* Página de Migración */}
+        {currentPage === 'migrate' && <MigrationPage />}
+
+        {/* Estadísticas */}
         {currentPage === 'statistics' && (
           <div style={{ padding: '20px' }}>
             <AttendanceStatisticsView />
           </div>
         )}
+
         {/* Historiales y Reportes */}
         {currentPage === 'history' && (
           <div style={{ padding: '20px' }}>
             <ClassHistoryView />
           </div>
         )}
-                {/* Cumpleaños */}
+
+        {/* Cumpleaños */}
         {currentPage === 'cumpleanos' && (
           <BirthdaysView onNavigate={setCurrentPage} />
         )}
-       
-       {/* Informe Escuela Dominical */}
-{currentPage === 'escuelaDominicalReport' && (
-  <div style={{ padding: '20px' }}>
-    <SundaySchoolReportPage />
-  </div>
-)}
-                {currentPage === "genograms" && (<GenogramEditor />)}
 
+        {/* Informe Escuela Dominical */}
+        {currentPage === 'escuelaDominicalReport' && (
+          <div style={{ padding: '20px' }}>
+            <SundaySchoolReportPage />
+          </div>
+        )}
 
+        {/* Genogramas */}
+        {currentPage === 'genograms' && <GenogramEditor />}
       </div>
     </div>
   );
@@ -205,7 +220,47 @@ const App = () => {
         {/* Login público */}
         <Route path="/login" element={<LoginView />} />
 
-        {/* Todo el "panel" protegido */}
+        {/* Página de Migración - Protegida */}
+        <Route
+          path="/migrate"
+          element={
+            <ProtectedRoute>
+              <MigrationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Editar Miembro - Protegido */}
+        <Route
+          path="/members/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EditMemberPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Genogramas - Protegido */}
+        <Route
+          path="/genogramas"
+          element={
+            <ProtectedRoute>
+              <GenogramPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Reporte Escuela Dominical - Protegido */}
+        <Route
+          path="/escuela-dominical/report"
+          element={
+            <ProtectedRoute>
+              <SundaySchoolReportPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Panel principal - Protegido */}
         <Route
           path="/"
           element={
@@ -214,13 +269,9 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-<Route path="/escuela-dominical/report" element={<SundaySchoolReportPage />} />
-        {/* Cualquier otra ruta redirige al panel (protegido) */}
+
+        {/* Cualquier otra ruta redirige al panel */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
-        <Route path="/members/:id/edit" element={<EditMemberPage />} />
-                <Route path="/genogramas" element={<GenogramPage />} />
-
       </Routes>
     </BrowserRouter>
   );

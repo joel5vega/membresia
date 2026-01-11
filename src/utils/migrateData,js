@@ -1,0 +1,167 @@
+import { db } from '../services/firebaseConfig';
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  writeBatch,
+  Timestamp,
+} from 'firebase/firestore';
+
+export async function migrateDataToChurch(userId, userEmail, churchName) {
+  console.log('🚀 Iniciando migración de datos...');
+  
+  try {
+    const batch = writeBatch(db);
+    
+    // 1. Crear documento de iglesia
+    const churchId = `church_${userId}`; // Usar el userId como base para el churchId
+    const churchRef = doc(db, 'iglesias', churchId);
+    
+    batch.set(churchRef, {
+      name: churchName,
+      ownerId: userId,
+      ownerEmail: userEmail,
+      address: '',
+      phone: '',
+      description: 'Migración automática',
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    
+    console.log('✅ Iglesia creada:', churchId);
+    
+    // 2. Crear perfil de usuario
+    const userRef = doc(db, 'users', userId);
+    batch.set(userRef, {
+      email: userEmail,
+      churchId: churchId,
+      churchName: churchName,
+      role: 'admin',
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+    
+    console.log('✅ Perfil de usuario creado');
+    
+    // 3. Crear miembro en churchMembers
+    const churchMemberRef = doc(db, 'iglesias', churchId, 'churchMembers', userId);
+    batch.set(churchMemberRef, {
+      userId: userId,
+      email: userEmail,
+      role: 'admin',
+      addedAt: Timestamp.now(),
+    });
+    
+    // Commit del primer batch
+    await batch.commit();
+    console.log('✅ Estructura base creada');
+    
+    // 4. Migrar miembros existentes
+    const oldMembersRef = collection(db, 'members');
+    const membersSnapshot = await getDocs(oldMembersRef);
+    
+    console.log(`📋 Encontrados ${membersSnapshot.size} miembros para migrar`);
+    
+    if (membersSnapshot.size > 0) {
+      const memberBatch = writeBatch(db);
+      let count = 0;
+      
+      for (const memberDoc of membersSnapshot.docs) {
+        const memberData = memberDoc.data();
+        const newMemberRef = doc(db, 'iglesias', churchId, 'miembros', memberDoc.id);
+        
+        memberBatch.set(newMemberRef, {
+          ...memberData,
+          churchId: churchId, // Agregar referencia a la iglesia
+        });
+        
+        count++;
+        
+        // Firestore tiene límite de 500 operaciones por batch
+        if (count % 500 === 0) {
+          await memberBatch.commit();
+          console.log(`✅ Migrados ${count} miembros...`);
+        }
+      }
+      
+      // Commit de miembros restantes
+      await memberBatch.commit();
+      console.log(`✅ Total de ${count} miembros migrados`);
+    }
+    
+    // 5. Migrar familias existentes si existen
+    try {
+      const oldFamiliesRef = collection(db, 'families');
+      const familiesSnapshot = await getDocs(oldFamiliesRef);
+      
+      if (familiesSnapshot.size > 0) {
+        console.log(`👨‍👩‍👧 Encontradas ${familiesSnapshot.size} familias para migrar`);
+        
+        const familyBatch = writeBatch(db);
+        let familyCount = 0;
+        
+        for (const familyDoc of familiesSnapshot.docs) {
+          const familyData = familyDoc.data();
+          const newFamilyRef = doc(db, 'iglesias', churchId, 'families', familyDoc.id);
+          
+          familyBatch.set(newFamilyRef, {
+            ...familyData,
+            churchId: churchId,
+          });
+          
+          familyCount++;
+        }
+        
+        await familyBatch.commit();
+        console.log(`✅ ${familyCount} familias migradas`);
+      }
+    } catch (error) {
+      console.log('ℹ️ No hay familias para migrar o colección no existe');
+    }
+    
+    console.log('🎉 ¡Migración completada exitosamente!');
+    console.log(`Tu Church ID es: ${churchId}`);
+    
+    return {
+      success: true,
+      churchId: churchId,
+      message: 'Migración completada exitosamente',
+    };
+    
+  } catch (error) {
+    console.error('❌ Error durante la migración:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
+// Función para verificar el estado de la migración
+export async function checkMigrationStatus(userId) {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDocs(userRef);
+    
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      console.log('✅ Usuario ya tiene perfil:', userData);
+      return {
+        migrated: true,
+        churchId: userData.churchId,
+      };
+    } else {
+      console.log('⚠️ Usuario no tiene perfil, necesita migración');
+      return {
+        migrated: false,
+      };
+    }
+  } catch (error) {
+    console.error('Error verificando estado:', error);
+    return {
+      migrated: false,
+      error: error.message,
+    };
+  }
+}

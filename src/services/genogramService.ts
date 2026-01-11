@@ -76,12 +76,12 @@ export const familyService = {
     return { id: docRef.id, churchId, name, rootPersonId, memberCount: 1, createdAt: now, updatedAt: now } as Family;
   },
 
-  async getFamiliesByChurch(churchId: string): Promise<Family[]> {
-    const q = query(collection(db, 'families'), where('churchId', '==', churchId));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Family));
-  },
-
+ async getFamiliesByChurch(churchId: string): Promise<Family[]> {
+  // FIX: Usar la ruta correcta con subcollection
+  const familiesRef = collection(db, 'iglesias', churchId, 'families');
+  const querySnapshot = await getDocs(familiesRef);
+  return querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Family));
+},
   async getFamilyById(familyId: string): Promise<Family | null> {
     const docSnap = await getDoc(doc(db, 'families', familyId));
     return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Family) : null;
@@ -321,6 +321,26 @@ export const familyCreationService = {
       throw error;
     }
   },
+async createFamily(
+  churchId: string,
+  name: string,
+  rootPersonId: string,
+  description?: string
+): Promise<Family> {
+  const now = Timestamp.now();
+  // FIX: Usar la ruta correcta con subcollection
+  const docRef = await addDoc(collection(db, 'iglesias', churchId, 'families'), {
+    churchId,
+    name,
+    rootPersonId,
+    description,
+    memberCount: 1,
+    createdAt: now,
+    updatedAt: now,
+    tags: ['new'],
+  });
+  return { id: docRef.id, churchId, name, rootPersonId, memberCount: 1, createdAt: now, updatedAt: now } as Family;
+},
 
   async createFamilyFromMembers(
     churchId: string,
