@@ -7,6 +7,8 @@ import ClassesAndAttendance from './components/ClassesAndAttendance';
 import ClassHistoryView from './components/ClassHistoryView';
 import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';
 import Dashboard from './components/Dashboard';
+import FamilyForm from './components/Genogram/FamilyForm';
+import FamilyDashboard from './components/Genogram/FamilyDashboard';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
