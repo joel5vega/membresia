@@ -8,7 +8,7 @@ import "./GenogramEditor.css";
 
 const GenogramEditor = () => {
     const { user } = useAuth();
-      const churchId = user?.iglesia || user?.churchId;
+      const churchId = user?.iglesia || user?.churchI || 'IED8_Canaa';
   const [viewMode, setViewMode] = useState("directory");
   const [families, setFamilies] = useState([]);
   const [selectedFamily, setSelectedFamily] = useState(null);

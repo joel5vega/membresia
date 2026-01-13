@@ -148,5 +148,6 @@ export const memberService = {
       console.error('Error fetching member:', error);
       throw error;
     }
+  
   },
 };

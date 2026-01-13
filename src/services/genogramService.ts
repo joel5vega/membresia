@@ -310,9 +310,10 @@ export const familyCreationService = {
         throw new Error('Invalid churchId: must be a non-empty string');
       }
 
-      const membersRef = collection(db, 'iglesias', String(churchId), 'miembros');
+      const membersRef = collection(db, 'members');
       const querySnapshot = await getDocs(membersRef);
       return querySnapshot.docs.map(doc => ({
+            console.log('Miembros cargados:', querySnapshot.docs.length);
         id: doc.id,
         ...doc.data()
       }));
@@ -363,7 +364,7 @@ async createFamily(
 
     try {
       // Ensure churchId is string and create family document
-      const churchIdStr = String(churchId);
+      const churchIdStr = churchId;
       const familiesCollectionRef = collection(db, 'iglesias', churchIdStr, 'families');
       
       const familyRef = await addDoc(familiesCollectionRef, {
@@ -415,7 +416,7 @@ async createFamily(
         throw new Error('Invalid familyId: must be a non-empty string');
       }
 
-      const churchIdStr = String(churchId);
+      const churchIdStr = churchId;
       const familyIdStr = String(familyId);
       
       const personsRef = collection(db, 'iglesias', churchIdStr, 'genogramPersons');

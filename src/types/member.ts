@@ -103,6 +103,7 @@ export interface Member {
 // Puedes mantenerlo cercano al shape del form para no hacer mapping extra.
 export interface CreateMemberDTO {
   // Página 1
+    churchId: string;
   nombre: string;
   apellido: string;
   fechaNacimiento: string;

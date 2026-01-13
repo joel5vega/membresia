@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { memberService } from '../../../services/memberService';
 import { Check, X } from 'lucide-react';
 import { familyCreationService } from '../../services/genogramService';
 
@@ -28,7 +29,7 @@ const FamilyForm = ({ churchId, onSuccess, onCancel }) => {
         return;
       }
       
-      const membersList = await familyCreationService.getMembersForFamilyCreation(churchId);
+      const membersList = await memberService.getAllMembers();
       console.log('membersList:', membersList);
       
       if (membersList && membersList.length > 0) {
