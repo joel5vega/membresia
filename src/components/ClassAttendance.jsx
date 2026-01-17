@@ -98,7 +98,7 @@ const ClassAttendance = ({ teacher, classId }) => {
 
     const handleSaveAttendance = async () => {
           try {
-if (!classId) {                            setError('Teacher information is missing');
+if (!teacher) {                            setError('Teacher information is missing');
                                     return;
                                           }
                   const db = getFirestore();
