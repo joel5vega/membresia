@@ -30,7 +30,10 @@ const ClassAttendance = ({ teacher, classId }) => {
     'Clase de Exploradores': 'Clase de Exploradores',
     'Clase de Estrellitas': 'Clase de Estrellitas',
     'Clase de joyitas': 'Clase de joyitas',
-    Avanzada: 'Avanzada',
+    'Av. Jireh':'Av. Jireh',
+    'Av. Luz del evangelio':'Av. Luz del evangelio',
+    'Av. Elohim':'Av. Elohim',
+    'Av. Jesús es el camino':'Av. Jesús es el camino'    
   };
 
   useEffect(() => {
