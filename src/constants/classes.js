@@ -6,7 +6,8 @@ export const CLASSES = [
   'Vencedores',
   'Exploradores',
   'Estrellitas',
-  'Joyitas'
+  'Joyitas',
+  'Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino'
 ];
 
 export const ATTENDANCE_STATUS = {
