@@ -14,6 +14,7 @@ import BirthdaysView from './components/BirthdaysView'
 import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
 import ClassManagementView from './components/ClassManagementView';
 import AttendanceSummaryView from './components/Attendance/AttendanceSummaryView';
+import InstallPrompt from './components/InstallPrompt';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -225,8 +226,8 @@ const App = () => {
 
         <Route path="/members/:id/edit" element={<EditMemberPage />} />
       </Routes>
+                <InstallPrompt />
     </BrowserRouter>
   );
-};
 
-export default App;
+};export default App;
