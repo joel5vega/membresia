@@ -1,11 +1,12 @@
 // src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3, User, UserCircle, ClipboardList } from 'lucide-react';
+import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3, User, UserCircle, ClipboardList, Download } from 'lucide-react';
 import { memberService } from '../services/memberService';
 import { getWeeklyStatistics } from '../services/attendanceStatisticsService';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 import ClassHistoryView from './ClassHistoryView';
+import { useInstallPrompt } from './InstallPrompt';
 
 const Dashboard = ({ onNavigate }) => {
   const { user, loading: authLoading } = useAuth();
@@ -23,6 +24,7 @@ const Dashboard = ({ onNavigate }) => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+    const { isInstallable, promptInstall } = useInstallPrompt();
 
   useEffect(() => {
     if (authLoading) return;
@@ -204,21 +206,7 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
           </div>
         </div>
 
-        {/* Baptized */}
-        <div className="stat-card stat-card-success">
-          
-          <div className="stat-content">
-            <div className="stat-value">{stats.baptizedCount}</div>
-            <div className="stat-label">Bautizados</div>
-            {stats.totalMembers > 0 && (
-              <div className="stat-detail">
-                {((stats.baptizedCount / stats.totalMembers) * 100).toFixed(1)}% del total
-              </div>
-            )}
-          </div>
-
-                
-        </div>
+  
 {/* Males */}
                 <div className="stat-card stat-card-info">
                   {/* <div className="stat-icon-wrapper">
@@ -240,16 +228,32 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
                     <div className="stat-label">Mujeres</div>
                   </div>
                 </div>
+
+                      {/* Baptized */}
+        <div className="stat-card stat-card-success">
+          
+          <div className="stat-content">
+            <div className="stat-value">{stats.baptizedCount}</div>
+            <div className="stat-label">Bautizados</div>
+            {stats.totalMembers > 0 && (
+              <div className="stat-detail">
+                {((stats.baptizedCount / stats.totalMembers) * 100).toFixed(1)}% del total
+              </div>
+            )}
+          </div>
+
+                
+        </div>
         {/* Active Classes */}
-        <div className="stat-card stat-card-info">
-          {/* <div className="stat-icon-wrapper">
+        {/* <div className="stat-card stat-card-info">
+           <div className="stat-icon-wrapper">
             <BookOpen size={36} />
-          </div> */}
+          </div> 
           <div className="stat-content">
             <div className="stat-value">{stats.totalClasses}</div>
             <div className="stat-label">Clases Activas</div>
           </div>
-        </div>
+        </div> */}
 
         {/* Weekly Attendance */}
         <div className="stat-card stat-card-warning">
@@ -394,6 +398,15 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
             >
               <ClipboardList size={24} />
               <span>Ver resumen de asistencia</span>
+            </button>
+                        <button
+              className="action-btn action-btn-primary"
+              onClick={promptInstall}
+              disabled={!isInstallable}
+              title={isInstallable ? 'Instalar aplicación' : 'Instalación no disponible'}
+            >
+              <Download size={24} />
+              <span>Instalar App</span>
             </button>
           <button 
             className="action-btn action-btn-warning"

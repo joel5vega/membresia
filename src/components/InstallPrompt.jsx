@@ -1,6 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import './InstallPrompt.css';
+// Hook personalizado para usar la funcionalidad de instalación en cualquier componente
+export const useInstallPrompt = () => {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const promptInstall = async () => {
+    if (!deferredPrompt) {
+      alert('La instalación no está disponible en este momento. Intenta desde un navegador compatible (Chrome, Edge)');
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      console.log('Usuario aceptó la instalación');
+    }
+
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+
+  return { isInstallable, promptInstall };
+};
+
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
