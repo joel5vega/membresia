@@ -7,7 +7,7 @@ const ClassAttendance = ({ classId }) => {
   const [classMembers, setClassMembers] = useState([]);
   const [attendanceMap, setAttendanceMap] = useState({});
   const [loading, setLoading] = useState(true);
-  const [selectedClass, setSelectedClass] = useState('ninos');
+  const [selectedClass, setSelectedClass] = useState('');
   const [todayDate, setTodayDate] = useState(new Date().toISOString().split('T')[0]);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -247,6 +247,9 @@ const ClassAttendance = ({ classId }) => {
                   boxSizing: 'border-box',
                 }}
               >
+                <option value="" disabled>
+    Selecciona una clase...
+  </option>
                 {Object.entries(classOptions).map(([key, label]) => (
                   <option key={key} value={key}>
                     {label}

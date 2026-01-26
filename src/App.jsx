@@ -13,6 +13,8 @@ import MembresiaIcon from './assets/membresia-icon.png';
 import BirthdaysView from './components/BirthdaysView'
 import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
 import ClassManagementView from './components/ClassManagementView';
+import AttendanceSummaryView from './components/Attendance/AttendanceSummaryView';
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -170,6 +172,13 @@ const AppLayout = () => {
             <AttendanceStatisticsView />
           </div>
         )}
+              {/* Resumen de asistencia */}
+      {currentPage === 'attendance-summary' && (
+        <div style={{ padding: '20px' }}>
+          <AttendanceSummaryView />
+        </div>
+      )}
+
         {/* Historiales y Reportes */}
         {currentPage === 'history' && (
           <div style={{ padding: '20px' }}>

@@ -398,7 +398,12 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
           <Cake size={24} />
           <span>Cumpleaños</span>
         </button>
-     
+        <button
+        onClick={() => onNavigate('attendance-summary')}
+        style={{ /* estilos de tu tarjeta/botón */ }}
+      >
+        Ver resumen de asistencia
+      </button>
           <button 
             className="action-btn action-btn-warning"
             onClick={() => onNavigate && onNavigate('members')}

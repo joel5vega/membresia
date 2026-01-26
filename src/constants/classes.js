@@ -15,3 +15,4 @@ export const ATTENDANCE_STATUS = {
   ABSENT: 'Ausente',
   LATE: 'Tardío'
 };
+
