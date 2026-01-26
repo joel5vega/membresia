@@ -41,7 +41,7 @@ const BirthdaysView = () => {
       if (member.fechaNacimiento) {
         try {
           const date = new Date(member.fechaNacimiento);
-          const month = date.getMonth() + 1; // 1-12
+          const month = date.getUTCMonth() + 1; // 1-12
           
           if (!grouped[month]) {
             grouped[month] = [];
@@ -49,7 +49,7 @@ const BirthdaysView = () => {
           
           grouped[month].push({
             ...member,
-            dayOfMonth: date.getDate()
+            dayOfMonth: date.getUTCDate()
           });
         } catch (e) {
           console.error('Invalid date for member:', member.id, member.fechaNacimiento);
@@ -81,8 +81,8 @@ const getAge = (fechaNacimiento) => {
   const today = new Date();
   const birthDate = new Date(fechaNacimiento);
   let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  const monthDiff = today.getUTCMonth() - birthDate.getUTCMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < birthDate.getUTCDate())) {
     age--;
   }
   return age;
@@ -143,8 +143,8 @@ const getAge = (fechaNacimiento) => {
                   const birthDate = new Date(member.fechaNacimiento);
                   const today = new Date();
                   const isUpcoming = 
-                    birthDate.getMonth() === today.getMonth() &&
-                    birthDate.getDate() >= today.getDate();
+                    birthDate.getMonth() === today.getUTCMonth() &&
+                    birthDate.getUTCDate() >= today.getUTCDate();
 
                   return (
                     <div
