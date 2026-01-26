@@ -12,6 +12,7 @@ import { useAuth } from './context/AuthContext';
 import MembresiaIcon from './assets/membresia-icon.png';
 import BirthdaysView from './components/BirthdaysView'
 import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
+import ClassManagementView from './components/ClassManagementView';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -198,6 +199,7 @@ const App = () => {
       <Routes>
         {/* Login público */}
         <Route path="/login" element={<LoginView />} />
+        <Route path="/clases" element={<ClassManagementView />} />
 
         {/* Todo el "panel" protegido */}
         <Route

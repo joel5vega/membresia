@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { memberService, attendanceService } from '../services';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 
-const ClassAttendance = ({ teacher, classId }) => {
+const ClassAttendance = ({ classId }) => {
   const [classMembers, setClassMembers] = useState([]);
   const [attendanceMap, setAttendanceMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,28 @@ const ClassAttendance = ({ teacher, classId }) => {
   const [ofrenda, setOfrenda] = useState('');
   const [biblia, setBiblia] = useState(0);
   const [anuncios, setAnuncios] = useState('');
+
+    // Cargar clases desde Firestore
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        const db = getFirestore();
+        const classesSnapshot = await getDocs(collection(db, 'classes'));
+        const classList = classesSnapshot.docs
+          .filter(doc => doc.data().activo)
+          .map(doc => ({
+            value: doc.data().nombre,
+            label: doc.data().nombre,
+            id: doc.id,
+            ...doc.data()
+          }));
+        setClassMembers(classList);
+      } catch (error) {
+        console.error('Error al cargar clases:', error);
+      }
+    };
+    loadClasses();
+  }, []);
 
   
 
@@ -101,15 +123,12 @@ const ClassAttendance = ({ teacher, classId }) => {
 
     const handleSaveAttendance = async () => {
           try {
-if (!teacher) {                            setError('Teacher information is missing');
-                                    return;
-                                          }
                   const db = getFirestore();
                         await addDoc(collection(db, 'attendance'), {
-                                        classId: classId || teacher?.id,
+                                        classId: classId,
                                           date: todayDate,
                                                   maestro,
-                                                          varomes,
+                                                          varones,
                                                                   mujeres,
                                                                           tema,
                                                                                   ofrenda,
@@ -164,7 +183,7 @@ if (!teacher) {                            setError('Teacher information is miss
             Registrar asistencia
           </h1>
           <p style={{ color: '#6b7280', marginBottom: '12px', fontSize: '14px' }}>
-            Bienvenido, {teacher?.displayName}
+            Bienvenido, {maestro}
           </p>
 
           {error && (
