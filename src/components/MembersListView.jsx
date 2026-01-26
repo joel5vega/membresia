@@ -12,7 +12,7 @@ const clases = [
   'Clase de Exploradores',
   'Clase de Estrellitas',
   'Clase de joyitas',
-  'Avanzada'
+  'Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino'
 ];
 
 const MembersListView = ({ onAddMember }) => {
