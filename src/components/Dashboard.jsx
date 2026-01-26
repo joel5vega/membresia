@@ -1,6 +1,6 @@
 // src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
+import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3, User, UserCircle, ClipboardList } from 'lucide-react';
 import { memberService } from '../services/memberService';
 import { getWeeklyStatistics } from '../services/attendanceStatisticsService';
 import { useAuth } from '../context/AuthContext';
@@ -197,9 +197,7 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
       <div className="stats-grid">
         {/* Total Members */}
         <div className="stat-card stat-card-primary">
-          <div className="stat-icon-wrapper">
-            <Users size={36} />
-          </div>
+        
           <div className="stat-content">
             <div className="stat-value">{stats.totalMembers}</div>
             <div className="stat-label">Miembros Totales</div>
@@ -208,9 +206,7 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
 
         {/* Baptized */}
         <div className="stat-card stat-card-success">
-          <div className="stat-icon-wrapper">
-            <CheckCircle size={36} />
-          </div>
+          
           <div className="stat-content">
             <div className="stat-value">{stats.baptizedCount}</div>
             <div className="stat-label">Bautizados</div>
@@ -225,9 +221,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
         </div>
 {/* Males */}
                 <div className="stat-card stat-card-info">
-                  <div className="stat-icon-wrapper">
-                    <span style={{fontSize: '2rem'}}>👨</span>
-                  </div>
+                  {/* <div className="stat-icon-wrapper">
+                    <User size={36} stroke="#000000" />
+                  </div> */}
                   <div className="stat-content">
                     <div className="stat-value">{stats.maleCount}</div>
                     <div className="stat-label">Varones</div>
@@ -236,9 +232,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
 
                 {/* Females */}
                 <div className="stat-card stat-card-pink">
-                  <div className="stat-icon-wrapper">
+                  {/* <div className="stat-icon-wrapper">
                     <span style={{fontSize: '2rem'}}>👩</span>
-                  </div>
+                  </div> */}
                   <div className="stat-content">
                     <div className="stat-value">{stats.femaleCount}</div>
                     <div className="stat-label">Mujeres</div>
@@ -246,9 +242,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
                 </div>
         {/* Active Classes */}
         <div className="stat-card stat-card-info">
-          <div className="stat-icon-wrapper">
+          {/* <div className="stat-icon-wrapper">
             <BookOpen size={36} />
-          </div>
+          </div> */}
           <div className="stat-content">
             <div className="stat-value">{stats.totalClasses}</div>
             <div className="stat-label">Clases Activas</div>
@@ -257,9 +253,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
 
         {/* Weekly Attendance */}
         <div className="stat-card stat-card-warning">
-          <div className="stat-icon-wrapper">
+          {/* <div className="stat-icon-wrapper">
             <TrendingUp size={36} />
-          </div>
+          </div> */}
           <div className="stat-content">
             <div className="stat-value">{stats.weeklyAttendance.toFixed(1)}%</div>
             <div className="stat-label">Asistencia Semanal</div>
@@ -267,9 +263,9 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
         </div>
           {/* NEW: Escuela Dominical */}
   <div className="stat-card stat-card-purple">
-    <div className="stat-icon-wrapper">
+    {/* <div className="stat-icon-wrapper">
       <BookOpen size={36} />
-    </div>
+    </div> */}
     <div className="stat-content">
       <div className="stat-value">{stats.escuelaDominicalPercentage}%</div>
       <div className="stat-label">Escuela Dominical</div>
@@ -378,32 +374,27 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
           </button>
           <button 
             className="action-btn action-btn-info"
-            onClick={() => onNavigate && onNavigate('statistics')}
+            onClick={() => onNavigate('statistics')}
           >
 <TrendingUp size={24} />
             <span>Ver Estadísticas</span>
 
           </button>
-                        <button
-              className="action-btn action-btn-warning"
-              onClick={() => onNavigate && onNavigate('history')}
-            >
-              <BarChart3 size={24} />
-              <span>Historiales y Reportes</span>
-            </button>
+                       
                     <button
           className="action-btn action-btn-success"
-          onClick={() => onNavigate && onNavigate('cumpleanos')}
+                      onClick={() => onNavigate('cumpleanos')}
         >
           <Cake size={24} />
           <span>Cumpleaños</span>
         </button>
         <button
-        onClick={() => onNavigate('attendance-summary')}
-        style={{ /* estilos de tu tarjeta/botón */ }}
-      >
-        Ver resumen de asistencia
-      </button>
+              className="action-btn action-btn-info"
+              onClick={() => onNavigate && onNavigate('attendance-summary')}
+            >
+              <ClipboardList size={24} />
+              <span>Ver resumen de asistencia</span>
+            </button>
           <button 
             className="action-btn action-btn-warning"
             onClick={() => onNavigate && onNavigate('members')}
@@ -413,12 +404,18 @@ console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage
           </button>
           <button
   className="action-btn action-btn-warning"
-  onClick={() => onNavigate && onNavigate('escuelaDominicalReport')}
+  onClick={() => onNavigate('escuelaDominicalReport')}
 >
   <BookOpen size={24} />
   <span>Informe Escuela Dominical</span>
 </button>
-
+ <button
+              className="action-btn action-btn-warning"
+                          onClick={() => onNavigate('history')}
+            >
+              <BarChart3 size={24} />
+              <span> Reportes</span>
+            </button>
         </div>
       </div>
     </div>
