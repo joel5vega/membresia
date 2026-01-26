@@ -16,9 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
-      });
+      const registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, {
+                scope: import.meta.env.BASE_URL
+            });
       console.log('Service Worker registered successfully:', registration);
       
       // Initialize IndexedDB for offline data storage
