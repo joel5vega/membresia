@@ -7,7 +7,12 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
-    open: true
+    open: true,
+            hmr: process.env.CODESPACES === 'true' ? {
+            host: process.env.CODESPACE_NAME + '-5173.' + process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN,
+      protocol: 'wss',
+      clientPort: 443
+    } : true,
   },
   build: {
     outDir: 'dist',
