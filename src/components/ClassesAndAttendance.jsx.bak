@@ -162,9 +162,6 @@ const ClassesAndAttendance = () => {
       {activeTab === 'newEntry' && <NewAttendanceEntry onBack={() => setActiveTab('attendance')} />}
       {activeTab === 'dashboard' && <AttendanceDashboard onBack={() => setActiveTab('attendance')} />}
       {activeTab === 'reports' && <MonthlyReportsView onBack={() => setActiveTab('attendance')} />}
-      {activeTab === 'newEntry' && <NewAttendanceEntry onBack={() => setActiveTab('attendance')} />}
-      {activeTab === 'dashboard' && <AttendanceDashboard onBack={() => setActiveTab('attendance')} />}
-      {activeTab === 'reports' && <MonthlyReportsView onBack={() => setActiveTab('attendance')} />}
       </div>
     </div>
   );

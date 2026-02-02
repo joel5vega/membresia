@@ -283,7 +283,7 @@ const ClassAttendance = ({ classId }) => {
                 }}
               />
                             {/* Row 2: Maestro, Varones, Mujeres, Total */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              {/* <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Maestro</label>
                   <input type="text" placeholder="Nombre del maestro" style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
@@ -300,10 +300,10 @@ const ClassAttendance = ({ classId }) => {
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Total</label>
                   <input type="number" placeholder="0" disabled style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#f0f0f0' }} />
                 </div>
-              </div>
+              </div> */}
               
               {/* Row 3: Tema, Ofrenda, Biblia */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              {/* <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Tema</label>
                   <input type="text" placeholder="Ej: La Resurreccion" style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
@@ -316,13 +316,13 @@ const ClassAttendance = ({ classId }) => {
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Biblia</label>
                   <input type="number" placeholder="Ej: 3" style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
                 </div>
-              </div>
+              </div> */}
               
               {/* Row 4: Anuncios */}
-              <div style={{ marginBottom: '15px' }}>
+              {/* <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Anuncios</label>
                 <input type="text" placeholder="Ej: Retiro el próximo mes" style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
-              </div>
+              </div> */}
             </div>
           </div>
 
