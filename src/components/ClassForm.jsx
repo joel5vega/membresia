@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createOrUpdateClass } from '../services/classService';
-import { createBatchClassAttendance } from '../services/classAttendanceService';
+import { createBatchClassAttendance } from '../services/classAttendanceService.js';
 
 const ClassForm = ({ onClassCreated }) => {
   const [formData, setFormData] = useState({
