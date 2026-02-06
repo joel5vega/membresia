@@ -1,11 +1,11 @@
-// src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3, User, UserCircle, ClipboardList, Download } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+
+import { Cake, Users, BookOpen, Calendar, TrendingUp, CheckCircle, XCircle, BarChart3, ClipboardList, Download } from 'lucide-react';
 import { memberService } from '../services/memberService';
 import { getWeeklyStatistics } from '../services/attendanceStatisticsService';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
-import ClassHistoryView from './ClassHistoryView';
 import { useInstallPrompt } from './InstallPrompt';
 
 const Dashboard = ({ onNavigate }) => {
@@ -13,422 +13,226 @@ const Dashboard = ({ onNavigate }) => {
   const [stats, setStats] = useState({
     totalMembers: 0,
     baptizedCount: 0,
-    totalClasses: 0,
-    escuelaDominicalCount: 0,
-  escuelaDominicalPercentage: 0,
+    maleCount: 0,
+    femaleCount: 0,
     weeklyAttendance: 0,
     classesSummary: [],
-    recentStats: null,
-          maleCount: 0,
-      femaleCount: 0,
+    recentStats: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-    const { isInstallable, promptInstall } = useInstallPrompt();
+  const { isInstallable, promptInstall } = useInstallPrompt();
+const CLASS_ICONS = {
+  'soldados': '🛡️ Jóv.',
+    'señoras': '🌸Señ',
+  'caballeros': '👔 Cab',
+  'matrimonios': '💍 Mat',
+  'default': '👥',
+  'joyitas': '💎 Joy',
+   'estrellitas': '⭐ Est',
+   'vencedores': '🏆 Ven',
+   'jireh': '🐑 Jir',
+    'elohim': '🕊️ Elo',
+   'evangelio': '💡 Luz',
+    'camino': '🛣️ Jes',
+     'exploradores': '🧭 Exp',
 
+
+   
+};
+const getIconForClass = (name) => {
+  const lowerName = name.toLowerCase();
+  const key = Object.keys(CLASS_ICONS).find(k => lowerName.includes(k));
+  return CLASS_ICONS[key] || CLASS_ICONS['default'];
+};
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, name, percent }) => {
+  const radius = outerRadius + 25;
+  const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+  const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+  const icon = getIconForClass(name);
+
+  return (
+    <text x={x} y={y} fill="#4B5563" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize="11" fontWeight="500">
+      {`${icon} : ${(percent * 100).toFixed(0)}% (${value})`}
+    </text>
+  );
+};
   useEffect(() => {
     if (authLoading) return;
-
     if (!user) {
       setLoading(false);
-      setError('Debe iniciar sesión para ver el dashboard.');
+      setError('Debe iniciar sesión.');
       return;
     }
-
     loadDashboardData();
   }, [user, authLoading]);
 
   const loadDashboardData = async () => {
     setLoading(true);
-    setError(null);
-    
     try {
-      console.log('Loading dashboard data...');
-      
-      // Cargar miembros usando el servicio
       const members = await memberService.getMembers();
-      console.log('Members loaded:', members?.length || 0);
-
-      // Count males and females
       const maleCount = members?.filter(m => m.sexo === 'M')?.length || 0;
       const femaleCount = members?.filter(m => m.sexo === 'F')?.length || 0;
-
-      // Estadísticas de la semana actual
-      let weeklyStats = null;
-      try {
-        weeklyStats = await getWeeklyStatistics(new Date());
-        console.log('Weekly stats loaded:', weeklyStats);
-      } catch (err) {
-        console.warn('Could not load weekly statistics:', err);
-      }
-
-      // Calcular bautizados
       const baptized = members.filter(m => m.bautizado === 'Sí').length;
-      console.log('Baptized members:', baptized);
-      // Calcular asistencia a Escuela Dominical
-const attendEscuelaDominical = members.filter(m => m.escuelaDominical === 'Sí').length;
-const escuelaDominicalPercentage = members.length > 0 
-  ? ((attendEscuelaDominical / members.length) * 100).toFixed(1) 
-  : 0;
-console.log('Escuela Dominical attendance:', attendEscuelaDominical, 'Percentage:', escuelaDominicalPercentage);
 
-      // Agrupar miembros por clase (usando el campo 'clase' de members)
+      let weeklyStats = null;
+      try { weeklyStats = await getWeeklyStatistics(new Date()); } catch (e) {}
+
       const classesMap = new Map();
       members.forEach(member => {
         const className = member.clase || 'Sin Clase';
         if (!classesMap.has(className)) {
-          classesMap.set(className, {
-            name: className,
-            memberCount: 0,
-            color: getClassColor(className)
-          });
+          classesMap.set(className, { name: className, value: 0, color: getClassColor(className) });
         }
-        classesMap.get(className).memberCount++;
+        classesMap.get(className).value++;
       });
 
-      // Convertir a array y calcular porcentajes
       const classesSummary = Array.from(classesMap.values())
-        .map(cls => ({
-          ...cls,
-          percentage: members.length > 0 
-            ? ((cls.memberCount / members.length) * 100).toFixed(1) 
-            : 0
-        }))
-        .filter(cls => cls.memberCount > 0)
-        .sort((a, b) => b.memberCount - a.memberCount);
-
-      console.log('Classes summary:', classesSummary);
+        .map(cls => ({ ...cls, percentage: ((cls.value / members.length) * 100).toFixed(1) }))
+        .sort((a, b) => b.value - a.value);
 
       setStats({
         totalMembers: members.length,
         baptizedCount: baptized,
-        escuelaDominicalCount: attendEscuelaDominical,
-  escuelaDominicalPercentage: parseFloat(escuelaDominicalPercentage),
-          maleCount: maleCount,
-        femaleCount: femaleCount,
-        totalClasses: classesMap.size,
+        maleCount,
+        femaleCount,
         weeklyAttendance: weeklyStats?.overallAttendanceRate || 0,
         classesSummary,
         recentStats: weeklyStats
       });
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
-      setError(error.message || 'Error al cargar el dashboard');
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  const getClassColor = (className) => {
-    if (!className) return '#6b7280';
-    
-    const colors = {
-      'soldados': '#3b82f6',
-      'jóvenes': '#10b981',
-      'jovenes': '#10b981',
-      'adultos': '#f59e0b',
-      'niños': '#ec4899',
-      'ninos': '#ec4899',
-      'damas': '#8b5cf6',
-      'señoras': '#8b5cf6',
-      'senoras': '#8b5cf6',
-      'caballeros': '#06b6d4',
-      'matrimonios': '#f97316',
-      'prejuveniles': '#14b8a6',
-      'exploradores': '#0ea5e9',
-      'estrellitas': '#f472b6',
-      'joyitas': '#a78bfa',
-      'avanzada': '#84cc16'
-    };
-    
-    const lowerName = className.toLowerCase();
-    const key = Object.keys(colors).find(k => lowerName.includes(k));
+const VIBRANT_COLORS = [
+  '#A63232', // Rojo Canaán Intenso
+  '#E68A3E', // Naranja Llama
+  '#F2B705', // Oro Brillante
+  '#0D9488', // Turquesa Profundo (Contraste)
+  '#7C3AED', // Violeta Real (Acento)
+  '#DB2777'  // Rosa Fucsia (Acento)
+];
+  const getClassColor = (name) => {
+    const colors = { 'damas': '#A63232', 'caballeros': '#E68A3E', 'jóvenes': '#F2B705', 'niños': '#4A90E2' };
+    const key = Object.keys(colors).find(k => name.toLowerCase().includes(k));
     return colors[key] || '#6b7280';
   };
 
-  if (authLoading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="spinner"></div>
-        <p>Cargando autenticación...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="dashboard-container">
-        <div className="error-message">
-          <h2>Sesión requerida</h2>
-          <p>Debe iniciar sesión para ver el dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="spinner"></div>
-        <p>Cargando panel general...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-container">
-        <div className="error-message">
-          <h2>Error al cargar el dashboard</h2>
-          <p>{error}</p>
-          <button onClick={loadDashboardData}>Reintentar</button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="dashboard-loading"><div className="spinner"></div></div>;
 
   return (
     <div className="dashboard-container">
-      {/* Header */}
       <div className="dashboard-header">
-        <h1>Panel General</h1>
-        <p className="dashboard-subtitle">Sistema de Gestión de Membresía</p>
+        <h1>IEDB Canaán</h1>
       </div>
 
-      {/* Main Stats Grid */}
+      {/* KPIs Grid */}
       <div className="stats-grid">
-        {/* Total Members */}
         <div className="stat-card stat-card-primary">
-        
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalMembers}</div>
-            <div className="stat-label">Miembros Totales</div>
-          </div>
+          <div className="stat-value">{stats.totalMembers}</div>
+          <div className="stat-label">Miembros</div>
         </div>
-
-  
-{/* Males */}
-                <div className="stat-card stat-card-info">
-                  {/* <div className="stat-icon-wrapper">
-                    <User size={36} stroke="#000000" />
-                  </div> */}
-                  <div className="stat-content">
-                    <div className="stat-value">{stats.maleCount}</div>
-                    <div className="stat-label">Varones</div>
-                  </div>
-                </div>
-
-                {/* Females */}
-                <div className="stat-card stat-card-pink">
-                  {/* <div className="stat-icon-wrapper">
-                    <span style={{fontSize: '2rem'}}>👩</span>
-                  </div> */}
-                  <div className="stat-content">
-                    <div className="stat-value">{stats.femaleCount}</div>
-                    <div className="stat-label">Mujeres</div>
-                  </div>
-                </div>
-
-                      {/* Baptized */}
+        <div className="stat-card stat-card-info">
+          <div className="stat-value">{stats.maleCount}</div>
+          <div className="stat-label">Varones</div>
+        </div>
+        <div className="stat-card stat-card-pink">
+          <div className="stat-value">{stats.femaleCount}</div>
+          <div className="stat-label">Mujeres</div>
+        </div>
         <div className="stat-card stat-card-success">
-          
-          <div className="stat-content">
-            <div className="stat-value">{stats.baptizedCount}</div>
-            <div className="stat-label">Bautizados</div>
-            {stats.totalMembers > 0 && (
-              <div className="stat-detail">
-                {((stats.baptizedCount / stats.totalMembers) * 100).toFixed(1)}% del total
-              </div>
-            )}
-          </div>
-
-                
+          <div className="stat-value">{stats.baptizedCount}</div>
+          <div className="stat-label">Bautizados</div>
         </div>
-        {/* Active Classes */}
-        {/* <div className="stat-card stat-card-info">
-           <div className="stat-icon-wrapper">
-            <BookOpen size={36} />
-          </div> 
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalClasses}</div>
-            <div className="stat-label">Clases Activas</div>
-          </div>
-        </div> */}
-
-        {/* Weekly Attendance */}
-        <div className="stat-card stat-card-warning">
-          {/* <div className="stat-icon-wrapper">
-            <TrendingUp size={36} />
-          </div> */}
-          <div className="stat-content">
-            <div className="stat-value">{stats.weeklyAttendance.toFixed(1)}%</div>
-            <div className="stat-label">Asistencia Semanal</div>
-          </div>
-        </div>
-          {/* NEW: Escuela Dominical */}
-  <div className="stat-card stat-card-purple">
-    {/* <div className="stat-icon-wrapper">
-      <BookOpen size={36} />
-    </div> */}
-    <div className="stat-content">
-      <div className="stat-value">{stats.escuelaDominicalPercentage}%</div>
-      <div className="stat-label">Escuela Dominical</div>
-      <div className="stat-detail">
-        {stats.escuelaDominicalCount} de {stats.totalMembers} miembros
       </div>
+
+      {/* Gráfico de Dona y Resumen Semanal */}
+      <div className="section-card chart-section">
+         <div className="section-header">
+    <h2>Distribución y Asistencia</h2>
+  </div>
+  
+  <div className="chart-layout-wrapper">
+    {/* Contenedor relativo para el gráfico y el texto central */}
+<div style={{ position: 'relative', width: '100%', height: 300 }}>
+  <ResponsiveContainer>
+    <PieChart>
+      <Tooltip 
+    contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+  />
+   <Pie 
+    data={stats.classesSummary} 
+    innerRadius={70} 
+    outerRadius={90} 
+    dataKey="value"
+    label={renderCustomizedLabel}
+    stroke="none"
+    /* Efecto de expansión opcional al hacer hover */
+    paddingAngle={5}
+  >
+    {stats.classesSummary.map((entry, index) => (
+      <Cell 
+        key={index} 
+        fill={VIBRANT_COLORS[index % VIBRANT_COLORS.length]} 
+        style={{ cursor: 'pointer', outline: 'none' }} // Mejora la interacción
+      />
+    ))}
+  </Pie>
+    </PieChart>
+  </ResponsiveContainer>
+
+  {/* Texto central absoluto */}
+  <div style={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    textAlign: 'center',
+    pointerEvents: 'none' // Para que no interfiera con el mouse en el gráfico
+  }}>
+    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#A63232' }}>
+      {stats.totalMembers}
     </div>
+    <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>
+      Miembros
+    </div>
+  </div>
+</div>
+
+
   </div>
       </div>
 
-      {/* Classes Distribution */}
-      {stats.classesSummary.length > 0 ? (
-        <div className="section-card">
-          <div className="section-header">
-            <h2>Distribución por Clase</h2>
-          </div>
-          <div className="classes-grid">
-            {stats.classesSummary.map((cls, index) => (
-              <div 
-                key={index} 
-                className="class-card"
-                style={{ '--class-color': cls.color }}
-              >
-                <div className="class-header">
-                  <span className="class-name">{cls.name}</span>
-                  <span className="class-badge">
-                    {cls.memberCount}
-                  </span>
-                </div>
-                <div className="class-progress-wrapper">
-                  <div className="class-progress-bar">
-                    <div 
-                      className="class-progress-fill"
-                      style={{ width: `${cls.percentage}%` }}
-                    />
-                  </div>
-                  <span className="class-percentage">{cls.percentage}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="section-card">
-          <p className="no-data">No hay clases con miembros asignados</p>
-        </div>
-      )}
-
-      {/* Weekly Summary */}
-      {stats.recentStats && stats.recentStats.classesByClass && stats.recentStats.classesByClass.length > 0 && (
-        <div className="section-card">
-          <div className="section-header">
-            <h2>Resumen de la Semana</h2>
-          </div>
+      <div className="section-card chart-section">
+        {/* Resumen numérico integrado */}
+        {stats.recentStats && (
           <div className="weekly-summary-grid">
             <div className="summary-item">
-              <CheckCircle size={24} className="icon-present" />
-              <div>
-                <div className="summary-value">
-                  {stats.recentStats.classesByClass.reduce((sum, cls) => sum + cls.totalAttendances, 0)}
-                </div>
-                <div className="summary-label">Presentes</div>
-              </div>
+              <CheckCircle className="icon-present" />
+              <div className="summary-value">{stats.recentStats.classesByClass.reduce((s, c) => s + c.totalAttendances, 0)}</div>
+              <div className="summary-label">Presentes</div>
             </div>
             <div className="summary-item">
-              <XCircle size={24} className="icon-absent" />
-              <div>
-                <div className="summary-value">
-                  {stats.recentStats.classesByClass.reduce((sum, cls) => sum + cls.totalAbsences, 0)}
-                </div>
-                <div className="summary-label">Ausentes</div>
-              </div>
-            </div>
-            <div className="summary-item">
-              <Calendar size={24} className="icon-justified" />
-              <div>
-                <div className="summary-value">
-                  {stats.recentStats.classesByClass.reduce((sum, cls) => sum + cls.totalJustified, 0)}
-                </div>
-                <div className="summary-label">Justificados</div>
-              </div>
+              <XCircle className="icon-absent" />
+              <div className="summary-value">{stats.recentStats.classesByClass.reduce((s, c) => s + c.totalAbsences, 0)}</div>
+              <div className="summary-label">Ausentes</div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Quick Actions */}
+      {/* Botones de Acciones Rápidas */}
       <div className="section-card">
-        <div className="section-header">
-          <h2>Acciones Rápidas</h2>
-        </div>
+        <div className="section-header"><h2>Acciones Rápidas</h2></div>
         <div className="actions-grid">
-          <button 
-            className="action-btn action-btn-primary"
-            onClick={() => onNavigate && onNavigate('add-member')}
-          >
-            <Users size={24} />
-            <span>Nuevo Miembro</span>
-          </button>
-          <button 
-            className="action-btn action-btn-success"
-            onClick={() => onNavigate && onNavigate('classes')}
-          >
-            <CheckCircle size={24} />
-            <span>Tomar Asistencia</span>
-          </button>
-          <button 
-            className="action-btn action-btn-info"
-            onClick={() => onNavigate('statistics')}
-          >
-<TrendingUp size={24} />
-            <span>Ver Estadísticas</span>
-
-          </button>
-                       
-                    <button
-          className="action-btn action-btn-success"
-                      onClick={() => onNavigate('cumpleanos')}
-        >
-          <Cake size={24} />
-          <span>Cumpleaños</span>
-        </button>
-        <button
-              className="action-btn action-btn-info"
-              onClick={() => onNavigate && onNavigate('attendance-summary')}
-            >
-              <ClipboardList size={24} />
-              <span>Ver resumen de asistencia</span>
-            </button>
-                        <button
-              className="action-btn action-btn-primary"
-              onClick={promptInstall}
-              disabled={!isInstallable}
-              title={isInstallable ? 'Instalar aplicación' : 'Instalación no disponible'}
-            >
-              <Download size={24} />
-              <span>Instalar App</span>
-            </button>
-          <button 
-            className="action-btn action-btn-warning"
-            onClick={() => onNavigate && onNavigate('members')}
-          >
-            <BookOpen size={24} />
-            <span>Ver Miembros</span>
-          </button>
-          <button
-  className="action-btn action-btn-warning"
-  onClick={() => onNavigate('escuelaDominicalReport')}
->
-  <BookOpen size={24} />
-  <span>Informe Escuela Dominical</span>
-</button>
- <button
-              className="action-btn action-btn-warning"
-                          onClick={() => onNavigate('history')}
-            >
-              <BarChart3 size={24} />
-              <span> Reportes</span>
-            </button>
+          <button className="action-btn action-btn-primary" onClick={() => onNavigate('add-member')}><Users /><span>Nuevo Miembro</span></button>
+          <button className="action-btn action-btn-success" onClick={() => onNavigate('classes')}><CheckCircle /><span>Asistencia</span></button>
+          <button className="action-btn action-btn-info" onClick={() => onNavigate('statistics')}><TrendingUp /><span>Estadísticas</span></button>
+          <button className="action-btn action-btn-warning" onClick={() => onNavigate('cumpleanos')}><Cake /><span>Cumpleaños</span></button>
+          <button className="action-btn action-btn-primary" onClick={promptInstall} disabled={!isInstallable}><Download /><span>App</span></button>
+          <button className="action-btn action-btn-info" onClick={() => onNavigate('history')}><BarChart3 /><span>Reportes</span></button>
         </div>
       </div>
     </div>
