@@ -1,292 +1,135 @@
-// src/components/Statistics/MemberStatsSection.jsx
 import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Droplet, Heart, Zap, Award, Star, BookOpen, Users, UserCheck, Smile } from 'lucide-react';
 
-// Icon component for different stat types
-const StatIcon = ({ type }) => {
-  const iconMap = {
-    // Baptism
-    'bautizado': '💧',
-    'no-bautizado': '⭕',
-    
-    // Spiritual Gifts
-    'evangelista': '📢',
-    'servicio': '🤝',
-    'enseñanza': '📚',
-    'liderazgo': '👑',
-    'ciencia': '🔬',
-    'administración': '📋',
-    'fe': '✨',
-    'sabiduria': '🦉',
-    'discernimiento': '👁️',
-    'profecia': '💫',
-    'sanidad': '🏥',
-    
-    // Marital Status
-    'soltero': '👤',
-    'casado': '💑',
-    'divorciado': '💔',
-    'viudo': '🕊️',
-  };
-  
-  return (
-    <span style={{
-      fontSize: '32px',
-      display: 'inline-block',
-      marginBottom: '8px'
-    }}>
-      {iconMap[type] || '📊'}
-    </span>
-  );
+// Diccionario de Iconos para Insights
+const ICON_MAP = {
+  'bautizado': <Droplet className="text-blue-500" />,
+  'no-bautizado': <Droplet className="text-gray-300" />,
+  'evangelista': <Zap className="text-yellow-500" />,
+  'servicio': <Users className="text-teal-500" />,
+  'enseñanza': <BookOpen className="text-indigo-500" />,
+  'liderazgo': <Award className="text-orange-500" />,
+  'fe': <Star className="text-yellow-400" />,
+  'sabiduria': <UserCheck className="text-purple-500" />,
+  'casado': <Heart className="text-pink-500" />,
+  'soltero': <Smile className="text-green-500" />,
+  'default': <Star className="text-gray-400" />
 };
 
-// Simple card component for displaying statistics
-const SimpleStatCard = ({ title, value, iconType }) => (
-  <div style={{
-    border: '1px solid #e5e7eb',
-    padding: '16px 24px',
-    borderRadius: '12px',
-    background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-    transition: 'all 0.3s ease',
-    cursor: 'default'
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = 'translateY(-4px)';
-    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = 'translateY(0)';
-    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-  }}>
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center'
-    }}>
-      <StatIcon type={iconType} />
-      <div style={{
-        fontSize: '14px',
-        color: '#6b7280',
-        marginBottom: '12px',
-        fontWeight: '500',
-        lineHeight: '1.4'
-      }}>
-        {title}
-      </div>
-      <div style={{
-        fontSize: '40px',
-        fontWeight: 'bold',
-        color: '#1f2937',
-        background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text'
-      }}>
-        {value}
-      </div>
+const getIcon = (type) => ICON_MAP[type.toLowerCase()] || ICON_MAP['default'];
+
+const InsightCard = ({ title, value, type }) => (
+  <div className="insight-card">
+    <div className="insight-icon-wrapper">{getIcon(type)}</div>
+    <div className="insight-content">
+      <span className="insight-value">{value}</span>
+      <span className="insight-label">{title}</span>
     </div>
   </div>
 );
 
-const formatMemberShortName = (memberName = '') => {
-  const clean = memberName
-    .replace(/^Member-/, '')
-    .replace(/-\d+$/, '')
-    .trim();
+const MemberStatsSection = ({ statistics, memberStatsExtra, selectedClass, setSelectedClass }) => {
+  const classStats = selectedClass && memberStatsExtra?.byClass ? memberStatsExtra.byClass[selectedClass] : null;
 
-  const rawTokens = clean.includes(' ')
-    ? clean.split(/\s+/)
-    : clean.split(/(?=[A-Z])/);
+  // Lógica robusta para el nombre
+  const getDisplayName = (m) => {
+    if (m.nombreCompleto) return m.nombreCompleto;
+    if (m.nombre && m.apellido) return `${m.nombre} ${m.apellido}`;
+    return m.memberName?.replace(/^Member-/, '').replace(/-\d+$/, '') || 'Miembro';
+  };
 
-  const tokens = rawTokens.filter(Boolean);
-  if (tokens.length === 0) return '';
+  // Datos para el gráfico de Dones
+  const giftData = classStats?.donesEspirituales 
+    ? Object.entries(classStats.donesEspirituales).map(([name, count]) => ({
+        name: name,
+        cantidad: count
+      })).sort((a, b) => b.cantidad - a.cantidad)
+    : [];
 
-  const firstLastName = tokens[0];
-
-  if (tokens.length >= 3) {
-    const firstName = tokens[2];
-    return `${firstName} ${firstLastName}`;
-  }
-
-  if (tokens.length === 2) {
-    const firstName = tokens[1];
-    return `${firstName} ${firstLastName}`;
-  }
-
-  return tokens[0];
-};
-
-const MemberStatsSection = ({
-  statistics,
-  memberStatsExtra,
-  selectedClass,
-  setSelectedClass,
-}) => {
-  // Get class stats from memberStatsExtra (has the additional fields we need)
-  const classStats = selectedClass && memberStatsExtra?.byClass
-    ? memberStatsExtra.byClass[selectedClass]
-    : null;
-
-  const baptizedStats = classStats
-    ? {
-        Bautizados: classStats.baptizedCount || 0,
-        'No Bautizados': classStats.unBaptizedCount || 0,
-      }
-    : null;
-
-  const giftStats = classStats?.donesEspirituales || null;
-  const maritalStats = classStats?.estadoCivil || null;
+  const COLORS = ['#A63232', '#E68A3E', '#F2B705', '#0D9488', '#7C3AED'];
 
   return (
-    <div className="statistics-section">
-      <h2>Estadísticas por Miembro</h2>
-
-      {statistics.memberStats?.length > 0 ? (
-        <div className="members-table-wrapper">
-          <table className="members-table">
-            <thead>
-              <tr>
-                <th>Miembro</th>
-                <th className="col-presences">Presentes</th>
-                <th className="col-absences">Ausentes</th>
-                <th className="col-justified">Justificado</th>
-                <th className="col-rate">% Asistencia</th>
-              </tr>
-            </thead>
-            <tbody>
-              {statistics.memberStats.map((memberStat) => (
-                <tr key={memberStat.memberId}>
-                  <td className="member-name">
-                    {formatMemberShortName(memberStat.memberName || '')}
-                  </td>
-                  <td className="present col-presences">
-                    {memberStat.totalAttendances?.toLocaleString() || 0}
-                  </td>
-                  <td className="absent col-absences">
-                    {memberStat.totalAbsences?.toLocaleString() || 0}
-                  </td>
-                  <td className="justified col-justified">
-                    {memberStat.totalJustified?.toLocaleString() || 0}
-                  </td>
-                  <td className="attendance-rate col-rate">
-                    <span className="percentage">
-                      {memberStat.attendanceRate?.toFixed(1) || 0}%
-                    </span>
-                    <div className="mini-progress">
-                      <div
-                        className="mini-progress-fill"
-                        style={{
-                          width: `${Math.min(
-                            memberStat.attendanceRate || 0,
-                            100,
-                          )}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Estadísticas adicionales */}
-          <div className="members-statistics-section">
-            <h2>Estadísticas Adicionales de Miembros</h2>
-
-            <div className="class-selector">
-              <label htmlFor="class-select">Seleccionar Clase: </label>
-              <select
-                id="class-select"
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-                style={{ padding: '8px', marginLeft: '10px' }}
-              >
-                {statistics &&
-                  Object.keys(statistics.classesByName || {}).map(
-                    (className) => (
-                      <option key={className} value={className}>
-                        {className}
-                      </option>
-                    ),
-                  )}
-              </select>
-            </div>
-
-            {/* Debug block */}
-            <div style={{ 
-              background: '#e6f3ff', 
-              padding: '10px', 
-              margin: '15px 0',
-              border: '1px solid #2563eb',
-              borderRadius: '4px',
-              fontSize: '12px'
-            }}>
-              <strong>Clase seleccionada:</strong> {selectedClass}
-            </div>
-
-            {selectedClass && (baptizedStats || giftStats || maritalStats) ? (
-              <div
-                className="member-stats-grid"
-                style={{
-                  display: 'grid',
-                   gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-    gap: '12px',
-    marginTop: '20px',
-                }}
-              >
-                {/* Baptized Stats */}
-                {baptizedStats && (
-                  <>
-                    <SimpleStatCard
-                      title="Bautizados"
-                      value={baptizedStats.Bautizados}
-                      iconType="bautizado"
-                    />
-                    <SimpleStatCard
-                      title="No Bautizados"
-                      value={baptizedStats['No Bautizados']}
-                      iconType="no-bautizado"
-                    />
-                  </>
-                )}
-
-                {/* Spiritual Gifts Stats */}
-                {giftStats && Object.entries(giftStats).map(([gift, count]) => (
-                  <SimpleStatCard
-                    key={`gift-${gift}`}
-                    title={`Don: ${gift}`}
-                    value={count}
-                    iconType={gift.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}
-                  />
-                ))}
-
-                {/* Marital Status Stats */}
-                {maritalStats && Object.entries(maritalStats).map(([status, count]) => {
-                  const statusKey = status.toLowerCase().split('/')[0]; // "Soltero/a" -> "soltero"
-                  return (
-                    <SimpleStatCard
-                      key={`marital-${status}`}
-                      title={`Estado Civil: ${status}`}
-                      value={count}
-                      iconType={statusKey}
-                    />
-                  );
-                })}
+    <div className="member-stats-section">
+      
+      {/* 1. Récord de Asistencia por Miembro */}
+      <section className="stats-card-container">
+        <h3>Récord de Asistencia Individual</h3>
+        <div className="members-mini-list">
+          {statistics.memberStats?.map((m) => (
+            <div key={m.memberId} className="member-row-card">
+              <div className="member-main">
+                <div className="member-avatar-circle">
+                  {m.photoUrl ? <img src={m.photoUrl} alt="avatar" /> : '👤'}
+                </div>
+                <span className="member-name-text">{getDisplayName(m)}</span>
               </div>
-            ) : (
-              <p className="no-data">
-                {selectedClass 
-                  ? 'No hay estadísticas adicionales para esta clase'
-                  : 'Seleccione una clase para ver estadísticas adicionales'
-                }
-              </p>
-            )}
-          </div>
+              <div className="member-metrics">
+                <div className="presence-pills">
+                  <span className="pill pill-p">P: {m.totalAttendances}</span>
+                  <span className="pill pill-a">A: {m.totalAbsences}</span>
+                </div>
+                <div className="progress-group">
+                  <span className="rate-text">{m.attendanceRate?.toFixed(1)}%</span>
+                  <div className="progress-bar-thin">
+                    <div className="progress-fill" style={{ width: `${m.attendanceRate}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ) : (
-        <p className="no-data">No hay datos de miembros para este período</p>
-      )}
+      </section>
+
+      {/* 2. Fortalezas Espirituales y Demografía */}
+      <section className="stats-card-container">
+        <div className="section-header-inline">
+          <h3>Análisis de la Clase</h3>
+          <select 
+            className="form-control-sm" 
+            value={selectedClass} 
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
+            {Object.keys(statistics.classesByName || {}).map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {classStats ? (
+          <>
+            {/* Gráfico de Barras */}
+            <div className="gift-chart-wrapper" style={{ height: 220, marginTop: '15px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={giftData} layout="vertical" margin={{ left: 5, right: 30 }}>
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" width={90} fontSize={11} tick={{ fill: '#64748b' }} />
+                  <Tooltip cursor={{ fill: '#f1f5f9' }} />
+                  <Bar dataKey="cantidad" radius={[0, 4, 4, 0]} barSize={12}>
+                    {giftData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Cuadrícula de Insights */}
+            <div className="insights-grid" style={{ marginTop: '20px' }}>
+              <InsightCard title="Bautizados" value={classStats.baptizedCount} type="bautizado" />
+              <InsightCard title="No Bautizados" value={classStats.unBaptizedCount} type="no-bautizado" />
+              
+              {/* Dones Espirituales Dinámicos */}
+              {Object.entries(classStats.donesEspirituales || {}).map(([gift, count]) => (
+                <InsightCard key={gift} title={gift} value={count} type={gift} />
+              ))}
+
+              {/* Estado Civil Dinámico */}
+              {Object.entries(classStats.estadoCivil || {}).map(([status, count]) => (
+                <InsightCard key={status} title={status} value={count} type={status.split('/')[0]} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="no-data-msg">Seleccione una clase para visualizar el análisis espiritual.</p>
+        )}
+      </section>
     </div>
   );
 };

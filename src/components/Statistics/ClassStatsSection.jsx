@@ -1,40 +1,35 @@
-// src/components/Statistics/ClassStatsSection.jsx
-import React from 'react';
 
-const ClassStatsSection = ({ statistics }) => (
-  <div className="statistics-section">
-    <h2>Estadísticas por Clase</h2>
-    {statistics?.classesByName ? (
-      <div className="stats-grid">
-        {Object.entries(statistics.classesByName).map(
-          ([className, classStats]) => (
-            <div key={className} className="class-card">
-              <div className="class-card-header">
-                <span className="class-name">{className}</span>
-                <span className="class-rate">
-                  {classStats.attendanceRate.toFixed(1)}%
-                </span>
-              </div>
-              <div className="class-card-body">
-                <div className="class-stat-item">
-                  <span className="label">Sesiones</span>
-                  <span className="value">{classStats.totalSessions}</span>
-                </div>
-                <div className="class-stat-item">
-                  <span className="label">Presentes</span>
-                  <span className="value">{classStats.totalAttendances}</span>
-                </div>
-              </div>
-            </div>
-          ),
-        )}
+import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
+const ClassStatsSection = ({ statistics }) => {
+  const data = Object.entries(statistics.classesByName || {}).map(([name, stats]) => ({
+    name: name.split('"')[1] || name,
+    rate: parseFloat(stats.attendanceRate.toFixed(1))
+  }));
+
+  const COLORS = ['#A63232', '#E68A3E', '#F2B705', '#0D9488', '#7C3AED'];
+
+  return (
+    <div className="stats-card-container">
+      <h3>Rendimiento por Clase (%)</h3>
+      <div style={{ width: '100%', height: 300 }}>
+        <ResponsiveContainer>
+          <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+            <XAxis type="number" domain={[0, 100]} hide />
+            <YAxis dataKey="name" type="category" width={100} fontSize={12} />
+            <Tooltip cursor={{fill: 'transparent'}} />
+            <Bar dataKey="rate" radius={[0, 4, 4, 0]} barSize={20}>
+              {data.map((entry, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
-    ) : (
-      <p className="no-data">
-        Las estadísticas por clase se están procesando para este período
-      </p>
-    )}
-  </div>
-);
+    </div>
+  );
+};
 
 export default ClassStatsSection;

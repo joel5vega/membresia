@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { memberService, attendanceService } from '../services';
 import { CheckCircle, XCircle, Clock } from 'lucide-react';
 import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import MemberAttendance from './MemberAttendance';
+import TotalsAttendanceForm from './TotalsAttendanceForm';
 
 const ClassAttendance = ({ classId }) => {
   const [classMembers, setClassMembers] = useState([]);

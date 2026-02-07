@@ -1,0 +1,185 @@
+
+.stats-container {
+  padding: 20px;
+  background-color: #F9F7F5;
+  min-height: 100vh;
+}
+
+.stats-header h1 {
+  color: #A63232;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+/* KPI Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.kpi-card {
+  background: white;
+  padding: 15px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.kpi-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2D3748;
+}
+
+.kpi-label {
+  font-size: 0.7rem;
+  color: #718096;
+  text-transform: uppercase;
+}
+
+/* Contenedores de Gráficos */
+.stats-card-container {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.stats-card-container h3 {
+  font-size: 1rem;
+  color: #4A5568;
+  margin-bottom: 20px;
+}
+
+.stats-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #A63232;
+  font-weight: 700;
+}
+
+
+.demographics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.demographic-card {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.demo-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.demo-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.demo-icon {
+  background: white;
+  padding: 8px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+/* Miembros en formato Card Row */
+.members-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-row-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.member-main { display: flex; align-items: center; gap: 10px; }
+.member-avatar-circle { background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.member-name-text { font-weight: 600; color: #1e293b; font-size: 0.9rem; }
+
+.presence-pills { display: flex; gap: 5px; margin-bottom: 4px; }
+.pill { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+.pill-p { background: #dcfce7; color: #15803d; }
+.pill-a { background: #fee2e2; color: #b91c1c; }
+
+/* Cuadrícula de Insights (Dones, etc) */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.insight-card {
+  background: white;
+  border: 1px solid #edf2f7;
+  padding: 15px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.insight-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+.insight-icon-wrapper { margin-bottom: 8px; background: #f1f5f9; padding: 10px; border-radius: 50%; }
+.insight-value { font-size: 1.5rem; font-weight: 800; color: #A63232; }
+.insight-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; text-align: center; }
+
+
+
+.gift-chart-wrapper {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px dashed #cbd5e1;
+}
+
+.section-header-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.section-header-inline h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.form-control-sm {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  background: white;
+  color: #475569;
+}

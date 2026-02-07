@@ -1,0 +1,151 @@
+/* Attendance.css */
+.attendance-view {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+  background-color: #F9F7F5;
+}
+
+.section-title {
+  color: #A63232;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Tarjetas de Miembros */
+.att-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.att-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.att-card.is-present {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.check-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+}
+
+.att-card.is-present .check-indicator {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+/* Estilos del Formulario de Totales */
+.form-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+.total-badge {
+  background: #A63232;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+  margin: 16px 0;
+}
+
+.btn-save {
+  width: 100%;
+  padding: 14px;
+  background: #A63232;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(166, 50, 50, 0.2);
+}
+
+.att-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Evita que el círculo se aplaste */
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.att-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-icon {
+  font-size: 1.2rem;
+}
+
+/* Ajuste opcional para centrar mejor el nombre al lado del avatar */
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Más espacio entre avatar y nombre */
+}
