@@ -9,6 +9,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../firebase/config'; // Ajusta la ruta según tu configuración
+import { clearAllCache } from './dataCache';
 
 /**
  * Crea datos de ejemplo para miembros de la iglesia
@@ -307,6 +308,11 @@ export async function createSampleKardexEntries() {
 export async function initializeFirestoreData() {
   try {
     console.log('🚀 Iniciando creación de datos en Firestore...\n');
+
+        // Clear IndexedDB cache before initializing new data
+            console.log('🧹 Limpiando caché local...');
+                await clearAllCache();
+                    console.log('✓ Caché limpiado\n');
 
     // 1. Crear miembros
     await createSampleMembers();

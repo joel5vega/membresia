@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { Member, CreateMemberDTO } from '../types';
+import { cacheMembers, getCachedMembers, isCacheValid } from './dataCache';
 
 const MEMBERS_COLLECTION = 'members';
 
@@ -66,17 +67,45 @@ export const memberService = {
     }
   },
 
-  async getMembers(constraints?: QueryConstraint[]): Promise<Member[]> {
-    try {
-      const q = constraints?.length ? query(collection(db, MEMBERS_COLLECTION), ...constraints) : collection(db, MEMBERS_COLLECTION);
-      const querySnapshot = await getDocs(q);
-          console.log('Firestore members snapshot size:', querySnapshot.size, 'docs:', querySnapshot.docs);
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Member));
-    } catch (error) {
-      console.error('Error getting members:', error);
-      throw error;
+ async getMembers(constraints?: QueryConstraint[]): Promise<Member[]> {
+  try {
+    // Check cache first if no constraints applied
+    if (!constraints || constraints.length === 0) {
+      const { members, timestamp } = await getCachedMembers();
+      if (members.length > 0 && isCacheValid(timestamp)) {
+        console.log('✓ Using cached members');
+        return members;
+      }
     }
-  },
+
+    console.log('→ Fetching members from Firebase');
+    const q = constraints && constraints.length > 0
+      ? query(collection(db, MEMBERS_COLLECTION), ...constraints) 
+      : collection(db, MEMBERS_COLLECTION);
+    const querySnapshot = await getDocs(q);
+    console.log('Firestore members snapshot size:', querySnapshot.size, 'docs:', querySnapshot.docs);
+    
+    // Cache the fetched data only if no constraints were applied
+    if (!constraints || constraints.length === 0) {
+      const membersToCache = querySnapshot.docs.map((doc) => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as Member));
+      await cacheMembers(membersToCache);
+      return membersToCache;
+    }
+    
+    return querySnapshot.docs.map((doc) => ({ 
+      id: doc.id, 
+      ...doc.data() 
+    } as Member));
+  } catch (error) {
+    console.error('Error getting members:', error);
+    throw error;
+  }
+},
+
+
 
   // Update
   async updateMember(id: string, data: Partial<Member>): Promise<void> {
