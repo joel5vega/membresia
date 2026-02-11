@@ -27,6 +27,7 @@ export const attendanceService = {
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
+            console.log('✅ Asistencia guardada con ID:', docRef.id, 'Datos:', { ...data, date: Timestamp.fromDate(new Date(data.date)) });
       return docRef.id;
     } catch (error) {
       console.error('Error adding attendance:', error);
@@ -160,4 +161,23 @@ export const attendanceService = {
       throw error;
     }
   },
+
+  // al final del objeto, antes de cerrar attendanceService
+  async saveAttendance(data: CreateAttendanceDTO): Promise<string> {
+    // busca asistencia de ese miembro en ese día y clase
+    const existing = await this.getAttendanceByMemberAndDate(data.memberId, new Date(data.date));
+
+    if (existing) {
+      await this.updateAttendance(existing.id, {
+        status: data.status,
+        className: data.className,
+        date: Timestamp.fromDate(new Date(data.date)),
+      });
+      return existing.id;
+    } else {
+      return this.addAttendance(data);
+    }
+  },
+
 };
+

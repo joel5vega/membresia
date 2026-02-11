@@ -231,7 +231,7 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     'Sociedad de prejuveniles "Vencedores"',
     'Clase de Exploradores',
     'Clase de Estrellitas',
-    'Clase de joyitas','Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino'
+    'Clase de joyitas','Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino','Inactive'
   ];
 
   const profesiones = ['artesano','ama de casa', 'transportista', 'comerciante', 'estudiante', 'jubilado',

@@ -13,6 +13,7 @@ export const createClassAttendance = async (attendance: Omit<ClassAttendance, 'i
       fechaRegistro: Timestamp.now(),
     };
     const docRef = await addDoc(attendanceRef, newAttendance);
+        console.log('✅ Asistencia creada con ID:', docRef.id, 'Datos:', newAttendance);
     return docRef.id;
   } catch (error) {
     console.error('Error creando asistencia de clase:', error);
@@ -26,15 +27,25 @@ export const getClassAttendance = async (classId: string): Promise<ClassAttendan
     const attendanceCol = collection(db, CLASS_ATTENDANCE_COLLECTION);
     const q = query(attendanceCol, where('classId', '==', classId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as ClassAttendance));
+        console.log('📚 Documentos crudos obtenidos de Firestore:', snapshot.docs.map(d => d.data()));
+    return snapshot.docs.map(d => {
+      const data = d.data() as any;
+      return {
+        id: d.id,
+        ...data,
+        fechaRegistro: data.fechaRegistro?.toDate
+          ? data.fechaRegistro.toDate()
+          : data.fechaRegistro,
+      } as ClassAttendance;
+    });
   } catch (error) {
     console.error('Error obteniendo asistencia de clase:', error);
     throw error;
   }
 };
+
+
+
 
 // Obtener asistencia de un miembro en una clase específica
 export const getMemberClassAttendance = async (classId: string, memberId: string): Promise<ClassAttendance | null> => {
@@ -47,8 +58,15 @@ export const getMemberClassAttendance = async (classId: string, memberId: string
     );
     const snapshot = await getDocs(q);
     if (snapshot.docs.length > 0) {
-      const doc = snapshot.docs[0];
-      return { id: doc.id, ...doc.data() } as ClassAttendance;
+      const d = snapshot.docs[0];
+      const data = d.data() as any;
+      return {
+        id: d.id,
+        ...data,
+        fechaRegistro: data.fechaRegistro?.toDate
+          ? data.fechaRegistro.toDate()
+          : data.fechaRegistro,
+      } as ClassAttendance;
     }
     return null;
   } catch (error) {
@@ -57,11 +75,13 @@ export const getMemberClassAttendance = async (classId: string, memberId: string
   }
 };
 
+
 // Actualizar asistencia
 export const updateClassAttendance = async (attendanceId: string, updates: Partial<ClassAttendance>): Promise<void> => {
   try {
     const docRef = doc(db, CLASS_ATTENDANCE_COLLECTION, attendanceId);
     await updateDoc(docRef, updates);
+        console.log('✏️ Asistencia actualizada con ID:', attendanceId, 'Cambios:', updates);
   } catch (error) {
     console.error('Error actualizando asistencia:', error);
     throw error;
@@ -90,7 +110,11 @@ export const createBatchClassAttendance = async (attendances: Omit<ClassAttendan
 };
 
 // Obtener asistencia de un miembro en un rango de fechas
-export const getMemberAttendanceByDateRange = async (memberId: string, startDate: Date, endDate: Date): Promise<ClassAttendance[]> => {
+export const getMemberAttendanceByDateRange = async (
+  memberId: string,
+  startDate: Date,
+  endDate: Date
+): Promise<ClassAttendance[]> => {
   try {
     const attendanceCol = collection(db, CLASS_ATTENDANCE_COLLECTION);
     const q = query(
@@ -100,15 +124,22 @@ export const getMemberAttendanceByDateRange = async (memberId: string, startDate
       where('fechaRegistro', '<=', Timestamp.fromDate(endDate))
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as ClassAttendance));
+    return snapshot.docs.map(d => {
+      const data = d.data() as any;
+      return {
+        id: d.id,
+        ...data,
+        fechaRegistro: data.fechaRegistro?.toDate
+          ? data.fechaRegistro.toDate()
+          : data.fechaRegistro,
+      } as ClassAttendance;
+    });
   } catch (error) {
     console.error('Error obteniendo asistencia del miembro por fecha:', error);
     throw error;
   }
 };
+
 
 // Eliminar registro de asistencia
 export const deleteClassAttendance = async (attendanceId: string): Promise<void> => {

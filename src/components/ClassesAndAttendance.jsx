@@ -24,7 +24,7 @@ const ClassesAndAttendance = () => {
     'Clase de Exploradores',
     'Clase de Estrellitas',
     'Clase de joyitas',
-    'Av. Jireh', 'Av. Luz del evangelio', 'Av. Elohim', 'Av. Jesús es el camino'    
+    'Av. Jireh', 'Av. Luz del evangelio', 'Av. Elohim', 'Av. Jesús es el camino'    ,'Inactive'
   ];
 
   return (

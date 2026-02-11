@@ -35,7 +35,7 @@ const CLASS_ICONS = {
     'elohim': '🕊️ Elohim',
    'evangelio': '💡 Luz del evangelio',
     'camino': '🛣️ Jesús es el camino',
-     'exploradores': '🧭 Exploradores',
+     'exploradores': '🧭 Exploradores','Inactive'
 
 
    

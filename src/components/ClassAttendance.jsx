@@ -57,7 +57,7 @@ const ClassAttendance = ({ classId }) => {
     'Av. Jireh':'Av. Jireh',
     'Av. Luz del evangelio':'Av. Luz del evangelio',
     'Av. Elohim':'Av. Elohim',
-    'Av. Jesús es el camino':'Av. Jesús es el camino'    
+    'Av. Jesús es el camino':'Av. Jesús es el camino'    ,'Inactive'
   };
 
   useEffect(() => {

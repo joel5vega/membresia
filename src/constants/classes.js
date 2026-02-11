@@ -7,7 +7,7 @@ export const CLASSES = [
   'Exploradores',
   'Estrellitas',
   'Joyitas',
-  'Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino'
+  'Av. Jireh','Av. Luz del evangelio','Av. Elohim','Av. Jesús es el camino','Inactive'
 ];
 
 export const ATTENDANCE_STATUS = {

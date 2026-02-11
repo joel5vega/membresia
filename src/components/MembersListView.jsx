@@ -9,7 +9,7 @@ const clases = [
   'Sociedad de Caballeros "Emanuel"', 'Sociedad de Señoras "Shaddai"',
   'Sociedad de Matrimonios jóvenes "Ebenezer"', 'Sociedad de Jóvenes "Soldados de la Fe"',
   'Sociedad de prejuveniles "Vencedores"', 'Clase de Exploradores',
-  'Clase de Estrellitas', 'Clase de joyitas', 'Av. Jireh', 'Av. Luz del evangelio'
+  'Clase de Estrellitas', 'Clase de joyitas', 'Av. Jireh', 'Av. Luz del evangelio','Inactive'
 ];
 
 // Definimos el componente con el mismo nombre que exportaremos
