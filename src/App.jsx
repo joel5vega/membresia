@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MemberForm from './components/MemberForm';
 import EditMemberPage from './pages/EditMemberPage';
 import MembersListView from './components/MembersListView';
 import ClassesAndAttendance from './components/ClassesAndAttendance';
 import ClassHistoryView from './components/ClassHistoryView';
-import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';  // ← IMPORTAR
+import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';
 import Dashboard from './components/Dashboard';
 import LoginView from './views/LoginView';
 import { useAuth } from './context/AuthContext';
@@ -15,6 +15,7 @@ import SundaySchoolReportPage from "./pages/SundaySchoolReportPage";
 import ClassManagementView from './components/ClassManagementView';
 import AttendanceSummaryView from './components/Attendance/AttendanceSummaryView';
 import InstallPrompt from './components/InstallPrompt';
+import { memberService } from './services/memberService';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -29,6 +30,23 @@ const AppLayout = () => {
   const [currentPage, setCurrentPage] = useState('panel');
   const { user, logout } = useAuth();
   const username = user?.email ? user.email.split('@')[0] : ''; 
+
+  // ← PRE-CARGAR MIEMBROS AL INICIAR
+  useEffect(() => {
+    const preloadMembers = async () => {
+      try {
+        console.log('⏳ Pre-loading members...');
+        await memberService.getMembers();
+        console.log('✓ Members cached and ready');
+      } catch (error) {
+        console.error('Error pre-loading members:', error);
+      }
+    };
+
+    if (user) {
+      preloadMembers();
+    }
+  }, [user]);
 
   const buttonStyle = (isActive) => ({
     backgroundColor: isActive ? '#1e40af' : '#1e3a8a',
@@ -112,14 +130,6 @@ const AppLayout = () => {
           >
             Clases
           </button>
-
-          {/* ← NUEVO BOTÓN DE ESTADÍSTICAS
-          <button
-            onClick={() => setCurrentPage('statistics')}
-            style={buttonStyle(currentPage === 'statistics')}
-          >
-            Estadísticas
-          </button> */}
         </div>
 
         {/* info de usuario y logout */}
@@ -167,18 +177,19 @@ const AppLayout = () => {
         {/* Clases y Asistencia */}
         {currentPage === 'classes' && <ClassesAndAttendance />}
         
-        {/* ← NUEVA PÁGINA DE ESTADÍSTICAS */}
+        {/* Estadísticas */}
         {currentPage === 'statistics' && (
           <div style={{ padding: '20px' }}>
             <AttendanceStatisticsView />
           </div>
         )}
-              {/* Resumen de asistencia */}
-      {currentPage === 'attendance-summary' && (
-        <div style={{ padding: '20px' }}>
-          <AttendanceSummaryView />
-        </div>
-      )}
+        
+        {/* Resumen de asistencia */}
+        {currentPage === 'attendance-summary' && (
+          <div style={{ padding: '20px' }}>
+            <AttendanceSummaryView />
+          </div>
+        )}
 
         {/* Historiales y Reportes */}
         {currentPage === 'history' && (
@@ -186,18 +197,18 @@ const AppLayout = () => {
             <ClassHistoryView />
           </div>
         )}
-                {/* Cumpleaños */}
+        
+        {/* Cumpleaños */}
         {currentPage === 'cumpleanos' && (
           <BirthdaysView onNavigate={setCurrentPage} />
         )}
        
-       {/* Informe Escuela Dominical */}
-{currentPage === 'escuelaDominicalReport' && (
-  <div style={{ padding: '20px' }}>
-    <SundaySchoolReportPage />
-  </div>
-)}
-
+        {/* Informe Escuela Dominical */}
+        {currentPage === 'escuelaDominicalReport' && (
+          <div style={{ padding: '20px' }}>
+            <SundaySchoolReportPage />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -220,14 +231,17 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-<Route path="/escuela-dominical/report" element={<SundaySchoolReportPage />} />
+        
+        <Route path="/escuela-dominical/report" element={<SundaySchoolReportPage />} />
+        
         {/* Cualquier otra ruta redirige al panel (protegido) */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
         <Route path="/members/:id/edit" element={<EditMemberPage />} />
       </Routes>
-                <InstallPrompt />
+      <InstallPrompt />
     </BrowserRouter>
   );
+};
 
-};export default App;
+export default App;

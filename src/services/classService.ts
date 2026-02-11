@@ -1,7 +1,8 @@
 import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { Class, ClassAttendance } from '../types';
-import { cacheClasses, getCachedClasses, isCacheValid } from './dataCache';
+// import { cacheClasses, getCachedClasses, isClassesCacheValid } from './dataCache';
+
 
 // Crear o actualizar una clase
 export const createOrUpdateClass = async (classData: Omit<Class, 'id'> & { id?: string }): Promise<string> => {

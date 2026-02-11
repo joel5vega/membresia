@@ -23,19 +23,19 @@ const Dashboard = ({ onNavigate }) => {
   const [error, setError] = useState(null);
   const { isInstallable, promptInstall } = useInstallPrompt();
 const CLASS_ICONS = {
-  'soldados': '🛡️ Jóv.',
-    'señoras': '🌸Señ',
-  'caballeros': '👔 Cab',
-  'matrimonios': '💍 Mat',
+  'soldados': '🛡️ Jóvenes',
+    'señoras': '🌸Señoras',
+  'caballeros': '👔 Caballeros',
+  'matrimonios': '💍 Matrimonios',
   'default': '👥',
-  'joyitas': '💎 Joy',
-   'estrellitas': '⭐ Est',
-   'vencedores': '🏆 Ven',
-   'jireh': '🐑 Jir',
-    'elohim': '🕊️ Elo',
-   'evangelio': '💡 Luz',
-    'camino': '🛣️ Jes',
-     'exploradores': '🧭 Exp',
+  'joyitas': '💎 Joyitas',
+   'estrellitas': '⭐ Estrellitas',
+   'vencedores': '🏆 Vencedores',
+   'jireh': '🐑 Jireh',
+    'elohim': '🕊️ Elohim',
+   'evangelio': '💡 Luz del evangelio',
+    'camino': '🛣️ Jesús es el camino',
+     'exploradores': '🧭 Exploradores',
 
 
    
@@ -142,10 +142,10 @@ const VIBRANT_COLORS = [
           <div className="stat-value">{stats.femaleCount}</div>
           <div className="stat-label">Mujeres</div>
         </div>
-        <div className="stat-card stat-card-success">
+        {/* <div className="stat-card stat-card-success">
           <div className="stat-value">{stats.baptizedCount}</div>
           <div className="stat-label">Bautizados</div>
-        </div>
+        </div> */}
       </div>
 
       {/* Gráfico de Dona y Resumen Semanal */}

@@ -5,15 +5,19 @@ export default defineConfig({
   plugins: [react()],
   base: '/membresia/',
   server: {
-    host: '0.0.0.0',  // ← NUEVO: expone el servidor
+    host: '0.0.0.0',
     port: 5173,
     strictPort: false,
     open: true,
     watch: {
-      usePolling: true  // ← NUEVO: detecta cambios en Codespaces
+      usePolling: true
     },
     hmr: {
-      clientPort: 443  // ← NUEVO: para hot reload en Codespaces
+      protocol: 'wss',  // ← Agregar esto
+      host: process.env.CODESPACE_NAME 
+        ? `${process.env.CODESPACE_NAME}-5173.app.github.dev` 
+        : 'localhost',  // ← Agregar esto
+      clientPort: 443
     }
   },
   build: {
