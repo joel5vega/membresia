@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Función helper para verificar autenticación
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Colección MEMBERS: acceso restringido
+    match /members/{memberId} {
+      // Lectura individual: solo usuarios autenticados
+      allow get: if isSignedIn();
+      
+      // Lectura de lista: bloqueada (usa Cloud Function)
+      allow list: if false;
+      
+      // Escritura: solo usuarios autenticados
+      allow create, update, delete: if isSignedIn();
+    }
+    
+    // Colección ATTENDANCE: acceso normal para usuarios autenticados
+    match /attendance/{docId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Colección FAMILIES: acceso normal para usuarios autenticados
+    match /families/{docId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Colección IGLESIAS: acceso normal para usuarios autenticados
+    match /iglesias/{docId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Regla por defecto para otras colecciones
+    match /{document=**} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

@@ -1,0 +1,91 @@
+.premium-card {
+  border: 1px solid rgba(0,0,0,0.05) !important;
+  background: linear-gradient(to bottom, #ffffff, #fcfcfc) !important;
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.avg-age-badge-premium {
+  background: #fff5f5;
+  color: #A63232;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid #fee2e2;
+}
+
+/* Listado detallado */
+.age-details-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.age-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.row-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 70px;
+}
+
+.dot-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.age-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.row-progress-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-progress-bg {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.row-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.row-percent {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  width: 35px;
+}
+
+.row-count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  width: 25px;
+  text-align: right;
+}
