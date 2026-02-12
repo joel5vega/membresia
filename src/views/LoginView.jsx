@@ -98,9 +98,10 @@ const LoginView = () => {
           onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
           className="toggle-button"
         >
-          {mode === 'login' 
+          Iniciar Sesión
+          {/* {mode === 'login' 
             ? '¿No tienes cuenta? Crear una' 
-            : '¿Ya tienes cuenta? Inicia sesión'}
+            : '¿Ya tienes cuenta? Inicia sesión'} */}
         </button>
       </div>
     </div>
