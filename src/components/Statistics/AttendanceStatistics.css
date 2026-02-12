@@ -183,3 +183,14 @@
   background: white;
   color: #475569;
 }
+.stats-grid-main {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr; /* izquierda clases, derecha fidelidad+miembros */
+  gap: 24px;
+}
+
+.stats-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}

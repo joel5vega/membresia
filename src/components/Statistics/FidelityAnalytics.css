@@ -1,0 +1,202 @@
+:root {
+  --canaan-red: #A63232;
+  --canaan-orange: #E68A3E;
+  --gold: #D4AF37;
+  --silver: #A8A8A8;
+  --bronze: #CD7F32;
+  --dark-bg: #121212; /* Estilo elegante oscuro */
+}
+
+.fidelity-container {
+  padding: 20px;
+  background-color: var(--dark-bg);
+  min-height: 100vh;
+  color: white;
+}
+
+.fidelity-header h1 { color: white; margin: 0; font-size: 28px; }
+
+.section-label {
+  color: #666;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin: 30px 0 15px;
+  text-transform: uppercase;
+}
+
+/* Mini Pills para Clases */
+.stats-mini-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stat-mini-pill {
+  background: #1e1e1e;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-val { font-weight: 800; color: white; }
+.pill-lab { font-size: 10px; color: #888; text-transform: uppercase; }
+
+/* La Cuadrícula de Avatares */
+.fidelity-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.avatar-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 3px; /* Espacio para el borde de nivel */
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.avatar-frame img, .no-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2a2a2a;
+}
+
+/* Colores de Borde por Nivel */
+.level-oro .avatar-frame { background: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+.level-plata .avatar-frame { background: var(--silver); }
+.level-bronce .avatar-frame { background: var(--bronze); }
+
+.streak-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--canaan-red);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid var(--dark-bg);
+}
+
+/* Tooltip al Hover */
+.avatar-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: 160px;
+  background: #252525;
+  border-radius: 12px;
+  padding: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid #333;
+}
+
+.avatar-wrapper:hover .avatar-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.avatar-wrapper:hover .avatar-frame {
+  transform: scale(1.1);
+}
+
+.tooltip-content h4 { margin: 0; font-size: 13px; color: white; }
+.tooltip-content p { margin: 2px 0 8px; font-size: 10px; color: var(--canaan-orange); }
+
+.tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.mini-progress-track {
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: var(--canaan-red);
+  border-radius: 2px;
+}
+/* Filtros de Clase */
+.filter-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filter-icon { color: var(--canaan-orange); }
+
+.class-filter-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none;
+}
+
+.class-filter-scroll::-webkit-scrollbar { display: none; }
+
+.class-chip {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #888;
+  padding: 8px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.class-chip.active {
+  background: var(--canaan-red);
+  color: white;
+  border-color: var(--canaan-red);
+  box-shadow: 0 4px 12px rgba(166, 50, 50, 0.4);
+}
+
+.results-info {
+  margin-bottom: 10px;
+  font-size: 10px;
+  color: #555;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.class-filter-dropdown select {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
