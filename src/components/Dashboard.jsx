@@ -82,12 +82,12 @@ const renderCustomizedLabel = ({
     <text
       x={x}
       y={y}
-      fill="#f9fafb"              // color claro fijo
+      fill="#f9fafb"
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
       fontSize={11}
       fontWeight={500}
-      stroke="rgba(0,0,0,0.6)"    // borde para contraste
+      stroke="rgba(0,0,0,0.6)"
       strokeWidth={2}
       paintOrder="stroke"
     >
@@ -95,7 +95,6 @@ const renderCustomizedLabel = ({
     </text>
   );
 };
-
 
 const Dashboard = ({ onNavigate }) => {
   const { user, loading: authLoading } = useAuth();
@@ -122,25 +121,46 @@ const Dashboard = ({ onNavigate }) => {
       return;
     }
     loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
 
   const loadDashboardData = async () => {
     setLoading(true);
     try {
       const members = await memberService.getMembers();
+      console.log("📊 [Dashboard] Miembros recibidos:", members.length);
 
       const maleCount =
-        members?.filter((m) => m.sexo === "M")?.length || 0;
+        members?.filter(
+          (m) =>
+            m.sexo === "M" ||
+            m.genero === "Masculino" ||
+            m.genero === "M"
+        )?.length || 0;
+
       const femaleCount =
-        members?.filter((m) => m.sexo === "F")?.length || 0;
-      const baptized = members.filter(
-        (m) => m.bautizado === "Sí"
-      ).length;
+        members?.filter(
+          (m) =>
+            m.sexo === "F" ||
+            m.genero === "Femenino" ||
+            m.genero === "F"
+        )?.length || 0;
+
+      const baptizedCount =
+        members?.filter(
+          (m) => m.bautizado === "Sí" || m.bautizado === true
+        )?.length || 0;
+
+      console.log(
+        `👥 [STATS] Varones: ${maleCount}, Mujeres: ${femaleCount}, Bautizados: ${baptizedCount}, Total: ${members.length}`
+      );
 
       let weeklyStats = null;
       try {
         weeklyStats = await getWeeklyStatistics(new Date());
-      } catch (e) {}
+      } catch (e) {
+        console.warn("⚠️ Error obteniendo estadísticas semanales:", e);
+      }
 
       // Clases
       const classesMap = new Map();
@@ -186,7 +206,7 @@ const Dashboard = ({ onNavigate }) => {
 
       setStats({
         totalMembers: members.length,
-        baptizedCount: baptized,
+        baptizedCount,
         maleCount,
         femaleCount,
         weeklyAttendance:
@@ -213,10 +233,6 @@ const Dashboard = ({ onNavigate }) => {
 
   return (
     <div className="dashboard-container">
-      {/* <div className="dashboard-header">
-        <h1>IEDB Canaán</h1>
-      </div> */}
-
       {/* KPIs */}
       <div className="stats-grid">
         <div className="stat-card stat-card-primary">
@@ -264,8 +280,7 @@ const Dashboard = ({ onNavigate }) => {
                   contentStyle={{
                     borderRadius: "10px",
                     border: "none",
-                    boxShadow:
-                      "0 4px 6px rgba(0,0,0,0.1)",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                   }}
                 />
                 <Pie
@@ -296,35 +311,35 @@ const Dashboard = ({ onNavigate }) => {
             </ResponsiveContainer>
 
             {/* Centro del donut */}
-<div
-  style={{
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    textAlign: "center",
-    pointerEvents: "none",
-  }}
->
-  <div
-    style={{
-      fontSize: "24px",
-      fontWeight: "bold",
-      color: "var(--canaan-red)",
-    }}
-  >
-    {stats.totalMembers}
-  </div>
-  <div
-    style={{
-      fontSize: "12px",
-      color: "var(--text-secondary)",
-      textTransform: "uppercase",
-    }}
-  >
-    Miembros
-  </div>
-</div>
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: "var(--canaan-red)",
+                }}
+              >
+                {stats.totalMembers}
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "var(--text-secondary)",
+                  textTransform: "uppercase",
+                }}
+              >
+                Miembros
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -101,7 +101,7 @@ export const memberService = {
         }
       }
 
-      // Si hay constraints, advertir que se usará Firestore directo
+      // Si hay constraints, usar Firestore directo
       if (constraints && constraints.length > 0) {
         console.log('⚠️  Using Firestore DIRECT query (has constraints)');
         const q = query(collection(db, MEMBERS_COLLECTION), ...constraints);
@@ -152,6 +152,7 @@ export const memberService = {
     console.log('🔵 memberService.deleteMember called for:', id);
     try {
       const docRef = doc(db, MEMBERS_COLLECTION, id);
+
       await deleteDoc(docRef);
       console.log('✅ Member deleted:', id);
     } catch (error) {
@@ -186,4 +187,15 @@ export const memberService = {
       throw error;
     }
   },
+
+  // Check if cache exists
+  async hasCache(): Promise<boolean> {
+    try {
+      const { members } = await getCachedMembers();
+      return members.length > 0;
+    } catch (error) {
+      console.error('❌ Error checking cache:', error);
+      return false;
+    }
+  }
 };

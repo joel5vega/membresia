@@ -44,26 +44,36 @@ const AppLayout = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isDataPreloaded, setIsDataPreloaded] = useState(false);
 
+  const [loadingMessage, setLoadingMessage] = useState('Preparando tu panel Canaán...');
   const { user, logout, loading: authLoading } = useAuth();
   const username = user?.email?.split('@')[0] || 'Admin';
 
   // Pre‑cargar miembros
-  useEffect(() => {
-    const preloadMembers = async () => {
-      try {
-        await memberService.getMembers();
-        setIsDataPreloaded(true);
-      } catch (error) {
-        console.error('Error pre-loading members:', error);
-        setIsDataPreloaded(true);
-      }
-    };
+  // Pre‑cargar miembros
+useEffect(() => {
+  const preloadMembers = async () => {
+    try {
+      console.log('🔵 [App] preloadMembers start');
+      const hasCache = await memberService.hasCache();
+      setLoadingMessage(
+        hasCache ? 'Cargando datos de memoria...' : 'Descargando datos...'
+      );
 
-    if (user && !isDataPreloaded) {
-      preloadMembers();
+      // 👇 Aquí se hace la precarga
+      await memberService.getMembers();
+
+      console.log('✅ [App] preloadMembers completed');
+      setIsDataPreloaded(true);
+    } catch (error) {
+      console.error('❌ [App] Error pre-loading members:', error);
+      setIsDataPreloaded(true);
     }
-  }, [user, isDataPreloaded]);
+  };
 
+  if (user && !isDataPreloaded) {
+    preloadMembers();
+  }
+}, [user, isDataPreloaded]);
   // Ocultar loader cuando auth + datos estén listos
   useEffect(() => {
     if (!authLoading && isDataPreloaded) {
@@ -72,7 +82,7 @@ const AppLayout = () => {
   }, [authLoading, isDataPreloaded]);
 
   if (authLoading || isInitialLoading) {
-    return <AppLoader message="Preparando tu panel Canaán..." />;
+    return <AppLoader message={loadingMessage} />;
   }
 
   const menuItems = [
