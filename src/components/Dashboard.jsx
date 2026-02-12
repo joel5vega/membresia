@@ -18,19 +18,19 @@ import { ageStatsService } from "../services/ageStatsService";
 import AgeDemographicsSection from "./AgeDemographicsSection";
 
 const CLASS_ICONS = {
-  soldados: "🛡️ Jóvenes",
-  señoras: "🌸Señoras",
-  caballeros: "👔 Caballeros",
-  matrimonios: "💍 Matrimonios",
+  soldados: "🛡️ Jóv",
+  señoras: "🌸Señ",
+  caballeros: "👔 Cab",
+  matrimonios: "💍 Mat",
   default: "👥",
-  joyitas: "💎 Joyitas",
-  estrellitas: "⭐ Estrellitas",
-  vencedores: "🏆 Vencedores",
-  jireh: "🐑 Jireh",
-  elohim: "🕊️ Elohim",
-  evangelio: "💡 Luz del evangelio",
-  camino: "🛣️ Jesús es el camino",
-  exploradores: "🧭 Exploradores",
+  joyitas: "💎 Joy",
+  estrellitas: "⭐ Est",
+  vencedores: "🏆 Ven",
+  jireh: "🐑 Jir",
+  elohim: "🕊️ Elo",
+  evangelio: "💡Luz",
+  camino: "🛣️ Jes",
+  exploradores: "🧭 Exp",
   Inactive: "X",
 };
 
@@ -82,16 +82,20 @@ const renderCustomizedLabel = ({
     <text
       x={x}
       y={y}
-      fill="#4B5563"
+      fill="#f9fafb"              // color claro fijo
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
-      fontSize="11"
-      fontWeight="500"
+      fontSize={11}
+      fontWeight={500}
+      stroke="rgba(0,0,0,0.6)"    // borde para contraste
+      strokeWidth={2}
+      paintOrder="stroke"
     >
       {`${icon} : ${(percent * 100).toFixed(0)}% (${value})`}
     </text>
   );
 };
+
 
 const Dashboard = ({ onNavigate }) => {
   const { user, loading: authLoading } = useAuth();
@@ -209,9 +213,9 @@ const Dashboard = ({ onNavigate }) => {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
+      {/* <div className="dashboard-header">
         <h1>IEDB Canaán</h1>
-      </div>
+      </div> */}
 
       {/* KPIs */}
       <div className="stats-grid">
@@ -291,35 +295,36 @@ const Dashboard = ({ onNavigate }) => {
               </PieChart>
             </ResponsiveContainer>
 
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                textAlign: "center",
-                pointerEvents: "none",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: "#A63232",
-                }}
-              >
-                {stats.totalMembers}
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "#6b7280",
-                  textTransform: "uppercase",
-                }}
-              >
-                Miembros
-              </div>
-            </div>
+            {/* Centro del donut */}
+<div
+  style={{
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    textAlign: "center",
+    pointerEvents: "none",
+  }}
+>
+  <div
+    style={{
+      fontSize: "24px",
+      fontWeight: "bold",
+      color: "var(--canaan-red)",
+    }}
+  >
+    {stats.totalMembers}
+  </div>
+  <div
+    style={{
+      fontSize: "12px",
+      color: "var(--text-secondary)",
+      textTransform: "uppercase",
+    }}
+  >
+    Miembros
+  </div>
+</div>
           </div>
         </div>
       </div>

@@ -60,14 +60,14 @@ const ClassesAndAttendance = () => {
   return (
     <div className="attendance-view">
       <div className="dashboard-header">
-        <h1 className="section-title">Gestión de Clases y Asistencia</h1>
+        <h1 className="section-title">Clases y Asistencia</h1>
       </div>
 
       {/* Selector global */}
       <div className="form-card" style={{ marginBottom: '20px', padding: '15px' }}>
         <div className="grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Seleccionar Clase</label>
+            <label> Clase</label>
             <select
               className="form-control"
               value={selectedClass}
@@ -82,7 +82,7 @@ const ClassesAndAttendance = () => {
             </select>
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Fecha de Registro</label>
+            <label>Fecha</label>
             <input
               className="form-control"
               type="date"
@@ -94,6 +94,7 @@ const ClassesAndAttendance = () => {
       </div>
 
       {/* Tabs */}
+      {selectedClass&&
       <div className="filter-chips" style={{ marginBottom: '20px', borderBottom: 'none' }}>
         <button
           className={`chip ${activeTab === 'member-att' ? 'active' : ''}`}
@@ -107,12 +108,12 @@ const ClassesAndAttendance = () => {
         >
           Asistencia total
         </button>
-        <button
+        {/* <button
           className={`chip ${activeTab === 'statistics' ? 'active' : ''}`}
           onClick={() => setActiveTab('statistics')}
         >
           Estadísticas
-        </button>
+        </button> */}
         <button
           className={`chip ${activeTab === 'fidelity' ? 'active' : ''}`}
           onClick={() => setActiveTab('fidelity')}
@@ -120,7 +121,7 @@ const ClassesAndAttendance = () => {
           Fidelidad
         </button>
       </div>
-
+}
       {/* Contenido */}
       <div className="tab-content">
         {!selectedClass &&

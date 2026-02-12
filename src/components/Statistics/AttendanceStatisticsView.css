@@ -1,46 +1,50 @@
-/* ========== MOBILE FIRST ========== */
+/* =========================
+   AttendanceStatisticsView.css
+   ========================== */
 
 .attendance-stats-container {
   padding: 8px;
-  background-color: #f5f7fa;
+  background-color: var(--bg);
   min-height: 100vh;
   box-sizing: border-box;
+  color: var(--text-primary);
 }
 
 .attendance-stats-container h1 {
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 16px;
   font-size: 20px;
   font-weight: 600;
 }
 
 .attendance-stats-container h2 {
-  color: #374151;
+  color: var(--text-secondary);
   margin: 20px 0 12px 0;
   font-size: 16px;
   font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
   padding-bottom: 6px;
 }
 
-/* Selector de período */
+/* Selector de periodo */
 
 .period-selector-wrapper {
-  background-color: #ffffff;
+  background-color: var(--surface);
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 10px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border);
 }
 
 .period-label {
-  background-color: #ffffff;
+  background-color: var(--surface);
   padding: 8px 10px;
   border-radius: 8px;
   margin-bottom: 10px;
   font-size: 13px;
-  color: #6b7280;
-  border-left: 3px solid #3b82f6;
+  color: var(--text-secondary);
+  border-left: 3px solid var(--canaan-orange);
   font-weight: 500;
 }
 
@@ -51,15 +55,18 @@
 }
 
 .summary-card {
-  background-color: #ffffff;
+  background-color: var(--card);
   border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  border-top: 3px solid #3b82f6;
+  box-shadow: var(--shadow-soft);
+  border-top: 3px solid var(--canaan-red);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .summary-card h3 {
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 10px 0;
   font-size: 16px;
 }
@@ -78,31 +85,31 @@
 }
 
 .stat-item .label {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
 }
 
 .stat-item .value {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 18px;
   font-weight: 700;
 }
 
 .stat-item .value.percentage {
-  color: #10b981;
+  color: var(--accent-green);
 }
 
 .progress-bar {
   height: 6px;
-  background-color: #e5e7eb;
+  background-color: var(--border-soft);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(90deg, var(--canaan-orange), var(--canaan-red));
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -122,13 +129,13 @@
 /* Tabla de miembros */
 
 .members-table-wrapper {
-  background-color: #ffffff;
+  background-color: var(--card);
   border-radius: 8px;
   overflow-x: auto;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border);
 }
 
-/* Puede ser más ancha que la pantalla, pero en mobile simplificamos columnas */
 .members-table {
   width: 100%;
   border-collapse: collapse;
@@ -136,14 +143,14 @@
 }
 
 .members-table thead {
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--card-soft);
+  border-bottom: 1px solid var(--border);
 }
 
 .members-table th {
   padding: 6px 6px;
   text-align: left;
-  color: #374151;
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
@@ -151,44 +158,44 @@
 }
 
 .members-table tbody tr {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-soft);
   transition: background-color 0.2s;
 }
 
 .members-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: #262626;
 }
 
 .members-table td {
   padding: 6px 6px;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 /* Nombre del miembro */
 
 .members-table td.member-name {
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 600;
-  max-width: 120px;      /* nombre más angosto */
+  max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Colores de estado */
+/* Estados */
 
 .members-table td.present {
-  color: #10b981;
+  color: var(--accent-green);
   font-weight: 600;
 }
 
 .members-table td.absent {
-  color: #ef4444;
+  color: var(--accent-red);
   font-weight: 600;
 }
 
 .members-table td.justified {
-  color: #f59e0b;
+  color: var(--accent-amber);
   font-weight: 600;
 }
 
@@ -202,14 +209,14 @@
 }
 
 .members-table .percentage {
-  color: #10b981;
+  color: var(--accent-green);
   font-weight: 700;
   font-size: 14px;
 }
 
 .mini-progress {
   height: 5px;
-  background-color: #e5e7eb;
+  background-color: var(--border-soft);
   border-radius: 3px;
   overflow: hidden;
   width: 80px;
@@ -217,7 +224,7 @@
 
 .mini-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, var(--accent-green), #059669);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -227,13 +234,13 @@
 .no-data {
   text-align: center;
   padding: 18px 10px;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 13px;
-  background-color: #ffffff;
+  background-color: var(--card);
   border-radius: 8px;
 }
 
-/* ===== Solo mostrar Miembro y % Asistencia en mobile ===== */
+/* Responsive tabla */
 
 @media (max-width: 640px) {
   .members-table th.col-presences,
@@ -255,8 +262,6 @@
     font-size: 12px;
   }
 }
-
-/* ===== Mejoras en pantallas medianas y grandes ===== */
 
 @media (min-width: 640px) {
   .attendance-stats-container {
@@ -292,30 +297,31 @@
     font-size: 28px;
   }
 }
+
 /* Tarjetas por clase */
 
 .class-card {
-  background-color: #ffffff;
+  background-color: var(--card);
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   padding: 10px 12px;
   box-sizing: border-box;
 }
 
 .class-card + .class-card {
-  margin-top: 8px;        /* pequeño espacio entre tarjetas cuando hay una debajo de otra */
+  margin-top: 8px;
 }
 
 .class-card h4 {
   margin: 0 0 6px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .class-stats div {
   font-size: 13px;
-  color: #4b5563;
+  color: var(--text-secondary);
   line-height: 1.3;
 }
 

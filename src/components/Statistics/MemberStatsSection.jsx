@@ -47,39 +47,18 @@ const MemberStatsSection = ({ statistics, memberStatsExtra, selectedClass, setSe
       })).sort((a, b) => b.cantidad - a.cantidad)
     : [];
 
-  const COLORS = ['#A63232', '#E68A3E', '#F2B705', '#0D9488', '#7C3AED'];
+ const COLORS = [
+  'var(--canaan-red)',    // antes '#A63232'
+  'var(--canaan-orange)', // antes '#E68A3E'
+  '#F2B705',              // puedes crear var(--canaan-gold-strong) si quieres
+  '#0D9488',
+  '#7C3AED',
+];
 
   return (
     <div className="member-stats-section">
       
-      {/* 1. Récord de Asistencia por Miembro */}
-      <section className="stats-card-container">
-        <h3>Récord de Asistencia Individual</h3>
-        <div className="members-mini-list">
-          {statistics.memberStats?.map((m) => (
-            <div key={m.memberId} className="member-row-card">
-              <div className="member-main">
-                <div className="member-avatar-circle">
-                  {m.photoUrl ? <img src={m.photoUrl} alt="avatar" /> : '👤'}
-                </div>
-                <span className="member-name-text">{getDisplayName(m)}</span>
-              </div>
-              <div className="member-metrics">
-                <div className="presence-pills">
-                  <span className="pill pill-p">P: {m.totalAttendances}</span>
-                  <span className="pill pill-a">A: {m.totalAbsences}</span>
-                </div>
-                <div className="progress-group">
-                  <span className="rate-text">{m.attendanceRate?.toFixed(1)}%</span>
-                  <div className="progress-bar-thin">
-                    <div className="progress-fill" style={{ width: `${m.attendanceRate}%` }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      
 
       {/* 2. Fortalezas Espirituales y Demografía */}
       <section className="stats-card-container">

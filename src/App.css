@@ -1,12 +1,304 @@
-.App {
+/* =========================
+   App.css
+   ========================== */
+
+/* Contenedor raíz */
+.app-shell {
   min-height: 100vh;
-  background-color: #f3f4f6;
+  background-color: var(--bg);
+  color: var(--text-primary);
 }
 
+/* Para compatibilidad con código que usa .App */
+.App {
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   HEADER SUPERIOR
+   ========================== */
+
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--card);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: var(--canaan-red);
+  letter-spacing: 1px;
+}
+
+.header-brand img {
+  height: 30px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-username {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.header-logout-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botón menú */
+.menu-toggle-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   MENÚ INMERSIVO
+   ========================== */
+
+.immersive-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--canaan-red) 0%, #7a2424 100%);
+  z-index: 2000;
+  transform: translateY(-100%);
+  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 40px 30px;
+  box-sizing: border-box;
+}
+
+.immersive-menu.open {
+  transform: translateY(0);
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.menu-brand-text {
+  color: rgba(255,255,255,0.6);
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+}
+
+.close-menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.menu-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.menu-link-item {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: white;
+  text-align: left;
+  padding: 10px 0;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.link-icon {
+  color: var(--canaan-orange);
+  opacity: 0.85;
+}
+
+.link-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.menu-link-item.active .link-text {
+  color: #ffffff;
+  opacity: 1;
+}
+
+.menu-link-item.active .link-icon {
+  color: #ffffff;
+  opacity: 1;
+}
+
+.menu-footer {
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 24px;
+  margin-top: 16px;
+}
+
+.menu-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-initial {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--canaan-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+}
+
+.user-name {
+  display: block;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.menu-logout-action {
+  background: none;
+  border: none;
+  color: var(--canaan-orange);
+  padding: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   CONTENIDO PRINCIPAL
+   ========================== */
+
+.main-content-area {
+  padding-top: 70px;       /* deja espacio para el header fijo */
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.view-transition-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.view-padding {
+  padding: 20px 4px;
+}
+
+/* =========================
+   BOTONES / UTILIDADES GLOBALES
+   ========================== */
+
 button {
+  font-family: inherit;
   transition: all 0.3s ease;
 }
 
 button:disabled {
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  background-color: var(--canaan-red);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(166, 50, 50, 0.35);
+}
+
+.btn-primary:hover {
+  background-color: var(--canaan-orange);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.card {
+  background-color: var(--card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  padding: 1rem;
+}
+
+/* Pequeña mejora para pantallas grandes: centrar el contenido */
+@media (min-width: 768px) {
+  .mobile-header {
+    padding: 0 24px;
+  }
+
+  .view-transition-wrapper {
+    padding: 24px;
+  }
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: var(--canaan-red);
+  letter-spacing: 1px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }

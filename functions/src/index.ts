@@ -22,6 +22,7 @@ export const getMembersFiltered = onCall(async (request) => {
     .select(
       "apellido",
       "bautizado",
+      "celular",
       "clase",
       "correo",
       "estadoCivil",

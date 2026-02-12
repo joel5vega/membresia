@@ -1,30 +1,29 @@
-:root {
-  --canaan-red: #A63232;
-  --canaan-orange: #E68A3E;
-  --gold: #D4AF37;
-  --silver: #A8A8A8;
-  --bronze: #CD7F32;
-  --dark-bg: #121212; /* Estilo elegante oscuro */
-}
+/* =========================
+   FidelityAnalytics.css
+   ========================== */
 
 .fidelity-container {
   padding: 20px;
-  background-color: var(--dark-bg);
+  background-color: var(--bg);
   min-height: 100vh;
-  color: white;
+  color: var(--text-primary);
 }
 
-.fidelity-header h1 { color: white; margin: 0; font-size: 28px; }
+.fidelity-header h1 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 28px;
+}
 
 .section-label {
-  color: #666;
+  color: var(--text-muted);
   font-size: 11px;
   letter-spacing: 2px;
   margin: 30px 0 15px;
   text-transform: uppercase;
 }
 
-/* Mini Pills para Clases */
+/* Mini Pills */
 .stats-mini-grid {
   display: flex;
   flex-wrap: wrap;
@@ -32,18 +31,27 @@
 }
 
 .stat-mini-pill {
-  background: #1e1e1e;
+  background: var(--surface);
   padding: 8px 12px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  border: 1px solid var(--border);
 }
 
-.pill-val { font-weight: 800; color: white; }
-.pill-lab { font-size: 10px; color: #888; text-transform: uppercase; }
+.pill-val {
+  font-weight: 800;
+  color: var(--text-primary);
+}
 
-/* La Cuadrícula de Avatares */
+.pill-lab {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* Grid de avatares */
 .fidelity-avatar-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
@@ -60,53 +68,65 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  padding: 3px; /* Espacio para el borde de nivel */
+  padding: 3px;
   position: relative;
   transition: transform 0.2s ease;
+  background: var(--surface);
 }
 
-.avatar-frame img, .no-photo {
+.avatar-frame img,
+.no-photo {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  background: #2a2a2a;
+  background: #222222;
 }
 
-/* Colores de Borde por Nivel */
-.level-oro .avatar-frame { background: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-.level-plata .avatar-frame { background: var(--silver); }
-.level-bronce .avatar-frame { background: var(--bronze); }
+/* Borde por nivel */
+.level-oro .avatar-frame {
+  background: var(--gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
 
+.level-plata .avatar-frame {
+  background: var(--silver);
+}
+
+.level-bronce .avatar-frame {
+  background: var(--bronze);
+}
+
+/* Indicador racha */
 .streak-dot {
   position: absolute;
   top: -5px;
   right: -5px;
   background: var(--canaan-red);
-  color: white;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 10px;
-  border: 2px solid var(--dark-bg);
+  border: 2px solid var(--bg);
 }
 
-/* Tooltip al Hover */
+/* Tooltip */
 .avatar-tooltip {
   position: absolute;
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   width: 160px;
-  background: #252525;
+  background: var(--card-soft);
   border-radius: 12px;
   padding: 12px;
   pointer-events: none;
   opacity: 0;
   transition: all 0.3s ease;
   z-index: 100;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  border: 1px solid #333;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border);
 }
 
 .avatar-wrapper:hover .avatar-tooltip {
@@ -118,21 +138,30 @@
   transform: scale(1.1);
 }
 
-.tooltip-content h4 { margin: 0; font-size: 13px; color: white; }
-.tooltip-content p { margin: 2px 0 8px; font-size: 10px; color: var(--canaan-orange); }
+.tooltip-content h4 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.tooltip-content p {
+  margin: 2px 0 8px;
+  font-size: 10px;
+  color: var(--canaan-orange);
+}
 
 .tooltip-stats {
   display: flex;
   flex-direction: column;
   gap: 4px;
   font-size: 10px;
-  color: #aaa;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .mini-progress-track {
   height: 4px;
-  background: #444;
+  background: #444444;
   border-radius: 2px;
 }
 
@@ -141,15 +170,20 @@
   background: var(--canaan-red);
   border-radius: 2px;
 }
-/* Filtros de Clase */
+
+/* Filtros de clase */
+
 .filter-header {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  color: var(--text-secondary);
 }
 
-.filter-icon { color: var(--canaan-orange); }
+.filter-icon {
+  color: var(--canaan-orange);
+}
 
 .class-filter-scroll {
   display: flex;
@@ -159,12 +193,14 @@
   scrollbar-width: none;
 }
 
-.class-filter-scroll::-webkit-scrollbar { display: none; }
+.class-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
 
 .class-chip {
-  background: #1e1e1e;
-  border: 1px solid #333;
-  color: #888;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
   padding: 8px 16px;
   border-radius: 20px;
   white-space: nowrap;
@@ -176,7 +212,7 @@
 
 .class-chip.active {
   background: var(--canaan-red);
-  color: white;
+  color: #ffffff;
   border-color: var(--canaan-red);
   box-shadow: 0 4px 12px rgba(166, 50, 50, 0.4);
 }
@@ -184,19 +220,20 @@
 .results-info {
   margin-bottom: 10px;
   font-size: 10px;
-  color: #555;
+  color: var(--text-muted);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 .class-filter-dropdown select {
   width: 100%;
   max-width: 320px;
   padding: 0.4rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  background-color: #ffffff;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--text-primary);
   cursor: pointer;
 }
