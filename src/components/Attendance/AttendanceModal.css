@@ -1,0 +1,324 @@
+/* Overlay */
+.att-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal container — bottom sheet en mobile */
+.att-modal {
+  background: #fbf9f7;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92dvh;
+  border-radius: 1.5rem 1.5rem 0 0;
+  overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
+}
+
+.att-modal--general {
+  border-top: 3px solid #613b1d;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Header */
+.att-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(139,113,111,0.12);
+  background: linear-gradient(135deg, #85191d, #a63232);
+  border-radius: 1.5rem 1.5rem 0 0;
+  color: white;
+}
+
+.att-modal-header--general {
+  background: linear-gradient(135deg, #613b1d, #7c5232);
+}
+
+.att-modal-chip {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(255,255,255,0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-bottom: 0.4rem;
+}
+
+.att-chip--general {
+  background: rgba(255,255,255,0.15);
+}
+
+.att-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.2;
+  max-width: 18rem;
+}
+
+.att-modal-date {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 0.2rem;
+  text-transform: capitalize;
+}
+
+.att-modal-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.att-modal-close:hover { background: rgba(255,255,255,0.3); }
+
+.att-modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: #584140;
+  font-size: 0.9rem;
+}
+
+/* Body */
+.att-modal-body {
+  padding: 1.25rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Fields */
+.att-field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.att-field label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #584140;
+}
+
+.att-field input,
+.att-field textarea {
+  background: #fff;
+  border: 1px solid rgba(139,113,111,0.25);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+  color: #1b1c1b;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.att-field input:focus,
+.att-field textarea:focus {
+  border-color: #85191d;
+  box-shadow: 0 0 0 3px rgba(133,25,29,0.1);
+}
+
+.att-field textarea { resize: vertical; font-family: inherit; }
+
+.att-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* Field group */
+.att-field-group {
+  background: #f5f3f1;
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.att-field-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #584140;
+}
+
+/* Counters */
+.att-counters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.att-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(139,113,111,0.15);
+}
+
+.att-counter-icon {
+  font-size: 1.1rem;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.att-counter--blue .att-counter-icon { color: #1d6fa6; }
+.att-counter--pink .att-counter-icon { color: #a6195e; }
+.att-counter--green .att-counter-icon { color: #196b2d; }
+
+.att-counter-label {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.att-counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.att-counter-controls button {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: #eae8e6;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #1b1c1b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  line-height: 1;
+}
+
+.att-counter-controls button:hover { background: #dfbfbd; }
+
+.att-counter-controls input {
+  width: 3rem;
+  text-align: center;
+  border: 1px solid rgba(139,113,111,0.2);
+  border-radius: 0.5rem;
+  padding: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: #fbf9f7;
+}
+
+/* Total pill */
+.att-total-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(133,25,29,0.08);
+  color: #85191d;
+  padding: 0.5rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  width: fit-content;
+}
+
+.att-total-pill--general {
+  background: rgba(97,59,29,0.1);
+  color: #613b1d;
+}
+
+.att-total-pill .material-symbols-outlined { font-size: 1rem; }
+
+/* Feedback */
+.att-error {
+  color: #ba1a1a;
+  font-size: 0.8rem;
+  background: #ffdad6;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.att-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #196b2d;
+  background: #d4edda;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Submit button */
+.att-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.9rem;
+  background: #85191d;
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 0.5rem;
+}
+
+.att-submit-btn:hover { background: #a63232; }
+.att-submit-btn:active { transform: scale(0.98); }
+.att-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.att-submit-btn--general { background: #613b1d; }
+.att-submit-btn--general:hover { background: #7c5232; }
+
+/* Spinner */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}

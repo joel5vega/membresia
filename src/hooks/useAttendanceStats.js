@@ -2,19 +2,23 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
 
-// Helper function to get week number from date
-const getWeekNumber = (date) => {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-};
-
-// Helper function to get year and quarter from date
 const getQuarter = (date) => {
   const q = Math.floor(date.getMonth() / 3) + 1;
   return { year: date.getFullYear(), quarter: q };
+};
+
+const parseRecordDate = (dateValue) => {
+  if (!dateValue) return null;
+  // Firebase Timestamp
+  if (dateValue?.toDate) return dateValue.toDate();
+  // String "YYYY-MM-DD"
+  if (typeof dateValue === 'string') {
+    const parts = dateValue.split('-');
+    if (parts.length === 3) {
+      return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+  }
+  return new Date(dateValue);
 };
 
 export const useAttendanceStats = (className) => {
@@ -24,12 +28,16 @@ export const useAttendanceStats = (className) => {
 
   useEffect(() => {
     const fetchAttendanceStats = async () => {
-      if (!className) return;
-      
+      if (!className) {
+        setStats({});
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
+
       try {
-        // Get all attendance records for the class
         const q = query(
           collection(db, 'attendance'),
           where('clase', '==', className)
@@ -40,68 +48,74 @@ export const useAttendanceStats = (className) => {
           ...doc.data()
         }));
 
-        // Calculate statistics by member
         const statsByMember = {};
-        
+        const now = new Date();
+        // Normalizar "ahora" al final del día
+        const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
         attendanceData.forEach(record => {
           const memberId = record.memberId;
+          if (!memberId) return;
+
           if (!statsByMember[memberId]) {
             statsByMember[memberId] = {
               memberId,
-              memberName: record.memberName,
-              weekly: { presente: 0, ausente: 0, tardio: 0, total: 0 },
-              monthly: { presente: 0, ausente: 0, tardio: 0, total: 0 },
-              quarterly: { presente: 0, ausente: 0, tardio: 0, total: 0 },
-              yearly: { presente: 0, ausente: 0, tardio: 0, total: 0 }
+              memberName: record.memberName || 'Desconocido',
+              weekly:    { presente: 0, ausente: 0, tardio: 0, total: 0, percentage: 0 },
+              monthly:   { presente: 0, ausente: 0, tardio: 0, total: 0, percentage: 0 },
+              quarterly: { presente: 0, ausente: 0, tardio: 0, total: 0, percentage: 0 },
+              yearly:    { presente: 0, ausente: 0, tardio: 0, total: 0, percentage: 0 },
             };
           }
 
-          const date = new Date(record.date);
-          const status = record.status.toLowerCase();
-          const statusKey = status === 'presente' ? 'presente' : 
-                           status === 'tardío' || status === 'tardio' ? 'tardio' : 'ausente';
+          const recordDate = parseRecordDate(record.date);
+          if (!recordDate) return;
 
-          // Weekly (last 7 days)
-          const now = new Date();
-          const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          if (date >= sevenDaysAgo) {
-            statsByMember[memberId].weekly[statusKey]++;
-            statsByMember[memberId].weekly.total++;
+          const rawStatus = String(record.status || '').toLowerCase().trim();
+          const statusKey =
+            rawStatus === 'presente' ? 'presente' :
+            rawStatus === 'tardío' || rawStatus === 'tardio' ? 'tardio' :
+            'ausente';
+
+          const m = statsByMember[memberId];
+
+          // Últimos 7 días
+          if (recordDate >= sevenDaysAgo && recordDate <= endOfToday) {
+            m.weekly[statusKey]++;
+            m.weekly.total++;
           }
-
-          // Monthly (current month)
-          if (date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) {
-            statsByMember[memberId].monthly[statusKey]++;
-            statsByMember[memberId].monthly.total++;
+          // Mes actual
+          if (recordDate.getMonth() === now.getMonth() &&
+              recordDate.getFullYear() === now.getFullYear()) {
+            m.monthly[statusKey]++;
+            m.monthly.total++;
           }
-
-          // Quarterly
-          const currentQuarter = getQuarter(now);
-          const recordQuarter = getQuarter(date);
-          if (currentQuarter.quarter === recordQuarter.quarter && 
-              currentQuarter.year === recordQuarter.year) {
-            statsByMember[memberId].quarterly[statusKey]++;
-            statsByMember[memberId].quarterly.total++;
+          // Trimestre actual
+          const cq = getQuarter(now);
+          const rq = getQuarter(recordDate);
+          if (cq.quarter === rq.quarter && cq.year === rq.year) {
+            m.quarterly[statusKey]++;
+            m.quarterly.total++;
           }
-
-          // Yearly
-          if (date.getFullYear() === now.getFullYear()) {
-            statsByMember[memberId].yearly[statusKey]++;
-            statsByMember[memberId].yearly.total++;
+          // Año actual
+          if (recordDate.getFullYear() === now.getFullYear()) {
+            m.yearly[statusKey]++;
+            m.yearly.total++;
           }
         });
 
-        // Calculate percentages
-        Object.keys(statsByMember).forEach(memberId => {
+        // Calcular porcentajes
+        Object.values(statsByMember).forEach(member => {
           ['weekly', 'monthly', 'quarterly', 'yearly'].forEach(period => {
-            const total = statsByMember[memberId][period].total;
-            const presente = statsByMember[memberId][period].presente;
-            statsByMember[memberId][period].percentage = total > 0 ? Math.round((presente / total) * 100) : 0;
+            const { total, presente } = member[period];
+            member[period].percentage = total > 0 ? Math.round((presente / total) * 100) : 0;
           });
         });
 
         setStats(statsByMember);
       } catch (err) {
+        console.error('Error fetching attendance stats:', err);
         setError(err.message);
       } finally {
         setLoading(false);

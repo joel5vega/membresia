@@ -7,7 +7,7 @@ import {
   BarChart3,
   Cake,
   Menu,
-  X,
+  X,History
 } from 'lucide-react';
 
 import MemberForm from './components/MemberForm';
@@ -28,7 +28,8 @@ import InstallPrompt from './components/InstallPrompt';
 import { memberService } from './services/memberService';
 import AppLoader from './components/AppLoader';
 import './App.css';
-
+// Agrega este import junto a los demás
+import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -90,6 +91,7 @@ useEffect(() => {
     { id: 'classes', label: 'Asistencia', icon: <ClipboardCheck size={22} /> },
     { id: 'statistics', label: 'Estadísticas', icon: <BarChart3 size={22} /> },
     { id: 'cumpleanos', label: 'Cumpleaños', icon: <Cake size={22} /> },
+    { id: 'attendance-history', label: 'Historial', icon: <History size={22} /> },
   ];
 
   const handleNavigate = (page) => {
@@ -186,7 +188,11 @@ useEffect(() => {
           )}
 
           {currentPage === 'classes' && <ClassesAndAttendance />}
-
+{currentPage === 'attendance-history' && (
+  <div className="view-padding">
+    <AttendanceHistoryView />
+  </div>
+)}
           {currentPage === 'statistics' && (
             <div className="view-padding">
               <AttendanceStatisticsView />

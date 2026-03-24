@@ -1,18 +1,16 @@
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { Users, Info } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
+import { Users } from "lucide-react";
 import './AgeDemographicsSection.css'
-// Paleta refinada: Degradados de la marca Canaán
-const PALETTE = ["#A63232", "#BC443B", "#D15645", "#E68A3E", "#EB9B5D", "#F0AC7B"];
+
+const PALETTE = ["#A63232","#BC443B","#D15645","#E68A3E","#EB9B5D","#F0AC7B"];
 
 const AgeDemographicsSection = ({ ageByDecade = [], avgAge }) => {
   const totalPeople = ageByDecade.reduce((acc, curr) => acc + curr.count, 0);
-  
+
   const ageData = ageByDecade.map((item, index) => ({
-    range: item.decade,
-    label: item.decade.replace('s', ''), // Limpiamos etiquetas (ej: "20s" -> "20")
+    label: item.decade.replace('s', ''),
     count: item.count,
-    percentage: totalPeople > 0 ? ((item.count / totalPeople) * 100).toFixed(1) : 0,
     color: PALETTE[index % PALETTE.length],
   }));
 
@@ -29,10 +27,9 @@ const AgeDemographicsSection = ({ ageByDecade = [], avgAge }) => {
         </div>
       </div>
 
-      {/* Gráfico Visual */}
-      <div className="age-chart-wrapper" style={{ height: 200, marginTop: "20px" }}>
+      <div style={{ height: 220, marginTop: 16 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={ageData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+          <BarChart data={ageData} margin={{ top: 24, right: 8, left: 8, bottom: 0 }}>
             <XAxis
               dataKey="label"
               axisLine={false}
@@ -41,20 +38,26 @@ const AgeDemographicsSection = ({ ageByDecade = [], avgAge }) => {
             />
             <YAxis hide />
             <Tooltip
-              cursor={{ fill: "#f8fafc" }}
+              cursor={{ fill: "rgba(255,255,255,0.05)" }}
               content={({ active, payload }) => {
-                if (active && payload && payload.length) {
+                if (active && payload?.length) {
+                  const d = payload[0].payload;
                   return (
                     <div className="custom-tooltip-stats">
-                      <p className="tooltip-label">{payload[0].payload.range}</p>
-                      <p className="tooltip-value">{payload[0].value} personas ({payload[0].payload.percentage}%)</p>
+                      <p className="tooltip-label">{d.label}s</p>
+                      <p className="tooltip-value">{d.count} personas</p>
                     </div>
                   );
                 }
                 return null;
               }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={30}>
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={28}>
+              <LabelList
+                dataKey="count"
+                position="top"
+                style={{ fill: "#f9fafb", fontSize: 11, fontWeight: 700 }}
+              />
               {ageData.map((entry, index) => (
                 <Cell key={index} fill={entry.color} />
               ))}
@@ -62,26 +65,8 @@ const AgeDemographicsSection = ({ ageByDecade = [], avgAge }) => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Listado Detallado (Más útil que el footer anterior) */}
-      <div className="age-details-list">
-        {ageData.map((d, i) => (
-          <div key={i} className="age-detail-row">
-            <div className="row-label">
-              <span className="dot-indicator" style={{ backgroundColor: d.color }}></span>
-              <span className="age-text">{d.range}</span>
-            </div>
-            <div className="row-progress-container">
-              <div className="row-progress-bg">
-                <div className="row-progress-fill" style={{ width: `${d.percentage}%`, backgroundColor: d.color }}></div>
-              </div>
-              <span className="row-percent">{d.percentage}%</span>
-            </div>
-            <span className="row-count">{d.count}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
+
 export default AgeDemographicsSection;

@@ -5,6 +5,7 @@
 .premium-card {
   border: 1px solid var(--border) !important;
   background: linear-gradient(to bottom, var(--card), var(--surface)) !important;
+  color:aliceblue;
 }
 
 .header-subtitle {

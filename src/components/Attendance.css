@@ -184,3 +184,105 @@
   color: var(--text-primary);
 }
 
+/* Botones de acción para modales */
+.att-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.att-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.att-action-btn--class {
+  background: rgba(133, 25, 29, 0.08);
+  color: #85191d;
+}
+
+.att-action-btn--class:hover { background: rgba(133,25,29,0.15); }
+
+.att-action-btn--general {
+  background: rgba(97, 59, 29, 0.08);
+  color: #613b1d;
+}
+
+.att-action-btn--general:hover { background: rgba(97,59,29,0.15); }
+
+.att-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.att-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.att-action-btn:active { transform: scale(0.96); }
+
+.att-action-btn--class {
+  background: rgba(133, 25, 29, 0.08);
+  color: #85191d;
+}
+.att-action-btn--class:hover { background: rgba(133, 25, 29, 0.15); }
+
+.att-action-btn--general {
+  background: rgba(97, 59, 29, 0.08);
+  color: #613b1d;
+}
+.att-action-btn--general:hover { background: rgba(97, 59, 29, 0.15); }
+
+.att-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.att-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.att-action-btn:active { transform: scale(0.96); }
+
+.att-action-btn--class {
+  background: rgba(133, 25, 29, 0.08);
+  color: #85191d;
+}
+.att-action-btn--class:hover { background: rgba(133, 25, 29, 0.15); }
+
+.att-action-btn--general {
+  background: rgba(97, 59, 29, 0.08);
+  color: #613b1d;
+}
+.att-action-btn--general:hover { background: rgba(97, 59, 29, 0.15); }

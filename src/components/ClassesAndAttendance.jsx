@@ -4,44 +4,41 @@ import TotalsAttendanceForm from './TotalsAttendanceForm';
 import AttendanceStatisticsView from './Statistics/AttendanceStatisticsView';
 import FidelityAnalytics from './Statistics/FidelityAnalytics';
 import ClassForm from './ClassForm';
+import ClassSummaryModal from './Attendance/ClassSummaryModal';
+import GeneralSummaryModal from './Attendance/GeneralSummaryModal';
 import { useAuth } from '../context/AuthContext';
 import { getFidelityStatistics } from '../services/memberStatisticsService';
 import './Attendance.css';
 
+export const CLASS_IDS = {
+  'Sociedad de Caballeros "Emanuel"':           'caballeros-emanuel',
+  'Sociedad de Señoras "Shaddai"':              'senoras-shaddai',
+  'Sociedad de Matrimonios jóvenes "Ebenezer"': 'matrimonios-ebenezer',
+  'Sociedad de Jóvenes "Soldados de la Fe"':    'SyMu34o00g7c2jawU7XG',
+  'Sociedad de prejuveniles "Vencedores"':      'prejuveniles-vencedores',
+  'Clase de Exploradores':                      'exploradores',
+  'Clase de Estrellitas':                       'estrellitas',
+  'Clase de joyitas':                           'joyitas',
+  'Av. Jireh':                                  'av-jireh',
+  'Av. Luz del evangelio':                      'av-luz',
+  'Av. Elohim':                                 'av-elohim',
+  'Av. Jesús es el camino':                     'av-jesus',
+};
+
+const classOptions = Object.keys(CLASS_IDS).concat(['Inactive']);
+
 const ClassesAndAttendance = () => {
-  const [activeTab, setActiveTab] = useState('member-att');
-  const { user } = useAuth();
-
-  const [selectedClass, setSelectedClass] = useState('');
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
-
-  // Datos para pestaña de Fidelidad
-  const [fidelityData, setFidelityData] = useState(null);
+  const [activeTab, setActiveTab]           = useState('member-att');
+  const { user }                            = useAuth();
+  const [selectedClass, setSelectedClass]   = useState('');
+  const [fecha, setFecha]                   = useState(new Date().toISOString().split('T')[0]);
+  const [fidelityData, setFidelityData]     = useState(null);
   const [loadingFidelity, setLoadingFidelity] = useState(false);
+  const [showClassModal, setShowClassModal]   = useState(false);
+  const [showGeneralModal, setShowGeneralModal] = useState(false);
 
-  const classOptions = [
-    'Sociedad de Caballeros "Emanuel"',
-    'Sociedad de Señoras "Shaddai"',
-    'Sociedad de Matrimonios jóvenes "Ebenezer"',
-    'Sociedad de Jóvenes "Soldados de la Fe"',
-    'Sociedad de prejuveniles "Vencedores"',
-    'Clase de Exploradores',
-    'Clase de Estrellitas',
-    'Clase de joyitas',
-    'Av. Jireh',
-    'Av. Luz del evangelio',
-    'Av. Elohim',
-    'Av. Jesús es el camino',
-    'Inactive',
-  ];
-
-  // Cargar fidelidad cuando haya clase seleccionada
   useEffect(() => {
-    if (!selectedClass) {
-      setFidelityData(null);
-      return;
-    }
-
+    if (!selectedClass) { setFidelityData(null); return; }
     const fetchFidelity = async () => {
       try {
         setLoadingFidelity(true);
@@ -53,7 +50,6 @@ const ClassesAndAttendance = () => {
         setLoadingFidelity(false);
       }
     };
-
     fetchFidelity();
   }, [selectedClass]);
 
@@ -67,7 +63,7 @@ const ClassesAndAttendance = () => {
       <div className="form-card" style={{ marginBottom: '20px', padding: '15px' }}>
         <div className="grid-2">
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label> Clase</label>
+            <label>Clase</label>
             <select
               className="form-control"
               value={selectedClass}
@@ -75,9 +71,7 @@ const ClassesAndAttendance = () => {
             >
               <option value="">Seleccione una clase...</option>
               {classOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
+                <option key={option} value={option}>{option}</option>
               ))}
             </select>
           </div>
@@ -94,40 +88,33 @@ const ClassesAndAttendance = () => {
       </div>
 
       {/* Tabs */}
-      {selectedClass&&
-      <div className="filter-chips" style={{ marginBottom: '20px', borderBottom: 'none' }}>
-        <button
-          className={`chip ${activeTab === 'member-att' ? 'active' : ''}`}
-          onClick={() => setActiveTab('member-att')}
-        >
-          Lista
-        </button>
-        <button
-          className={`chip ${activeTab === 'totals-att' ? 'active' : ''}`}
-          onClick={() => setActiveTab('totals-att')}
-        >
-          Asistencia total
-        </button>
-        {/* <button
-          className={`chip ${activeTab === 'statistics' ? 'active' : ''}`}
-          onClick={() => setActiveTab('statistics')}
-        >
-          Estadísticas
-        </button> */}
-        <button
-          className={`chip ${activeTab === 'fidelity' ? 'active' : ''}`}
-          onClick={() => setActiveTab('fidelity')}
-        >
-          Fidelidad
-        </button>
-      </div>
-}
+      {selectedClass && (
+        <div className="filter-chips" style={{ marginBottom: '20px', borderBottom: 'none' }}>
+          <button
+            className={`chip ${activeTab === 'member-att' ? 'active' : ''}`}
+            onClick={() => setActiveTab('member-att')}
+          >
+            Lista
+          </button>
+          <button
+            className={`chip ${activeTab === 'totals-att' ? 'active' : ''}`}
+            onClick={() => setActiveTab('totals-att')}
+          >
+            Asistencia total
+          </button>
+          <button
+            className={`chip ${activeTab === 'fidelity' ? 'active' : ''}`}
+            onClick={() => setActiveTab('fidelity')}
+          >
+            Fidelidad
+          </button>
+        </div>
+      )}
+
       {/* Contenido */}
       <div className="tab-content">
         {!selectedClass &&
-        (activeTab === 'member-att' ||
-          activeTab === 'totals-att' ||
-          activeTab === 'fidelity') ? (
+        (activeTab === 'member-att' || activeTab === 'totals-att' || activeTab === 'fidelity') ? (
           <div className="section-card" style={{ textAlign: 'center', padding: '40px' }}>
             <p style={{ color: '#666' }}>
               Por favor, selecciona una clase y fecha para comenzar el registro.
@@ -140,14 +127,32 @@ const ClassesAndAttendance = () => {
             )}
 
             {activeTab === 'totals-att' && (
-              <TotalsAttendanceForm selectedClass={selectedClass} date={fecha} />
+              <div>
+                {/* Botones modales */}
+                <div className="att-action-buttons">
+                  <button
+                    className="att-action-btn att-action-btn--class"
+                    onClick={() => setShowClassModal(true)}
+                  >
+                    <span className="material-symbols-outlined">school</span>
+                    Resumen de Clase
+                  </button>
+                  <button
+                    className="att-action-btn att-action-btn--general"
+                    onClick={() => setShowGeneralModal(true)}
+                  >
+                    <span className="material-symbols-outlined">church</span>
+                    Resumen General
+                  </button>
+                </div>
+
+                {/* Formulario inline (mismo servicio, misma data) */}
+                <TotalsAttendanceForm selectedClass={selectedClass} date={fecha} />
+              </div>
             )}
 
             {activeTab === 'statistics' && (
-              <AttendanceStatisticsView
-                selectedClass={selectedClass}
-                date={fecha}
-              />
+              <AttendanceStatisticsView selectedClass={selectedClass} date={fecha} />
             )}
 
             {activeTab === 'fidelity' && (
@@ -158,7 +163,7 @@ const ClassesAndAttendance = () => {
               ) : (
                 <FidelityAnalytics
                   attendanceData={fidelityData?.fidelityStats || []}
-                  membersRawList={fidelityData?.memberStats || []}
+                  membersRawList={fidelityData?.memberStats   || []}
                 />
               )
             )}
@@ -167,6 +172,21 @@ const ClassesAndAttendance = () => {
           </>
         )}
       </div>
+
+      {/* Modales */}
+      <ClassSummaryModal
+        isOpen={showClassModal}
+        onClose={() => setShowClassModal(false)}
+        selectedClass={selectedClass}
+        uniqueClassId={CLASS_IDS[selectedClass] || selectedClass}
+        date={fecha}
+      />
+
+      <GeneralSummaryModal
+        isOpen={showGeneralModal}
+        onClose={() => setShowGeneralModal(false)}
+        date={fecha}
+      />
     </div>
   );
 };
