@@ -6,14 +6,13 @@ const formatDateLabel = (dateStr) => {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-');
   return new Date(parseInt(y), parseInt(m) - 1, parseInt(d))
-    .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+    .toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 };
 
 const applyPeriodFilter = (records, period) => {
   const now = new Date();
   return records.filter(r => {
     const [y, m] = r.date.split('-').map(Number);
-    const rDate = new Date(y, m - 1, 1);
     switch (period) {
       case 'mes':
         return m - 1 === now.getMonth() && y === now.getFullYear();
@@ -24,7 +23,7 @@ const applyPeriodFilter = (records, period) => {
       }
       case 'año':
         return y === now.getFullYear();
-      default: // 'total'
+      default:
         return true;
     }
   });
@@ -39,16 +38,16 @@ const buildWeeklyTrend = (records) => {
     d.setDate(d.getDate() - (6 - i));
     const key = d.toISOString().split('T')[0];
     return {
-      day: days[d.getDay()],
+      day:     days[d.getDay()],
       isToday: i === 6,
-      total: byDate[key]?.total || 0,
+      total:   byDate[key]?.total || 0,
     };
   });
 };
 
 const buildStats = (filtered) => {
   if (filtered.length === 0) return { avg: 0, max: 0, min: 0, totalSum: 0 };
-  const totals = filtered.map(r => r.total || 0);
+  const totals = filtered.map(r => r.total ?? 0);
   return {
     avg:      Math.round(totals.reduce((a, b) => a + b, 0) / totals.length),
     max:      Math.max(...totals),
@@ -57,7 +56,16 @@ const buildStats = (filtered) => {
   };
 };
 
-// ─── Hook quick_summary (iglesia general) ────────────────────────────────────
+// Normaliza cualquier documento al campo `total`
+const normalizeRecord = (raw) => {
+  const r = { id: raw.id, ...raw };
+  r.total = r.asistencia_final > 0
+    ? r.asistencia_final
+    : (r.total_overall ?? r.total ?? 0);
+  return r;
+};
+
+// ─── Hook general (quick_summary + general_summary) ──────────────────────────
 export const useQuickSummaryHistory = (period = 'total') => {
   const [allRecords, setAllRecords] = useState([]);
   const [loading, setLoading]       = useState(false);
@@ -70,11 +78,11 @@ export const useQuickSummaryHistory = (period = 'total') => {
       try {
         const q = query(
           collection(db, 'asistencias_totales'),
-          where('recordType', '==', 'quick_summary')
+          where('recordType', 'in', ['quick_summary', 'general_summary'])
         );
         const snap = await getDocs(q);
         const data = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
+          .map(d => normalizeRecord({ id: d.id, ...d.data() }))
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(r => ({ ...r, label: formatDateLabel(r.date) }));
         setAllRecords(data);
@@ -89,7 +97,7 @@ export const useQuickSummaryHistory = (period = 'total') => {
 
   const records     = useMemo(() => applyPeriodFilter(allRecords, period), [allRecords, period]);
   const stats       = useMemo(() => buildStats(records), [records]);
-  const weeklyTrend = useMemo(() => buildWeeklyTrend(allRecords), [allRecords]); // siempre últimos 7 días reales
+  const weeklyTrend = useMemo(() => buildWeeklyTrend(allRecords), [allRecords]);
 
   return { records, allRecords, loading, error, stats, weeklyTrend };
 };
@@ -116,7 +124,7 @@ export const useClassSummaryHistory = (className, period = 'total') => {
         );
         const snap = await getDocs(q);
         const data = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
+          .map(d => normalizeRecord({ id: d.id, ...d.data() }))
           .sort((a, b) => b.date.localeCompare(a.date))
           .map(r => ({ ...r, label: formatDateLabel(r.date) }));
         setAllRecords(data);
