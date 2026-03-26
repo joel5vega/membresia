@@ -1,123 +1,254 @@
 import React, { useState } from 'react';
-import { useAttendanceHistory } from '../../hooks/useAttendanceHistory';
+import { useQuickSummaryHistory, useClassSummaryHistory } from '../../hooks/useAttendanceTotalsHistory';
+import { CLASS_IDS } from '../ClassesAndAttendance';
 import './AttendanceHistoryView.css';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
+} from 'recharts';
 
-const CLASSES = ['Sociedad de Jóvenes', 'Adultos Mayores', 'Escuela Dominical'];
+const CLASSES = Object.keys(CLASS_IDS);
+const PERIODS = [
+  { key: 'mes',       label: 'Este mes' },
+  { key: 'trimestre', label: 'Trimestre' },
+  { key: 'año',       label: 'Este año' },
+  { key: 'total',     label: 'Todo' },
+];
+
+const PERIOD_LABELS = {
+  mes:       () => new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
+  trimestre: () => `Q${Math.floor(new Date().getMonth() / 3) + 1} ${new Date().getFullYear()}`,
+  año:       () => String(new Date().getFullYear()),
+  total:     () => 'Todos los registros',
+};
 
 const AttendanceHistoryView = () => {
-  const [selectedClass, setSelectedClass] = useState('Sociedad de Jóvenes');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { sessions, weeklyTrend, monthlyAvg, loading, error } = useAttendanceHistory(selectedClass);
+  const [mode, setMode]                   = useState('general');
+  const [selectedClass, setSelectedClass] = useState(CLASSES[0]);
+  const [period, setPeriod]               = useState('total');
 
-  const todaySession = sessions[0] || null;
-  const todayAbsent = todaySession
-    ? (todaySession.capacity || 50) - todaySession.presente
-    : 0;
+  const general = useQuickSummaryHistory(period);
+  const byClass = useClassSummaryHistory(mode === 'clase' ? selectedClass : null, period);
+  const active  = mode === 'general' ? general : byClass;
 
-  const prevMonthAvg = 72; // podrías calcularlo si tienes datos históricos
-  const diff = monthlyAvg - prevMonthAvg;
+  const { records, stats, loading, error } = active;
+
+  // Ordenar de más antiguo a más reciente para la gráfica
+  const chartData = [...records]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(r => ({
+      fecha: r.date.slice(5),       // "MM-DD"
+      total: Number(r.total) || 0,
+      label: r.label || r.date,
+    }));
+
+  console.log('📊 period:', period, '| records:', records.length, '| chartData:', chartData);
 
   return (
     <div className="attendance-history">
+
       {/* Header */}
       <div className="ah-header">
         <div>
           <p className="ah-label">Métricas</p>
-          <h2 className="ah-title">Asistencia</h2>
+          <h2 className="ah-title">Historial</h2>
         </div>
-        <div className="ah-filter-wrapper">
-          <button className="ah-filter-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            <span>{selectedClass}</span>
-            <span className="material-symbols-outlined">expand_more</span>
+        <div className="ah-mode-toggle">
+          <button
+            className={`ah-toggle-btn ${mode === 'general' ? 'active' : ''}`}
+            onClick={() => setMode('general')}
+          >
+            <span className="material-symbols-outlined">church</span>
+            General
           </button>
-          {dropdownOpen && (
-            <div className="ah-dropdown">
-              <div className="ah-dropdown-header">Filtrar por Clase</div>
-              <div className="ah-dropdown-list">
-                {['Todas las Clases', ...CLASSES].map(cls => (
-                  <button
-                    key={cls}
-                    className={`ah-dropdown-item ${selectedClass === cls ? 'active' : ''}`}
-                    onClick={() => { setSelectedClass(cls); setDropdownOpen(false); }}
-                  >
-                    <span>{cls}</span>
-                    {selectedClass === cls && (
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        check_circle
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+          <button
+            className={`ah-toggle-btn ${mode === 'clase' ? 'active' : ''}`}
+            onClick={() => setMode('clase')}
+          >
+            <span className="material-symbols-outlined">school</span>
+            Clase
+          </button>
+        </div>
+      </div>
+
+      {/* Selector clase */}
+      {mode === 'clase' && (
+        <div className="ah-class-select">
+          <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+      )}
+
+      {/* Filtros de período */}
+      <div className="ah-period-filters">
+        {PERIODS.map(p => (
+          <button
+            key={p.key}
+            className={`ah-period-btn ${period === p.key ? 'active' : ''}`}
+            onClick={() => setPeriod(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Etiqueta período */}
+      <p className="ah-period-label">
+        <span className="material-symbols-outlined">filter_list</span>
+        {PERIOD_LABELS[period]()}
+        {records.length > 0 && ` · ${records.length} registros`}
+      </p>
+
+      {loading && <p className="ah-loading">Cargando datos...</p>}
+      {error   && <p className="ah-error">Error: {error}</p>}
+
+      {/* Cards de estadísticas */}
+      {!loading && (
+        <div className="ah-summary-grid">
+          <div className="ah-card-primary">
+            <p className="ah-card-label">Promedio del período</p>
+            <h3 className="ah-card-big">{stats.avg || 0}</h3>
+            <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '0.2rem' }}>
+              personas por sesión
+            </p>
+          </div>
+          <div className="ah-card-small">
+            <p className="ah-card-label-sm">Máximo</p>
+            <h4 className="ah-card-num ah-tertiary">{stats.max || '—'}</h4>
+          </div>
+          <div className="ah-card-small">
+            <p className="ah-card-label-sm">Mínimo</p>
+            <h4 className="ah-card-num ah-secondary">{stats.min || '—'}</h4>
+          </div>
+          {period !== 'mes' && (
+            <div className="ah-card-small" style={{ gridColumn: '1 / -1' }}>
+              <p className="ah-card-label-sm">Total acumulado del período</p>
+              <h4 className="ah-card-num ah-tertiary">{stats.totalSum || 0}</h4>
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {loading && <p className="ah-loading">Cargando datos...</p>}
-      {error && <p className="ah-error">Error: {error}</p>}
-
-      {/* Cards resumen */}
-      <div className="ah-summary-grid">
-        <div className="ah-card-primary">
-          <p className="ah-card-label">Promedio Mensual</p>
-          <h3 className="ah-card-big">{monthlyAvg}%</h3>
-          <div className="ah-badge">
-            <span className="material-symbols-outlined">
-              {diff >= 0 ? 'trending_up' : 'trending_down'}
-            </span>
-            <span>{diff >= 0 ? '+' : ''}{diff}% vs mes anterior</span>
+      {/* Gráfica de línea temporal */}
+      {!loading && chartData.length > 0 && (
+        <div className="ah-chart-card">
+          <div className="ah-chart-header">
+            <h3>Progreso de Asistencia</h3>
+            <span className="ah-badge-filter">{chartData.length} sesiones</span>
           </div>
-        </div>
-        <div className="ah-card-small">
-          <p className="ah-card-label-sm">Total Hoy</p>
-          <h4 className="ah-card-num ah-tertiary">{todaySession?.presente ?? '—'}</h4>
-        </div>
-        <div className="ah-card-small">
-          <p className="ah-card-label-sm">Faltas</p>
-          <h4 className="ah-card-num ah-secondary">{todaySession ? todayAbsent : '—'}</h4>
-        </div>
-      </div>
 
-      {/* Gráfica semanal */}
-      <div className="ah-chart-card">
-        <div className="ah-chart-header">
-          <h3>Tendencia Semanal</h3>
-          <span className="ah-badge-filter">Filtro Activo</span>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 10, right: 12, left: -15, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(139,113,111,0.15)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="fecha"
+                tick={{ fontSize: 9, fill: '#584140' }}
+                tickLine={false}
+                axisLine={false}
+                interval={Math.max(0, Math.floor(chartData.length / 5) - 1)}
+              />
+              <YAxis
+                tick={{ fontSize: 9, fill: '#584140' }}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                domain={[0, 'auto']}
+                width={30}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: '#fff',
+                  border: '1px solid rgba(139,113,111,0.2)',
+                  borderRadius: '0.75rem',
+                  fontSize: '0.75rem',
+                  color: '#1b1c1b',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                }}
+                formatter={(value) => [value, 'Asistentes']}
+                labelFormatter={(label) => `📅 ${label}`}
+              />
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#85191d"
+                strokeWidth={2}
+                dot={{ fill: '#85191d', r: 3, strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: '#85191d', stroke: '#fff', strokeWidth: 2 }}
+                connectNulls={true}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-        <div className="ah-bar-chart">
-          {weeklyTrend.map((item, i) => (
-            <div key={i} className="ah-bar-col">
-              <div className="ah-bar-track">
-                <div
-                  className={`ah-bar-fill ${item.isToday ? 'today' : ''}`}
-                  style={{ height: `${item.percentage}%` }}
-                />
-              </div>
-              <span className={`ah-bar-label ${item.isToday ? 'today' : ''}`}>{item.day}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Lista de sesiones recientes */}
-      <h3 className="ah-section-title">Sesiones Recientes</h3>
+      {!loading && chartData.length === 0 && !error && (
+        <div className="ah-chart-card" style={{ textAlign: 'center', padding: '2rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '2rem', opacity: 0.25 }}>
+            show_chart
+          </span>
+          <p style={{ fontSize: '0.8rem', color: '#584140', marginTop: '0.5rem' }}>
+            Sin datos para este período.
+            {period === 'mes' && ' Prueba con "Todo" para ver el historial completo.'}
+          </p>
+        </div>
+      )}
+
+      {/* Lista de registros */}
+      <h3 className="ah-section-title">
+        Sesiones — {PERIOD_LABELS[period]()}
+      </h3>
+
       <div className="ah-sessions-list">
-        {sessions.length === 0 && !loading && (
-          <p className="ah-empty">No hay sesiones registradas.</p>
+        {!loading && records.length === 0 && (
+          <div className="ah-empty">
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', opacity: 0.3 }}>
+              history
+            </span>
+            <p>Sin registros en este período.</p>
+            {mode === 'general' && period === 'mes' && (
+              <p style={{ fontSize: '0.75rem', color: '#934b00' }}>
+                Usa "Registro Rápido" para agregar uno.
+              </p>
+            )}
+          </div>
         )}
-        {sessions.slice(0, 10).map((session, i) => (
-          <div key={session.date} className={`ah-session-item ${i > 1 ? 'dimmed' : ''}`}>
+
+        {records.map((record, i) => (
+          <div key={record.id} className={`ah-session-item ${i > 2 ? 'dimmed' : ''}`}>
             <div className="ah-session-icon">
-              <span className="material-symbols-outlined">event</span>
+              <span className="material-symbols-outlined">
+                {mode === 'general' ? 'bolt' : 'school'}
+              </span>
             </div>
             <div className="ah-session-info">
-              <h5>{session.label}</h5>
-              <p>Clase: {selectedClass}</p>
+              <h5 style={{ textTransform: 'capitalize' }}>{record.label}</h5>
+              <p>
+                {mode === 'general'
+                  ? `V: ${record.varones ?? 0}  ·  M: ${record.mujeres ?? 0}  ·  Vis: ${record.visitantes ?? 0}`
+                  : `Maestro: ${record.maestro || '—'} · Tema: ${record.tema || '—'}`}
+              </p>
+              {record.notas && (
+                <p style={{ fontStyle: 'italic', fontSize: '0.65rem', opacity: 0.7 }}>
+                  {record.notas}
+                </p>
+              )}
             </div>
             <div className="ah-session-stats">
-              <p className="ah-stat-primary">{session.presente}/{session.capacity || 50}</p>
-              <p className="ah-stat-secondary">Capacidad: {session.percentage}%</p>
+              <p className="ah-stat-primary">{record.total}</p>
+              <p className="ah-stat-secondary">
+                {mode === 'general'
+                  ? `Biblias: ${record.biblias ?? 0}`
+                  : `${record.varones ?? 0}V · ${record.mujeres ?? 0}M`}
+              </p>
             </div>
           </div>
         ))}

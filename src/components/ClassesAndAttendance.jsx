@@ -9,7 +9,7 @@ import GeneralSummaryModal from './Attendance/GeneralSummaryModal';
 import { useAuth } from '../context/AuthContext';
 import { getFidelityStatistics } from '../services/memberStatisticsService';
 import './Attendance.css';
-
+import QuickAttendanceModal from './Attendance/QuickAttendanceModal';
 export const CLASS_IDS = {
   'Sociedad de Caballeros "Emanuel"':           'caballeros-emanuel',
   'Sociedad de Señoras "Shaddai"':              'senoras-shaddai',
@@ -36,7 +36,7 @@ const ClassesAndAttendance = () => {
   const [loadingFidelity, setLoadingFidelity] = useState(false);
   const [showClassModal, setShowClassModal]   = useState(false);
   const [showGeneralModal, setShowGeneralModal] = useState(false);
-
+const [showQuick, setShowQuick] = useState(false);
   useEffect(() => {
     if (!selectedClass) { setFidelityData(null); return; }
     const fetchFidelity = async () => {
@@ -58,7 +58,20 @@ const ClassesAndAttendance = () => {
       <div className="dashboard-header">
         <h1 className="section-title">Clases y Asistencia</h1>
       </div>
+<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+  <button
+    className="att-action-btn att-action-btn--quick"
+    onClick={() => setShowQuick(true)}
+  >
+    <span className="material-symbols-outlined">bolt</span>
+    Registro Rápido
+  </button>
+</div>
 
+<QuickAttendanceModal
+  isOpen={showQuick}
+  onClose={() => setShowQuick(false)}
+/>
       {/* Selector global */}
       <div className="form-card" style={{ marginBottom: '20px', padding: '15px' }}>
         <div className="grid-2">

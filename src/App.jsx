@@ -7,7 +7,7 @@ import {
   BarChart3,
   Cake,
   Menu,
-  X,History
+  X,History,FileText
 } from 'lucide-react';
 
 import MemberForm from './components/MemberForm';
@@ -28,8 +28,8 @@ import InstallPrompt from './components/InstallPrompt';
 import { memberService } from './services/memberService';
 import AppLoader from './components/AppLoader';
 import './App.css';
-// Agrega este import junto a los demás
 import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
+import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -49,7 +49,6 @@ const AppLayout = () => {
   const { user, logout, loading: authLoading } = useAuth();
   const username = user?.email?.split('@')[0] || 'Admin';
 
-  // Pre‑cargar miembros
   // Pre‑cargar miembros
 useEffect(() => {
   const preloadMembers = async () => {
@@ -92,6 +91,8 @@ useEffect(() => {
     { id: 'statistics', label: 'Estadísticas', icon: <BarChart3 size={22} /> },
     { id: 'cumpleanos', label: 'Cumpleaños', icon: <Cake size={22} /> },
     { id: 'attendance-history', label: 'Historial', icon: <History size={22} /> },
+    { id: 'bulk-attendance', label: 'Ingreso Masivo', icon: <FileText size={22} /> },
+
   ];
 
   const handleNavigate = (page) => {
@@ -218,6 +219,11 @@ useEffect(() => {
           {currentPage === 'escuelaDominicalReport' && (
             <div className="view-padding">
               <SundaySchoolReportPage />
+            </div>
+          )}
+          {currentPage === 'bulk-attendance' && (
+            <div className="view-padding">
+              <BulkAttendanceForm />
             </div>
           )}
         </div>

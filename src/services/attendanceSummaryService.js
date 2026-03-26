@@ -158,3 +158,47 @@ export const getGeneralSummary = async (date) => {
     ['date',       date],
   ]);
 };
+
+// ─── ESCRITURA: quick_summary (asistencia rápida general) ────────────────────
+export const saveQuickSummary = async (data) => {
+  const { date } = data;
+
+  const varones    = Number(data.varones)    || 0;
+  const mujeres    = Number(data.mujeres)    || 0;
+  const visitantes = Number(data.visitantes) || 0;
+  const biblias    = Number(data.biblias)    || 0;
+
+  const payload = {
+    recordType:  'quick_summary',
+    date,
+    varones,
+    mujeres,
+    visitantes,
+    biblias,
+    total:       varones + mujeres + visitantes,
+    notas:       data.notas || '',
+    updatedAt:   serverTimestamp(),
+  };
+
+  const existing = await findExisting([
+    ['recordType', 'quick_summary'],
+    ['date',       date],
+  ]);
+
+  if (existing) {
+    await updateDoc(doc(db, 'asistencias_totales', existing.id), payload);
+    return { id: existing.id, updated: true };
+  }
+
+  payload.createdAt = serverTimestamp();
+  const ref = await addDoc(collection(db, 'asistencias_totales'), payload);
+  return { id: ref.id, updated: false };
+};
+
+// ─── LECTURA: quick_summary ───────────────────────────────────────────────────
+export const getQuickSummary = async (date) => {
+  return findExisting([
+    ['recordType', 'quick_summary'],
+    ['date',       date],
+  ]);
+};

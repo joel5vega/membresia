@@ -286,3 +286,9 @@
   color: #613b1d;
 }
 .att-action-btn--general:hover { background: rgba(97, 59, 29, 0.15); }
+
+.att-action-btn--quick {
+  background: rgba(147, 75, 0, 0.08);
+  color: #934b00;
+}
+.att-action-btn--quick:hover { background: rgba(147, 75, 0, 0.15); }
