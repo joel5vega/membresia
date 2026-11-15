@@ -4,57 +4,105 @@ import { layoutByGenerationSmart } from '../../genograma/layout';
 import { SEX, COLORES_RELACION } from '../../genograma/model';
 
 const NODE_SIZE = 48;
+const ROOT_SIZE = 60;
 
 export default function GenogramaCanvas({ nodes, edges, onNodeClick }) {
   const [hoveredId, setHoveredId] = useState(null);
 
-  // ── Calcular layout ──
-  const positions = useMemo(() => {
-    return layoutByGenerationSmart(nodes, { width: 1200, height: 800 });
-  }, [nodes]);
+  const positions = useMemo(
+    () => layoutByGenerationSmart(nodes, { width: 1200, height: 700 }),
+    [nodes]
+  );
 
-  // ── Filtrar aristas huérfanas ──
-  const validEdges = useMemo(() => {
-    return edges.filter(e => positions.has(e.source) && positions.has(e.target));
-  }, [edges, positions]);
+  const validEdges = useMemo(
+    () =>
+      edges.filter(
+        (e) => positions.has(e.source) && positions.has(e.target)
+      ),
+    [edges, positions]
+  );
 
   return (
     <svg
       width="100%"
       height="100%"
-      viewBox="0 0 1200 800"
-      style={{ background: '#F9F7F5', borderRadius: 12 }}
+      viewBox="0 0 1200 700"
+      style={{ background: '#F9F7F5', borderRadius: 12, display: 'block' }}
     >
       {/* ── Aristas ── */}
-      {validEdges.map(edge => {
+      {validEdges.map((edge) => {
         const from = positions.get(edge.source);
         const to = positions.get(edge.target);
         const color = COLORES_RELACION[edge.tipo] || COLORES_RELACION.familia;
 
+        // ── Pareja: línea horizontal con círculo ──
+        if (edge.tipo === 'pareja') {
+          const midX = (from.x + to.x) / 2;
+          const midY = (from.y + to.y) / 2;
+          return (
+            <g key={edge.id}>
+              <line
+                x1={from.x}
+                y1={from.y}
+                x2={to.x}
+                y2={to.y}
+                stroke={color}
+                strokeWidth={3}
+              />
+              <circle cx={midX} cy={midY} r={5} fill={color} />
+            </g>
+          );
+        }
+
+        // ── Hermandad: línea horizontal punteada ──
+        if (edge.tipo === 'hermandad') {
+          return (
+            <line
+              key={edge.id}
+              x1={from.x}
+              y1={from.y}
+              x2={to.x}
+              y2={to.y}
+              stroke={color}
+              strokeWidth={2}
+              strokeDasharray="6 4"
+            />
+          );
+        }
+
+        // ── Descendencia: ortogonal ──
+        const midY = from.y + (to.y - from.y) * 0.6;
+        const path = `
+          M ${from.x} ${from.y}
+          L ${from.x} ${midY}
+          L ${to.x} ${midY}
+          L ${to.x} ${to.y}
+        `;
+
         return (
-          <line
+          <path
             key={edge.id}
-            x1={from.x}
-            y1={from.y}
-            x2={to.x}
-            y2={to.y}
+            d={path}
             stroke={color}
             strokeWidth={2}
-            strokeDasharray={edge.tipo === 'pareja' ? '0' : edge.tipo === 'hermandad' ? '6 4' : '0'}
+            fill="none"
+            strokeLinejoin="round"
           />
         );
       })}
 
       {/* ── Nodos ── */}
-      {nodes.map(node => {
+      {nodes.map((node) => {
         const pos = positions.get(node.id);
         if (!pos) return null;
 
-        const isHovered = hoveredId === node.id;
-        const size = node.esRaiz ? NODE_SIZE * 1.3 : NODE_SIZE;
-        const color = node.sexo === SEX.MALE ? '#3b82f6'
-                    : node.sexo === SEX.FEMALE ? '#ec4899'
-                    : '#6b7280';
+        const size = node.esRaiz ? ROOT_SIZE : NODE_SIZE;
+        const color =
+          node.sexo === SEX.MALE
+            ? '#3b82f6'
+            : node.sexo === SEX.FEMALE
+            ? '#ec4899'
+            : '#6b7280';
 
         return (
           <g
@@ -65,14 +113,14 @@ export default function GenogramaCanvas({ nodes, edges, onNodeClick }) {
             onClick={() => onNodeClick?.(node)}
             style={{ cursor: 'pointer' }}
           >
-            {/* Símbolo del nodo */}
+            {/* Forma según sexo */}
             {node.sexo === SEX.MALE ? (
               <rect
                 x={-size / 2}
                 y={-size / 2}
                 width={size}
                 height={size}
-                rx={4}
+                rx={6}
                 fill={color}
                 stroke={node.esRaiz ? '#A63232' : '#fff'}
                 strokeWidth={node.esRaiz ? 4 : 2}
@@ -93,21 +141,26 @@ export default function GenogramaCanvas({ nodes, edges, onNodeClick }) {
               />
             )}
 
-            {/* Foto si existe */}
+            {/* Foto */}
             {node.photoUrl && (
               <image
                 href={node.photoUrl}
-                x={-size / 2 + 4}
-                y={-size / 2 + 4}
-                width={size - 8}
-                height={size - 8}
-                clipPath={node.sexo === SEX.FEMALE ? 'circle(50%)' : undefined}
+                x={-size / 2 + 3}
+                y={-size / 2 + 3}
+                width={size - 6}
+                height={size - 6}
+                style={{
+                  clipPath:
+                    node.sexo === SEX.FEMALE
+                      ? 'circle(50%)'
+                      : 'inset(0 round 6px)',
+                }}
               />
             )}
 
-            {/* Nombre debajo */}
+            {/* Nombre */}
             <text
-              y={size / 2 + 16}
+              y={size / 2 + 18}
               textAnchor="middle"
               fontSize={12}
               fill="#2D3748"
@@ -118,14 +171,17 @@ export default function GenogramaCanvas({ nodes, edges, onNodeClick }) {
                 : node.nombre}
             </text>
 
-            {/* Relación debajo del nombre */}
+            {/* Relación */}
             {node.relacion !== 'miembro' && (
               <text
-                y={size / 2 + 30}
+                y={size / 2 + 32}
                 textAnchor="middle"
                 fontSize={10}
                 fill="#718096"
-                textTransform="uppercase"
+                style={{
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
               >
                 {node.relacion}
               </text>

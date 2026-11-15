@@ -31,6 +31,7 @@ import './App.css';
 import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
 import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
 import GenogramaView from './components/Genograma/GenogramaView';
+import ClanesView from './components/Genograma/ClanesView';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -91,6 +92,7 @@ useEffect(() => {
     { id: 'classes', label: 'Asistencia', icon: <ClipboardCheck size={22} /> },
     { id: 'statistics', label: 'Estadísticas', icon: <BarChart3 size={22} /> },
     { id: 'cumpleanos', label: 'Cumpleaños', icon: <Cake size={22} /> },
+    { id: 'clanes', label: 'Clanes Familiares', icon: <Users size={22} /> },
     { id: 'attendance-history', label: 'Historial', icon: <History size={22} /> },
     { id: 'bulk-attendance', label: 'Ingreso Masivo', icon: <FileText size={22} /> },
 
@@ -227,6 +229,7 @@ useEffect(() => {
               <BulkAttendanceForm />
             </div>
           )}
+          {currentPage === 'clanes' && <ClanesView />}
         </div>
       </main>
     </div>
@@ -261,7 +264,7 @@ const App = () => {
         {/* Cualquier otra ruta redirige al panel */}
         <Route path="*" element={<Navigate to="/" replace />} />
 <Route path="/members/:id/genograma" element={<GenogramaView />} />
-
+<Route path="/clanes" element={<ClanesView />} />
       </Routes>
 
       <InstallPrompt />

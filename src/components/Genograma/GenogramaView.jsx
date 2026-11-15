@@ -24,11 +24,31 @@ export default function GenogramaView() {
       .then(data => {
         setMember(data);
         setGenograma(memberToGenograma(data));
+        
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
   }, [id]);
-
+useEffect(() => {
+  if (!id) return;
+  memberService.getMemberById(id).then(data => {
+    setMember(data);
+    const g = memberToGenograma(data);
+    console.log('🌳 GENOGRAMA:', g);
+    console.log('   Nodes:', g.nodes.map(n => ({ 
+      nombre: n.nombre, 
+      sexo: n.sexo, 
+      relacion: n.relacion,
+      generacion: n.generacion,
+    })));
+    console.log('   Edges:', g.edges.map(e => ({
+      source: e.source,
+      target: e.target,
+      tipo: e.tipo,
+    })));
+    setGenograma(g);
+  });
+}, [id]);
   if (loading) {
     return <div style={{ padding: 40, textAlign: 'center' }}>Cargando genograma...</div>;
   }
