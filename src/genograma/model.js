@@ -27,7 +27,8 @@ export const RELACION = {
   SOBRINA: 'sobrina',
   NIETO: 'nieto',
   NIETA: 'nieta',
-
+AMIGO: 'amigo',
+  AMIGA: 'amiga',
   // Otros
   OTRO: 'otro',
 };
@@ -75,6 +76,8 @@ export const GENERACION_POR_RELACION = {
 
   [RELACION.NIETO]: GENERACION.NIETOS,
   [RELACION.NIETA]: GENERACION.NIETOS,
+    [RELACION.AMIGO]: GENERACION.MIEMBRO,
+  [RELACION.AMIGA]: GENERACION.MIEMBRO,
 };
 
 // ── Mapa relación → tipo de arista ──

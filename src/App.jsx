@@ -32,6 +32,8 @@ import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView
 import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
 import GenogramaView from './components/Genograma/GenogramaView';
 import ClanesView from './components/Genograma/ClanesView';
+import ClanesGraphView from './components/Genograma/ClanesGraphView';
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -265,6 +267,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
 <Route path="/members/:id/genograma" element={<GenogramaView />} />
 <Route path="/clanes" element={<ClanesView />} />
+<Route path="/constelacion" element={<ClanesGraphView />} />
       </Routes>
 
       <InstallPrompt />

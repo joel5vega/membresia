@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, User as UserIcon, ArrowLeft, X } from 'lucide-react';
 import { memberService } from '../../services/memberService';
-import { buildGlobalGraph } from '../../genograma/globalBuilder';
+import { buildClanes } from '../../genograma/globalBuilder';
 
 export default function ClanesView() {
   const navigate = useNavigate();
@@ -11,14 +11,15 @@ export default function ClanesView() {
   const [loading, setLoading] = useState(true);
   const [clanSeleccionado, setClanSeleccionado] = useState(null);
 
-  useEffect(() => {
-    memberService.getMembers()
-      .then(data => {
-        const globalData = buildGlobalGraph(data);
-        setClanes(globalData.clanes);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+ useEffect(() => {
+  memberService.getMembers()
+    .then((data) => {
+      const { clanes } = buildClanes(data);   // ← cambia el nombre
+      setClanes(clanes);
+    })
+    .catch((err) => console.error(err))
+    .finally(() => setLoading(false));
+}, []);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Analizando lazos familiares...</div>;
 
@@ -31,6 +32,12 @@ export default function ClanesView() {
         </button>
         <div>
           <h1 style={{ margin: 0, fontSize: 22, color: '#A63232' }}>Red de Familias</h1>
+          <button 
+  onClick={() => navigate('/constelacion')}
+  style={{ background: '#0f172a', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}
+>
+  Ver Constelación
+</button>
           <p style={{ margin: 0, fontSize: 14, color: '#718096' }}>
             {clanes.length} clanes familiares detectados en la iglesia
           </p>
