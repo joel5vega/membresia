@@ -13,7 +13,7 @@
   padding: 16px;
   background-color: var(--canaan-bg);
   min-height: 100vh;
-  padding-bottom: 80px; /* Espacio para el botón flotante */
+  padding-bottom: 80px;
 }
 
 /* Header y Buscador */
@@ -50,10 +50,12 @@
   padding: 8px;
   font-size: 1rem;
   color: var(--text-main);
+  background: transparent;
 }
 
 .search-icon {
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 /* Filtros Chips */
@@ -62,12 +64,11 @@
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 8px;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-.filter-chips::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
-}
+.filter-chips::-webkit-scrollbar { display: none; }
 
 .chip {
   white-space: nowrap;
@@ -88,6 +89,14 @@
   box-shadow: 0 2px 6px rgba(166, 50, 50, 0.3);
 }
 
+/* Contador */
+.results-counter {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 8px 0 -8px 4px;
+  font-weight: 500;
+}
+
 /* Grid de Miembros */
 .members-grid {
   display: grid;
@@ -102,12 +111,10 @@
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   border: 1px solid #edf2f7;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.member-card:active {
-  transform: scale(0.98);
-}
+.member-card:active { transform: scale(0.98); }
 
 .card-top {
   display: flex;
@@ -115,8 +122,10 @@
   gap: 12px;
   margin-bottom: 12px;
   position: relative;
+  min-width: 0; /* permite que el hijo con ellipsis funcione */
 }
 
+/* ───── AVATAR ───── */
 .avatar {
   width: 56px;
   height: 56px;
@@ -128,30 +137,53 @@
   color: white;
   flex-shrink: 0;
   overflow: hidden;
+  position: relative;
+  background-color: #e2e8f0;
 }
 
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
+/* Fallback con iniciales */
+.avatar-initials {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* ───── INFO ───── */
 .main-info {
   flex: 1;
+  min-width: 0; /* imprescindible para que el ellipsis funcione */
 }
 
 .main-info h3 {
-  margin: 0;
-  font-size: 1.1rem;
+  margin: 0 0 2px 0;
+  font-size: 1.05rem;
   color: var(--text-main);
-  line-height: 1.2;
+  line-height: 1.25;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .class-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--canaan-orange);
   font-weight: 600;
   text-transform: uppercase;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .edit-mini-btn {
@@ -165,6 +197,13 @@
   justify-content: center;
   color: var(--text-muted);
   cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.edit-mini-btn:hover {
+  background: #edf2f7;
+  color: var(--canaan-red);
 }
 
 /* Detalles de la Tarjeta */
@@ -182,12 +221,42 @@
   gap: 6px;
   color: var(--text-muted);
   font-size: 0.85rem;
+  min-width: 0;
 }
 
 .detail-item span {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Estado vacío */
+.no-data-msg {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: var(--text-muted);
+  gap: 12px;
+  text-align: center;
+}
+
+.no-data-msg p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.clear-filters-btn {
+  margin-top: 8px;
+  background: var(--canaan-red);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 /* Botón Flotante (FAB) */
@@ -210,9 +279,7 @@
   transition: transform 0.2s ease;
 }
 
-.fab-button:hover {
-  transform: scale(1.05);
-}
+.fab-button:hover { transform: scale(1.05); }
 
 /* Loading */
 .loading-spinner {
@@ -222,4 +289,11 @@
   height: 200px;
   color: var(--canaan-red);
   font-weight: 600;
+}
+
+/* Responsive: en pantallas grandes el grid se ajusta solo */
+@media (max-width: 360px) {
+  .avatar { width: 48px !important; height: 48px !important; }
+  .main-info h3 { font-size: 0.95rem; }
+  .card-details { grid-template-columns: 1fr; }
 }

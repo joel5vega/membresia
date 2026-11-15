@@ -104,21 +104,25 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     }));
   };
 
-  const handlePhotoUpload = (e) => {
+   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
+    // Validar tamaño antes de comprimir
+    if (file.size > 10 * 1024 * 1024) {
+      alert('La imagen no debe superar 10MB');
+      return;
+    }
+
     try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, photoUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
+      // ✅ Comprimir a 200x200px, calidad 0.7 → ~5-8KB base64
+      const base64 = await compressImageToBase64(file, 200, 0.7);
+      setFormData(prev => ({ ...prev, photoUrl: base64 }));
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error('Error comprimiendo imagen:', error);
+      alert('No se pudo procesar la imagen: ' + error.message);
     }
   };
-
 
   // NUEVO: handlers para genograma
   const handleGenogramaChange = (index, field, value) => {

@@ -30,6 +30,7 @@ import AppLoader from './components/AppLoader';
 import './App.css';
 import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
 import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
+import GenogramaView from './components/Genograma/GenogramaView';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
@@ -259,6 +260,8 @@ const App = () => {
 
         {/* Cualquier otra ruta redirige al panel */}
         <Route path="*" element={<Navigate to="/" replace />} />
+<Route path="/members/:id/genograma" element={<GenogramaView />} />
+
       </Routes>
 
       <InstallPrompt />

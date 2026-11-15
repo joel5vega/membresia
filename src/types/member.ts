@@ -1,6 +1,5 @@
-// Member types based on IEDB Canaán form
+// types/member.ts
 
-// Genograma
 export interface GenogramaPersona {
   key?: number;
   nombre: string;
@@ -9,7 +8,6 @@ export interface GenogramaPersona {
   viveConElMiembro: boolean;
 }
 
-// Family Member Information
 export interface FamilyMember {
   id?: string;
   name: string;
@@ -19,18 +17,27 @@ export interface FamilyMember {
   notes?: string;
 }
 
-// Modelo interno de Firestore (lo que realmente se guarda)
+// ✅ Modelo REAL de Firestore (lo que tus docs tienen)
 export interface Member {
   id: string;
 
-  // Página 1
-  nombreCompleto: string;
+  // Campos básicos (los que SÍ existen en Firestore)
+  nombre?: string;
+  apellido?: string;
+  nombreCompleto?: string;   // opcional, se puede derivar
   fechaNacimiento?: string;
   celular?: string;
   zona?: string;
   clase?: string;
-  sexo?:string;
-  // Página 2 - Formación
+  sexo?: 'M' | 'F' | string;
+  correo?: string;
+  email?: string;
+  address?: string;
+
+  // ✅ Foto — el campo clave para lo que querés
+  photoUrl?: string;
+
+  // Formación
   nivelEducacion?: string;
   estudiaActualmente?: string;
   ingresos?: string;
@@ -43,7 +50,7 @@ export interface Member {
   ingresoMonto?: number | string;
   egresoMonto?: number | string;
 
-  // Condiciones de habitabilidad
+  // Habitabilidad
   tipoVivienda?: string;
   materialVivienda?: string;
   numHabitaciones?: number | string;
@@ -52,7 +59,7 @@ export interface Member {
   otrosAmbientes?: string;
   condicionHabitabilidad?: string;
 
-  // Página 3 - Salud y familia
+  // Salud y familia
   enfermedadCronica?: string;
   estadoCivil?: string;
   padresCreyentes?: string;
@@ -61,11 +68,9 @@ export interface Member {
   parejaCristiana?: string;
   nombrePareja?: string;
   numHijos?: string;
-
-  // Genograma
   genograma?: GenogramaPersona[];
 
-  // Página 4 - Información eclesiástica
+  // Info eclesiástica
   aniosIglesia?: string;
   bautizado?: string;
   salvo?: string;
@@ -76,48 +81,51 @@ export interface Member {
   formacionTeologica?: string;
   estudiosBiblicos?: string;
   seminario?: string;
-
   iglesiaProcedencia?: string;
   tiempoConversion?: number | string;
   ministerios?: string;
 
-  // Página 5 - Liderazgo
-  areasInteres: string[];
-  donesEspirituales: string[];
+  // Liderazgo
+  areasInteres?: string[];
+  donesEspirituales?: string[];
   liderazgo?: string;
   cargoPosible?: string;
   mejorIglesia?: string;
   cambiosIglesia?: string;
 
-  // Metadatos generales
-  email?: string;
-  address?: string;
-  joinDate: Date;
-  status: 'active' | 'inactive' | 'visitor';
+  // Metadatos
+  joinDate?: Date | any;
+  status?: 'active' | 'inactive' | 'visitor';
   notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date | any;
+  updatedAt?: Date | any;
+
+  // Extras
+  baptismDate?: string;
+  membershipDate?: string;
+  familyRelationships?: FamilyMember[];
 }
 
-// DTO para crear (lo que manda el MemberForm)
-// Puedes mantenerlo cercano al shape del form para no hacer mapping extra.
 export interface CreateMemberDTO {
-  // Página 1
   nombre: string;
   apellido: string;
   fechaNacimiento: string;
   celular: string;
   zona: string;
   clase: string;
-  correo:string;
-  // Página 2
+  correo: string;
+  sexo?: string;          // ← agrégalo, lo usás en la lista
+
+  // ✅ Foto
+  photoUrl?: string;
+
+  // ... el resto igual que ya tenías
   nivelEducacion?: string;
   estudiaActualmente?: string;
   ingresos?: string;
   profesion?: string;
   instrumento?: string;
   talentosHabilidades?: string;
-
   ingresoDescripcion?: string;
   ingresoMonto?: number | string;
   egresoMonto?: number | string;
@@ -128,8 +136,6 @@ export interface CreateMemberDTO {
   numCocinas?: number | string;
   otrosAmbientes?: string;
   condicionHabitabilidad?: string;
-
-  // Página 3
   enfermedadCronica?: string;
   estadoCivil?: string;
   padresCreyentes?: string;
@@ -139,8 +145,6 @@ export interface CreateMemberDTO {
   nombrePareja?: string;
   numHijos?: string;
   genograma?: GenogramaPersona[];
-
-  // Página 4
   aniosIglesia?: string;
   bautizado?: string;
   salvo?: string;
@@ -155,21 +159,16 @@ export interface CreateMemberDTO {
   tiempoConversion?: number | string;
   ministerios?: string;
   notasFamilia?: string;
-  // Página 5
   areasInteres: string[];
   donesEspirituales: string[];
   liderazgo?: string;
   cargoPosible?: string;
   mejorIglesia?: string;
   cambiosIglesia?: string;
-
-  // Metadatos opcionales al crear
   email?: string;
   address?: string;
   status?: 'active' | 'inactive' | 'visitor';
   notes?: string;
-    // Photo and Membership Information
-  photoUrl?: string;
   baptismDate?: string;
   membershipDate?: string;
   familyRelationships?: FamilyMember[];
