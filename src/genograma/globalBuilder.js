@@ -9,32 +9,33 @@ const norm = (s) =>
     .trim();
 
 /**
- * Registra a todos los miembros en un Map, cruzando genogramas.
+ * Registra a todos los miembros en un Map usando el NOMBRE NORMALIZADO como ID.
  */
 function registrarPersonas(members) {
   const personNodes = new Map();
 
-  // 1. Registrar miembros
+  // 1. Registrar miembros de la iglesia
   members.forEach((m) => {
-    const nombreCompleto =
-      m.nombreCompleto || `${m.nombre || ''} ${m.apellido || ''}`.trim();
+    const nombreCompleto = m.nombreCompleto || `${m.nombre || ''} ${m.apellido || ''}`.trim();
     if (!nombreCompleto) return;
 
     const key = norm(nombreCompleto);
-    personNodes.set(key, {
-      id: m.id,
-      nombre: nombreCompleto,
-      sexo: m.sexo || '?',
-      photoUrl: m.photoUrl || null,
-      esMiembroIglesia: true,
-      connections: [],
-    });
+    if (!personNodes.has(key)) {
+      personNodes.set(key, {
+        id: key, // <-- AQUÍ ESTABA EL BUG: Usamos la key como ID
+        realId: m.id, // Guardamos el ID de Firestore por si lo necesitamos
+        nombre: nombreCompleto,
+        sexo: m.sexo || '?',
+        photoUrl: m.photoUrl || null,
+        esMiembroIglesia: true,
+        connections: [],
+      });
+    }
   });
 
-  // 2. Cruzar genogramas
+  // 2. Cruzar genogramas (Familia y Amistades)
   members.forEach((m) => {
-    const nombreMiembro =
-      m.nombreCompleto || `${m.nombre || ''} ${m.apellido || ''}`.trim();
+    const nombreMiembro = m.nombreCompleto || `${m.nombre || ''} ${m.apellido || ''}`.trim();
     const keyMiembro = norm(nombreMiembro);
 
     const genograma = Array.isArray(m.genograma) ? m.genograma : [];
@@ -45,11 +46,13 @@ function registrarPersonas(members) {
 
       const keyFam = norm(nombreFam);
 
-      // Crear "fantasma" si no existe
+      // Si el familiar no es miembro, crear "fantasma"
       if (!personNodes.has(keyFam)) {
+        // Inferir sexo por la relación (termina en 'a')
         const esFemenino = /a$/i.test(fam.relacion || '');
         personNodes.set(keyFam, {
-          id: `ghost-${keyFam.replace(/\s+/g, '-')}`,
+          id: keyFam,
+          realId: null,
           nombre: nombreFam,
           sexo: esFemenino ? 'F' : 'M',
           photoUrl: null,
@@ -63,16 +66,13 @@ function registrarPersonas(members) {
 
       if (!miembroData || !familiarData) return;
 
-      // Inferir tipo: familia o amistad
-      const esAmistad = /amig/i.test(fam.relacion || '');
+      // Inferir tipo de relación
+      const esAmistad = /amig|conocid/i.test(fam.relacion || '');
       const tipo = esAmistad ? 'amistad' : 'familia';
       const peso = esAmistad ? 1 : 2;
 
       // Evitar duplicados
-      const yaConectado = miembroData.connections.some(
-        (c) => c.target === keyFam
-      );
-
+      const yaConectado = miembroData.connections.some((c) => c.target === keyFam);
       if (!yaConectado) {
         miembroData.connections.push({ target: keyFam, tipo, peso });
         familiarData.connections.push({ target: keyMiembro, tipo, peso });
@@ -84,11 +84,7 @@ function registrarPersonas(members) {
 }
 
 /**
- * ─────────────────────────────────────────────
- * FUNCIÓN 1: buildClanes
- * Para la vista de tarjetas (ClanesView)
- * Devuelve { clanes, totalPersonas }
- * ─────────────────────────────────────────────
+ * FUNCIÓN 1: Para las tarjetas (ClanesView)
  */
 export function buildClanes(members) {
   const personNodes = registrarPersonas(members);
@@ -98,10 +94,10 @@ export function buildClanes(members) {
   const clanes = [];
 
   allNodes.forEach((node) => {
-    const key = norm(node.nombre);
+    const key = node.id;
     if (visitados.has(key)) return;
 
-    // BFS para encontrar todos los conectados
+    // BFS
     const clan = [];
     const queue = [key];
     visitados.add(key);
@@ -120,9 +116,8 @@ export function buildClanes(members) {
       });
     }
 
-    // Solo clanes de 2 o más
     if (clan.length > 1) {
-      // Apellido más común del clan
+      // Apellido más común
       const apellidos = clan.map((p) => {
         const partes = p.nombre.split(' ').filter(Boolean);
         return partes[partes.length - 1] || '';
@@ -131,9 +126,7 @@ export function buildClanes(members) {
       apellidos.forEach((a) => {
         if (a) counts[a] = (counts[a] || 0) + 1;
       });
-      const apellidoComun =
-        Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] ||
-        'Sin apellido';
+      const apellidoComun = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || 'Sin apellido';
 
       clanes.push({
         id: `clan-${clan.length}-${clan[0].id}`,
@@ -145,16 +138,11 @@ export function buildClanes(members) {
   });
 
   clanes.sort((a, b) => b.miembros.length - a.miembros.length);
-
   return { clanes, totalPersonas: allNodes.length };
 }
 
 /**
- * ─────────────────────────────────────────────
- * FUNCIÓN 2: buildGlobalGraph
- * Para la vista de constelación (ClanesGraphView)
- * Devuelve { nodes, edges }
- * ─────────────────────────────────────────────
+ * FUNCIÓN 2: Para el grafo de fuerza (ClanesGraphView)
  */
 export function buildGlobalGraph(members) {
   const personNodes = registrarPersonas(members);
@@ -163,23 +151,22 @@ export function buildGlobalGraph(members) {
   const edges = [];
   const edgeSet = new Set();
 
-  personNodes.forEach((p, key) => {
-    // Cluster (para colorear)
-    p.cluster =
-      p.connections.length === 0
-        ? 'solo'
-        : p.connections.some((c) => c.tipo === 'familia')
+  personNodes.forEach((p) => {
+    // Cluster para colorear
+    p.cluster = p.connections.length === 0
+      ? 'solo'
+      : p.connections.some((c) => c.tipo === 'familia')
         ? 'familia'
         : 'amigos';
 
-    nodes.push({ ...p, key });
+    nodes.push({ ...p });
 
     p.connections.forEach((c) => {
-      const edgeId = [key, c.target].sort().join('-');
+      const edgeId = [p.id, c.target].sort().join('---');
       if (!edgeSet.has(edgeId)) {
         edgeSet.add(edgeId);
         edges.push({
-          source: key,
+          source: p.id,
           target: c.target,
           tipo: c.tipo,
           peso: c.peso,
