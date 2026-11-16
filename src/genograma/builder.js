@@ -1,107 +1,49 @@
-// genograma/builder.js
-import {
-  RELACION,
-  GENERACION,
-  GENERACION_POR_RELACION,
-  TIPO_ARISTA_POR_RELACION,
-  SEX,
-} from './model';
+import { RELACION, GENERACION, GENERACION_POR_RELACION, SEX } from './model';
 
-// ─────────────────────────────────────────────────
-// Normalización
-// ─────────────────────────────────────────────────
-
-/** Lowercase, sin acentos, sin espacios extra. */
 const norm = (s) =>
-  (s ?? '')
-    .toString()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
+  (s ?? '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-/** Aliases comunes en español → relación canónica. */
-const RELACION_ALIASES = {
-  'papa': 'padre',
-  'papá': 'padre',
-  'progenitor': 'padre',
-  'mama': 'madre',
-  'mamá': 'madre',
-  'progenitora': 'madre',
-  'hno': 'hermano',
-  'hna': 'hermana',
-  'tio': 'tio',
-  'tía': 'tia',
-  'tia': 'tia',
-  'conyuge': 'pareja',
-  'cónyuge': 'pareja',
-  'esposo': 'pareja',
-  'esposa': 'pareja',
-  'marido': 'pareja',
-  'mujer': 'pareja',
-  'hijastro': 'hijo',
-  'hijastra': 'hija',
+const ALIASES = {
+  papa: 'padre', progenitor: 'padre', mama: 'madre', progenitora: 'madre',
+  hno: 'hermano', hna: 'hermana',
+  conyuge: 'pareja', esposo: 'pareja', esposa: 'pareja', marido: 'pareja', mujer: 'pareja',
+  hijastro: 'hijo', hijastra: 'hija',
 };
 
-/** Normaliza cualquier variante a un valor de RELACION. */
+const MASC = [RELACION.PADRE, RELACION.ABUELO, RELACION.TIO, RELACION.HERMANO,
+  RELACION.PRIMO, RELACION.HIJO, RELACION.SOBRINO, RELACION.NIETO, RELACION.AMIGO];
+const FEM = [RELACION.MADRE, RELACION.ABUELA, RELACION.TIA, RELACION.HERMANA,
+  RELACION.PRIMA, RELACION.HIJA, RELACION.SOBRINA, RELACION.NIETA, RELACION.AMIGA];
+
 function normalizarRelacion(raw) {
   const n = norm(raw);
   if (!n) return null;
-
-  if (RELACION_ALIASES[n]) return RELACION_ALIASES[n];
-
-  if (Object.values(RELACION).includes(n)) return n;
-
-  // Si no matchea, retornar 'otro'
-  return RELACION.OTRO;
+  if (ALIASES[n]) return ALIASES[n];
+  return Object.values(RELACION).includes(n) ? n : RELACION.OTRO;
 }
 
-/** Infiere sexo desde la relación normalizada. */
-function inferirSexo(relacion) {
-  const masculinos = [
-    RELACION.PADRE,
-    RELACION.ABUELO,
-    RELACION.TIO,
-    RELACION.HERMANO,
-    RELACION.PRIMO,
-    RELACION.HIJO,
-    RELACION.SOBRINO,
-    RELACION.NIETO,
-  ];
-  const femeninos = [
-    RELACION.MADRE,
-    RELACION.ABUELA,
-    RELACION.TIA,
-    RELACION.HERMANA,
-    RELACION.PRIMA,
-    RELACION.HIJA,
-    RELACION.SOBRINA,
-    RELACION.NIETA,
-  ];
-
-  if (masculinos.includes(relacion)) return SEX.MALE;
-  if (femeninos.includes(relacion)) return SEX.FEMALE;
+function inferirSexo(relacion, raw, sexoGuardado) {
+  if (sexoGuardado === 'M' || sexoGuardado === 'F') return sexoGuardado;
+  const r = norm(raw);
+  if (r === 'esposo' || r === 'marido') return SEX.MALE;
+  if (r === 'esposa') return SEX.FEMALE;
+  if (MASC.includes(relacion)) return SEX.MALE;
+  if (FEM.includes(relacion)) return SEX.FEMALE;
   return SEX.UNKNOWN;
 }
 
-// ─────────────────────────────────────────────────
-// Builder principal
-// ─────────────────────────────────────────────────
+const mkEdge = (tipo, a, b) => ({
+  id: `edge-${tipo}-${a.id}-${b.id}`, source: a.id, target: b.id, tipo, inferida: true,
+});
 
 export function buildGenograma(member) {
   if (!member) return { nodes: [], edges: [], rootId: null };
 
-  // ── Nodo raíz ──
   const rootId = `root-${member.id || 'self'}`;
-  const rootNode = {
+  const root = {
     id: rootId,
-    nombre:
-      member.nombreCompleto ||
-      `${member.nombre || ''} ${member.apellido || ''}`.trim() ||
-      'Miembro',
+    nombre: member.nombreCompleto || `${member.nombre || ''} ${member.apellido || ''}`.trim() || 'Miembro',
     sexo: member.sexo === 'M' || member.sexo === 'F' ? member.sexo : SEX.UNKNOWN,
-    fechaNacimiento: member.fechaNacimiento || null,
-    fechaMuerte: null,
     photoUrl: member.photoUrl || null,
     generacion: GENERACION.MIEMBRO,
     esRaiz: true,
@@ -109,113 +51,59 @@ export function buildGenograma(member) {
     memberId: member.id,
   };
 
-  const nodes = [rootNode];
-
-  // ── Nodos familiares ──
-  const genograma = Array.isArray(member.genograma) ? member.genograma : [];
-
-  genograma.forEach((persona, index) => {
-    const nombre = (persona?.nombre || '').trim();
+  const nodes = [root];
+  (Array.isArray(member.genograma) ? member.genograma : []).forEach((p, index) => {
+    const nombre = (p?.nombre || '').trim();
     if (!nombre) return;
-
-    const relacion = normalizarRelacion(persona.relacion);
-    const generacion = GENERACION_POR_RELACION[relacion] ?? GENERACION.MIEMBRO;
-    const sexo = inferirSexo(relacion);
-    const id = `fam-${member.id || 'self'}-${index}`;
-
+    const relacion = normalizarRelacion(p.relacion);
     nodes.push({
-      id,
+      id: `fam-${member.id || 'self'}-${index}`,
+      genogramaIndex: index,                 // ← enlaza el nodo con el array editable
       nombre,
-      sexo,
-      fechaNacimiento: null,
-      fechaMuerte: null,
+      sexo: inferirSexo(relacion, p.relacion, p.sexo),
       photoUrl: null,
-      generacion,
+      generacion: GENERACION_POR_RELACION[relacion] ?? GENERACION.MIEMBRO,
       esRaiz: false,
       relacion,
-      relacionOriginal: persona.relacion,
-      edad: persona.edad || null,
-      viveConElMiembro: persona.viveConElMiembro || false,
-      memberId: null,
+      relacionOriginal: p.relacion,
+      edad: p.edad || null,
+      viveConElMiembro: !!p.viveConElMiembro,
     });
   });
 
-  // ── Edges ──
+  const by = (...rels) => nodes.filter((n) => rels.includes(n.relacion));
+  const padres = by(RELACION.PADRE);
+  const madres = by(RELACION.MADRE);
+  const progenitores = [...padres, ...madres];
+  const hermanos = by(RELACION.HERMANO, RELACION.HERMANA);
+  const hijos = by(RELACION.HIJO, RELACION.HIJA);
+  const parejas = by(RELACION.PAREJA);
+  const abuelos = by(RELACION.ABUELO, RELACION.ABUELA);
   const edges = [];
-  const padres = nodes.filter((n) => n.relacion === RELACION.PADRE);
-  const madres = nodes.filter((n) => n.relacion === RELACION.MADRE);
-  const hermanos = nodes.filter(
-    (n) => n.relacion === RELACION.HERMANO || n.relacion === RELACION.HERMANA
-  );
-  const hijos = nodes.filter(
-    (n) => n.relacion === RELACION.HIJO || n.relacion === RELACION.HIJA
-  );
 
-  // 1) Pareja inferida: padre + madre
-  if (padres.length === 1 && madres.length === 1) {
-    edges.push({
-      id: `edge-pareja-${padres[0].id}-${madres[0].id}`,
-      source: padres[0].id,
-      target: madres[0].id,
-      tipo: 'pareja',
-      inferida: true,
-    });
-  }
+  // Padre + madre
+  if (padres[0] && madres[0]) edges.push(mkEdge('pareja', padres[0], madres[0]));
 
-  // 2) Descendencia desde padres/madres a TODOS sus hijos
-  //    (root + hermanos son hijos de la pareja)
-  const todosLosHijos = [rootNode, ...hermanos];
-
-  if (padres.length || madres.length) {
-    padres.forEach((padre) => {
-      todosLosHijos.forEach((hijo) => {
-        if (hijo.id === padre.id) return;
-        edges.push({
-          id: `edge-desc-${padre.id}-${hijo.id}`,
-          source: padre.id,
-          target: hijo.id,
-          tipo: 'descendencia',
-          inferida: true,
-        });
-      });
-    });
-
-    madres.forEach((madre) => {
-      todosLosHijos.forEach((hijo) => {
-        if (hijo.id === madre.id) return;
-        edges.push({
-          id: `edge-desc-${madre.id}-${hijo.id}`,
-          source: madre.id,
-          target: hijo.id,
-          tipo: 'descendencia',
-          inferida: true,
-        });
-      });
-    });
+  // Padres → miembro y hermanos (o hermandad directa si no hay padres)
+  if (progenitores.length) {
+    progenitores.forEach((p) =>
+      [root, ...hermanos].forEach((h) => edges.push(mkEdge('descendencia', p, h))));
   } else {
-    // Sin padres → root conectado a hermanos con hermandad
-    hermanos.forEach((hermano) => {
-      edges.push({
-        id: `edge-sibling-${rootId}-${hermano.id}`,
-        source: rootId,
-        target: hermano.id,
-        tipo: 'hermandad',
-        inferida: true,
-      });
-    });
+    hermanos.forEach((h) => edges.push(mkEdge('hermandad', root, h)));
   }
 
-  // 3) Hijos del miembro (root → hijo) — solo los que son hijos directos
-  hijos.forEach((hijo) => {
-    edges.push({
-      id: `edge-desc-${rootId}-${hijo.id}`,
-      source: rootId,
-      target: hijo.id,
-      tipo: 'descendencia',
-      relacion: hijo.relacion,
-      inferida: false,
-    });
-  });
+  // Miembro ↔ pareja
+  parejas.forEach((p) => edges.push(mkEdge('pareja', root, p)));
+
+  // Miembro (y su pareja) → hijos
+  hijos.forEach((h) =>
+    [root, parejas[0]].filter(Boolean).forEach((p) => edges.push(mkEdge('descendencia', p, h))));
+
+  // Abuelos: pareja entre ellos; descienden hacia el primer progenitor (aproximación)
+  const [ab, aba] = [abuelos.find((n) => n.relacion === RELACION.ABUELO),
+                     abuelos.find((n) => n.relacion === RELACION.ABUELA)];
+  if (ab && aba) edges.push(mkEdge('pareja', ab, aba));
+  if (progenitores[0]) abuelos.forEach((a) => edges.push(mkEdge('descendencia', a, progenitores[0])));
 
   return { nodes, edges, rootId };
 }

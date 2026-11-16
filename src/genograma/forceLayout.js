@@ -65,6 +65,7 @@ export function forceLayout(nodes, edges, options) {
       .filter(([a, b]) => a !== -1 && b !== -1);
 
     // Física interna
+    let temp = 50;
     for (let it = 0; it < 150; it++) {
       const dx = new Float64Array(n);
       const dy = new Float64Array(n);
@@ -90,7 +91,6 @@ export function forceLayout(nodes, edges, options) {
         dx[a] -= ux * f; dy[a] -= uy * f;
         dx[b] += ux * f; dy[b] += uy * f;
       }
-      let temp = 50;
       for (let i = 0; i < n; i++) {
         dx[i] += -subX[i] * 0.05;
         dy[i] += -subY[i] * 0.05;

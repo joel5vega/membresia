@@ -102,9 +102,16 @@ export const SIMBOLO = {
   DECEASED: 'slash',   // fallecido = tachado con X
 };
 
+// Paleta Metro (ver design.md)
 export const COLORES_RELACION = {
-  familia: '#A63232',       // rojo iglesia
-  pareja: '#E68A3E',        // naranja
-  hermandad: '#3b82f6',     // azul
-  desconocido: '#6b7280',   // gris
+  familia: '#e51400',    // descendencia
+  pareja: '#00a300',
+  hermandad: '#00aba9',
+  desconocido: '#a6a6a6',
+};
+
+export const COLOR_SEXO = {
+  [SEX.MALE]: '#2d89ef',
+  [SEX.FEMALE]: '#6a00ff',
+  [SEX.UNKNOWN]: '#a6a6a6',
 };

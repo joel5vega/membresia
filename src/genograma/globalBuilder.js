@@ -49,12 +49,17 @@ function registrarPersonas(members) {
       // Si el familiar no es miembro, crear "fantasma"
       if (!personNodes.has(keyFam)) {
         // Inferir sexo por la relación (termina en 'a')
-        const esFemenino = /a$/i.test(fam.relacion || '');
+        const rel = norm(fam.relacion);
+        const sexo =
+          fam.sexo === 'M' || fam.sexo === 'F' ? fam.sexo
+          : /^(madre|hermana|hija|abuela|tia|prima|sobrina|nieta|esposa|amiga)$/.test(rel) ? 'F'
+          : /^(padre|hermano|hijo|abuelo|tio|primo|sobrino|nieto|esposo|amigo)$/.test(rel) ? 'M'
+          : '?';
         personNodes.set(keyFam, {
           id: keyFam,
           realId: null,
           nombre: nombreFam,
-          sexo: esFemenino ? 'F' : 'M',
+          sexo: sexo,
           photoUrl: null,
           esMiembroIglesia: false,
           connections: [],
