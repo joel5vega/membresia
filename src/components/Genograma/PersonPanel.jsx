@@ -2,8 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { X, Trash2, Plus, Search, Network } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { RELACIONES, norm, relationsOf } from '../../genograma/relationUtils';
+import ExternalActions from './ExternalActions';
 
-export default function PersonPanel({ person, members, people, onSetRelation, onRemoveRelation, onClose }) {
+export default function PersonPanel({ person, members, people, isHidden, onSetRelation, onRemoveRelation,
+  onRename, onDelete, onToggleHide, onClose }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -59,7 +61,16 @@ export default function PersonPanel({ person, members, people, onSetRelation, on
       {/* Relaciones existentes */}
       <p style={hint}>Cada fila indica qué es esa persona para {person.nombre.split(' ')[0]}.</p>
       {relations.length === 0 && <p style={{ ...hint, fontStyle: 'italic' }}>Sin relaciones registradas.</p>}
-      {relations.map((r) => (
+    {relations.map((r) => r.inferida ? (
+  <div key={r.key} style={{ ...row, opacity: 0.75 }}>
+    <span style={{ flex: 1, minWidth: 0, color: C.text, fontSize: 14 }}>{r.nombre}</span>
+    <em style={{ fontSize: 12, color: C.mute }}>{r.relacion} · inferida</em>
+    {RELACIONES.includes(r.relacion) && (
+      <button disabled={busy} style={ghost}
+        onClick={() => run(() => onSetRelation(person, r, r.relacion))}>Guardar</button>
+    )}
+  </div>
+) : (
         <div key={r.key} style={row}>
           <span style={{ flex: 1, minWidth: 0, color: C.text, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {r.nombre}
@@ -115,7 +126,10 @@ export default function PersonPanel({ person, members, people, onSetRelation, on
         </select>
         <button onClick={add} disabled={busy} style={addBtn}><Plus size={16} /> Agregar</button>
       </div>
-
+{!person.esMiembro && (
+  <ExternalActions person={person} people={people} isHidden={isHidden}
+    onRename={onRename} onDelete={onDelete} onToggleHide={onToggleHide} />
+)}
       {error && <p style={{ color: '#b91c1c', fontSize: 13, margin: '8px 0 0' }}>{error}</p>}
     </div>
   );

@@ -1,15 +1,13 @@
+import { norm, fullName } from './names';
+import { inferRelations } from './inference';
+export { norm, fullName };
+
 export const RELACIONES = [
   'Padre', 'Madre', 'Hermano', 'Hermana', 'Hijo', 'Hija',
   'Abuelo', 'Abuela', 'Tío', 'Tía', 'Primo', 'Prima',
   'Sobrino', 'Sobrina', 'Nieto', 'Nieta', 'Amigo', 'Amiga',
   'Esposo', 'Esposa', 'Pareja', 'Ex-pareja',
 ];
-
-export const norm = (s) =>
-  (s ?? '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-
-export const fullName = (m) =>
-  m?.nombreCompleto || `${m?.nombre || ''} ${m?.apellido || ''}`.trim();
 
 /** Convierte "hermano"/"Tio" a la opción canónica del select. */
 export const toOpcion = (rel) => RELACIONES.find((r) => norm(r) === norm(rel)) || 'Amigo';
@@ -70,7 +68,7 @@ export function buildEditData(node, members) {
   };
 }
 
-/** Relaciones de una persona: las de su genograma + las que otros miembros declaran sobre ella. */
+/** Relaciones de una persona: propias + declaradas por otros + inferidas. */
 export function relationsOf(person, members) {
   const self = norm(person.nombre);
   const byName = new Map(members.map((m) => [norm(fullName(m)), m]));
@@ -80,10 +78,7 @@ export function relationsOf(person, members) {
   own.forEach((p) => {
     const key = norm(p.nombre);
     if (!key || key === self) return;
-    list.set(key, {
-      key, nombre: p.nombre.trim(), relacion: toOpcion(p.relacion),
-      realId: byName.get(key)?.id || null,
-    });
+    list.set(key, { key, nombre: p.nombre.trim(), relacion: toOpcion(p.relacion), realId: byName.get(key)?.id || null });
   });
 
   members.forEach((m) => {
@@ -91,15 +86,18 @@ export function relationsOf(person, members) {
     const key = norm(fullName(m));
     const entry = (m.genograma || []).find((p) => norm(p.nombre) === self);
     if (entry && !list.has(key)) {
-      list.set(key, {
-        key, nombre: fullName(m), realId: m.id,
-        relacion: getInverseRelacion(toOpcion(entry.relacion), m.sexo),
-      });
+      list.set(key, { key, nombre: fullName(m), realId: m.id,
+        relacion: getInverseRelacion(toOpcion(entry.relacion), m.sexo) });
     }
+  });
+
+  inferRelations(members).forEach((f) => {
+    if (f.from !== self || list.has(f.to)) return;
+    list.set(f.to, { key: f.to, nombre: f.nombre, relacion: f.relacion,
+      realId: byName.get(f.to)?.id || null, inferida: true });
   });
   return [...list.values()];
 }
-
 const holder = (members, id) => members.find((m) => m.id === id);
 
 /** "b es `relacion` de a" → lista de { id, genograma } a guardar. */
@@ -126,3 +124,27 @@ export function planRemove(a, b, members) {
   if (mb) plan.push({ id: mb.id, genograma: removeRelacion(mb.genograma, a.nombre) });
   return plan;
 }
+
+const usa = (m, name) => (m.genograma || []).some((p) => norm(p.nombre) === norm(name));
+
+/** Renombra/fusiona una persona en TODOS los genogramas donde aparece. */
+export function planRename(oldName, newName, members) {
+  const from = norm(oldName);
+  const to = newName.trim();
+  return members.filter((m) => usa(m, oldName)).map((m) => {
+    const seen = new Map();
+    (m.genograma || []).forEach((p) => {
+      const e = norm(p.nombre) === from ? { ...p, nombre: to } : p;
+      const k = norm(e.nombre);
+      const prev = seen.get(k);
+      seen.set(k, prev ? { ...e, ...prev, edad: prev.edad || e.edad,
+        viveConElMiembro: !!(prev.viveConElMiembro || e.viveConElMiembro) } : e);
+    });
+    seen.delete(norm(fullName(m))); // nadie es su propio familiar
+    return { id: m.id, genograma: [...seen.values()] };
+  });
+}
+
+export const planDeletePerson = (name, members) =>
+  members.filter((m) => usa(m, name))
+    .map((m) => ({ id: m.id, genograma: removeRelacion(m.genograma, name) }));

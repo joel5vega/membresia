@@ -1,12 +1,6 @@
 // src/genograma/globalBuilder.js
-
-const norm = (s) =>
-  (s ?? '')
-    .toString()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
+import { norm } from './names';
+import { inferRelations } from './inference';
 
 /**
  * Registra a todos los miembros en un Map usando el NOMBRE NORMALIZADO como ID.
@@ -84,7 +78,14 @@ function registrarPersonas(members) {
       }
     });
   });
-
+    // 3. Conexiones inferidas (hermanos, abuelos, tíos…) — solo en memoria
+  inferRelations(members).forEach(({ from, to }) => {
+    const a = personNodes.get(from);
+    const b = personNodes.get(to);
+    if (!a || !b || a.connections.some((c) => c.target === to)) return;
+    a.connections.push({ target: to, tipo: 'familia', peso: 1, derivada: true });
+    b.connections.push({ target: from, tipo: 'familia', peso: 1, derivada: true });
+  });
   return personNodes;
 }
 
@@ -175,6 +176,7 @@ export function buildGlobalGraph(members) {
           target: c.target,
           tipo: c.tipo,
           peso: c.peso,
+          derivada: !!c.derivada,
         });
       }
     });
