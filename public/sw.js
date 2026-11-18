@@ -1,3 +1,4 @@
+const CACHE_NAME = 'membresia-v1';
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);

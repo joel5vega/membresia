@@ -27,11 +27,11 @@ const EditMemberForm = () => {
   }, [id]);
 
   const handleSuccess = () => {
-    navigate('/members');
+    navigate('/');
   };
 
   const handleCancel = () => {
-    navigate('/members');
+    navigate('/');
   };
 
   if (loading) {

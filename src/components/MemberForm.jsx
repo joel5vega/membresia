@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { memberService } from '../services/memberService';
-
+import { compressImageToBase64 } from '../utils/imageCompressor';
 const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false, memberId = null, initialMember = null}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -184,9 +184,7 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
     
     setLoading(true);
     try {
-      await memberId
-          ? memberService.updateMember(memberId, formData)
-          : memberService.addMember(formData);
+      if (memberId) await memberService.updateMember(memberId, formData); else await memberService.addMember(formData);
       alert('Miembro guardado exitosamente!');
       onSuccess();
     } catch (error) {

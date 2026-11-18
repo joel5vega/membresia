@@ -1,13 +1,7 @@
-// App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import {
-  Users,
-  ClipboardCheck,
-  BarChart3,
-  Cake,
-  Menu,
-  X,History,FileText
+  Home, Users, ClipboardCheck, BarChart3, Cake, Network, History, FileText, Menu, X, LogOut,
 } from 'lucide-react';
 
 import MemberForm from './components/MemberForm';
@@ -17,262 +11,169 @@ import ClassesAndAttendance from './components/ClassesAndAttendance';
 import ClassHistoryView from './components/ClassHistoryView';
 import AttendanceStatisticsView from './components/Statistics/AttendanceStatisticsView';
 import Dashboard from './components/Dashboard';
-import LoginView from './views/LoginView';
-import { useAuth } from './context/AuthContext';
-import MembresiaIcon from './assets/membresia-icon.png';
 import BirthdaysView from './components/BirthdaysView';
 import SundaySchoolReportPage from './pages/SundaySchoolReportPage';
 import ClassManagementView from './components/ClassManagementView';
 import AttendanceSummaryView from './components/Attendance/AttendanceSummaryView';
-import InstallPrompt from './components/InstallPrompt';
-import { memberService } from './services/memberService';
-import AppLoader from './components/AppLoader';
-import './App.css';
 import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
 import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
 import GenogramaView from './components/Genograma/GenogramaView';
 import ClanesView from './components/Genograma/ClanesView';
+import FamiliasView from './components/Genograma/FamiliasView';
 import ClanesGraphView from './components/Genograma/ClanesGraphView';
+import InstallPrompt from './components/InstallPrompt';
+import AppLoader from './components/AppLoader';
+import LoginView from './views/LoginView';
+import { useAuth } from './context/AuthContext';
+import { memberService } from './services/memberService';
+import MembresiaIcon from './assets/membresia-icon.png';
+import './App.css';
+
+/* ── Navegación: una sola fuente de verdad ─────────────────────────── */
+const MENU = [
+  { id: 'panel',              label: 'Inicio',          icon: Home,           tile: 't-blue' },
+  { id: 'members',            label: 'Miembros',        icon: Users,          tile: 't-red' },
+  { id: 'classes',            label: 'Asistencia',      icon: ClipboardCheck, tile: 't-green' },
+  { id: 'statistics',         label: 'Estadísticas',    icon: BarChart3,      tile: 't-purple' },
+  { id: 'cumpleanos',         label: 'Cumpleaños',      icon: Cake,           tile: 't-orange' },
+  { id: 'clanes',             label: 'Familias',          icon: Network,        tile: 't-teal' },
+  { id: 'attendance-history', label: 'Historial',       icon: History,        tile: 't-purple' },
+  { id: 'bulk-attendance',    label: 'Ingreso masivo',  icon: FileText,       tile: 't-green' },
+];
+
+const EXTRA_TITLES = {
+  'add-member': 'Nuevo miembro', history: 'Reportes', 'attendance-summary': 'Resumen',
+  escuelaDominicalReport: 'Informe dominical',
+};
+
+const pad = (el) => <div className="view-padding">{el}</div>;
+
+const VIEWS = {
+  panel:                  ({ go }) => <Dashboard onNavigate={go} />,
+  members:                ({ go }) => <MembersListView onAddMember={() => go('add-member')} />,
+  'add-member':           ({ go }) => <MemberForm onSuccess={() => go('members')} onCancel={() => go('members')} />,
+  classes:                () => <ClassesAndAttendance />,
+  statistics:             () => pad(<AttendanceStatisticsView />),
+  'attendance-summary':   () => pad(<AttendanceSummaryView />),
+  'attendance-history':   () => pad(<AttendanceHistoryView />),
+  'bulk-attendance':      () => pad(<BulkAttendanceForm />),
+  history:                () => pad(<ClassHistoryView />),
+  cumpleanos:             ({ go }) => <BirthdaysView onNavigate={go} />,
+  escuelaDominicalReport: () => pad(<SundaySchoolReportPage />),
+  clanes:                 () => <FamiliasView />,
+};
+
+const titleOf = (id) => MENU.find((m) => m.id === id)?.label || EXTRA_TITLES[id] || '';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-
   if (loading) return <AppLoader message="Verificando sesión..." />;
-  if (!user) return <Navigate to="/login" replace />;
-
-  return children;
+  return user ? children : <Navigate to="/login" replace />;
 }
 
+/* ── Shell ─────────────────────────────────────────────────────────── */
 const AppLayout = () => {
-  const [currentPage, setCurrentPage] = useState('panel');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [page, setPage] = useState('panel');
+  const [menuOpen, setMenuOpen] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isDataPreloaded, setIsDataPreloaded] = useState(false);
-
   const [loadingMessage, setLoadingMessage] = useState('Preparando tu panel Canaán...');
   const { user, logout, loading: authLoading } = useAuth();
   const username = user?.email?.split('@')[0] || 'Admin';
 
-  // Pre‑cargar miembros
-useEffect(() => {
-  const preloadMembers = async () => {
-    try {
-      console.log('🔵 [App] preloadMembers start');
-      const hasCache = await memberService.hasCache();
-      setLoadingMessage(
-        hasCache ? 'Cargando datos de memoria...' : 'Descargando datos...'
-      );
-
-      // 👇 Aquí se hace la precarga
-      await memberService.getMembers();
-
-      console.log('✅ [App] preloadMembers completed');
-      setIsDataPreloaded(true);
-    } catch (error) {
-      console.error('❌ [App] Error pre-loading members:', error);
-      setIsDataPreloaded(true);
-    }
-  };
-
-  if (user && !isDataPreloaded) {
-    preloadMembers();
-  }
-}, [user, isDataPreloaded]);
-  // Ocultar loader cuando auth + datos estén listos
+  // Precarga de miembros
   useEffect(() => {
-    if (!authLoading && isDataPreloaded) {
-      setIsInitialLoading(false);
-    }
+    if (!user || isDataPreloaded) return;
+    (async () => {
+      try {
+        const hasCache = await memberService.hasCache();
+        setLoadingMessage(hasCache ? 'Cargando datos de memoria...' : 'Descargando datos...');
+        await memberService.getMembers();
+      } catch (error) {
+        console.error('[App] Error pre-loading members:', error);
+      } finally {
+        setIsDataPreloaded(true);
+      }
+    })();
+  }, [user, isDataPreloaded]);
+
+  useEffect(() => {
+    if (!authLoading && isDataPreloaded) setIsInitialLoading(false);
   }, [authLoading, isDataPreloaded]);
 
-  if (authLoading || isInitialLoading) {
-    return <AppLoader message={loadingMessage} />;
-  }
+  if (authLoading || isInitialLoading) return <AppLoader message={loadingMessage} />;
 
-  const menuItems = [
-    { id: 'members', label: 'Miembros', icon: <Users size={22} /> },
-    { id: 'classes', label: 'Asistencia', icon: <ClipboardCheck size={22} /> },
-    { id: 'statistics', label: 'Estadísticas', icon: <BarChart3 size={22} /> },
-    { id: 'cumpleanos', label: 'Cumpleaños', icon: <Cake size={22} /> },
-    { id: 'clanes', label: 'Clanes Familiares', icon: <Users size={22} /> },
-    { id: 'attendance-history', label: 'Historial', icon: <History size={22} /> },
-    { id: 'bulk-attendance', label: 'Ingreso Masivo', icon: <FileText size={22} /> },
-
-  ];
-
-  const handleNavigate = (page) => {
-    setCurrentPage(page);
-    setIsMenuOpen(false);
-  };
+  const go = (id) => { setPage(id); setMenuOpen(false); window.scrollTo(0, 0); };
+  const View = VIEWS[page] || VIEWS.panel;
 
   return (
     <div className="app-shell">
-      {/* Header superior (logo + nombre) */}
-      <header className="mobile-header">
-        <button
-          className="header-brand"
-          onClick={() => handleNavigate('panel')}
-          aria-label="Ir al Dashboard"
-        >
-          <img src={MembresiaIcon} alt="Canaán" />
-          <span>IEDB CANAÁN</span>
+      <header className="mt-appbar">
+        <button className="mt-appbar__brand" onClick={() => go('panel')} aria-label="Ir al inicio">
+          <img src={MembresiaIcon} alt="" />
+          <div style={{ minWidth: 0 }}>
+            <p className="mt-label" style={{ margin: 0 }}>IEDB Canaán</p>
+            <h1 className="mt-appbar__title">{titleOf(page)}</h1>
+          </div>
         </button>
-
-        <div className="header-right">
-          <button
-            className="menu-toggle-btn"
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Abrir menú"
-          >
-            <Menu size={26} />
-          </button>
-        </div>
+        <button className="mt-btn mt-btn--icon" onClick={() => setMenuOpen(true)} aria-label="Abrir menú">
+          <Menu size={28} />
+        </button>
       </header>
 
-      {/* Menú inmersivo pantalla completa */}
-      <div className={`immersive-menu ${isMenuOpen ? 'open' : ''}`}>
-        <div className="menu-header">
-          <span className="menu-brand-text">MENÚ PRINCIPAL</span>
-          <button
-            className="close-menu-btn"
-            onClick={() => setIsMenuOpen(false)}
-            aria-label="Cerrar menú"
-          >
-            <X size={30} />
+      <nav className={`mt-menu ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
+        <div className="mt-menu__head">
+          <p className="mt-label">Menú</p>
+          <button className="mt-btn mt-btn--icon" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú">
+            <X size={28} />
           </button>
         </div>
 
-        <div className="menu-links-container">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`menu-link-item ${
-                currentPage === item.id ? 'active' : ''
-              }`}
-              onClick={() => handleNavigate(item.id)}
-            >
-              <span className="link-icon">{item.icon}</span>
-              <span className="link-text">{item.label}</span>
+        <div className="mt-tiles">
+          {MENU.map(({ id, label, icon: Icon, tile }) => (
+            <button key={id} className={`mt-tile ${tile}`} onClick={() => go(id)}
+                    aria-current={page === id ? 'page' : undefined}
+                    style={page === id ? { outline: '3px solid #fff', outlineOffset: -3 } : undefined}>
+              <Icon className="mt-tile__icon" size={32} />
+              <span className="mt-tile__name">{label}</span>
             </button>
           ))}
         </div>
 
-        <div className="menu-footer">
-          <div className="menu-user-profile">
-            <div className="user-initial">
-              {username.charAt(0).toUpperCase()}
-            </div>
-            <div className="user-details">
-              <span className="user-name">{username}</span>
-              <button
-                className="menu-logout-action"
-                onClick={logout}
-              >
-                Cerrar Sesión
-              </button>
-            </div>
+        <div className="mt-menu__user">
+          <div>
+            <p className="mt-label" style={{ margin: 0 }}>Sesión</p>
+            <strong style={{ fontSize: '1.2rem', fontWeight: 300 }}>{username}</strong>
           </div>
+          <button className="mt-btn mt-btn--accent" onClick={logout}><LogOut size={16} /> Salir</button>
         </div>
-      </div>
+      </nav>
 
-      {/* Área de contenido */}
       <main className="main-content-area">
-        <div className="view-transition-wrapper">
-          {currentPage === 'panel' && (
-            <Dashboard onNavigate={setCurrentPage} />
-          )}
-
-          {currentPage === 'members' && (
-            <MembersListView onAddMember={() => setCurrentPage('add-member')} />
-          )}
-
-          {currentPage === 'add-member' && (
-            <MemberForm
-              onSuccess={() => setCurrentPage('members')}
-              onCancel={() => setCurrentPage('members')}
-            />
-          )}
-
-          {currentPage === 'classes' && <ClassesAndAttendance />}
-{currentPage === 'attendance-history' && (
-  <div className="view-padding">
-    <AttendanceHistoryView />
-  </div>
-)}
-          {currentPage === 'statistics' && (
-            <div className="view-padding">
-              <AttendanceStatisticsView />
-            </div>
-          )}
-
-          {currentPage === 'attendance-summary' && (
-            <div className="view-padding">
-              <AttendanceSummaryView />
-            </div>
-          )}
-
-          {currentPage === 'history' && (
-            <div className="view-padding">
-              <ClassHistoryView />
-            </div>
-          )}
-
-          {currentPage === 'cumpleanos' && (
-            <BirthdaysView onNavigate={setCurrentPage} />
-          )}
-
-          {currentPage === 'escuelaDominicalReport' && (
-            <div className="view-padding">
-              <SundaySchoolReportPage />
-            </div>
-          )}
-          {currentPage === 'bulk-attendance' && (
-            <div className="view-padding">
-              <BulkAttendanceForm />
-            </div>
-          )}
-          {currentPage === 'clanes' && <ClanesView />}
-        </div>
+        <div className="view-transition-wrapper"><View go={go} /></div>
       </main>
     </div>
   );
 };
 
-const App = () => {
-  return (
-    <BrowserRouter basename="/membresia">
-      <Routes>
-        {/* Login público */}
-        <Route path="/login" element={<LoginView />} />
-        <Route path="/clases" element={<ClassManagementView />} />
+/* ── Rutas ─────────────────────────────────────────────────────────── */
+const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
 
-        {/* Panel protegido */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/escuela-dominical/report"
-          element={<SundaySchoolReportPage />}
-        />
-
-        <Route path="/members/:id/edit" element={<EditMemberPage />} />
-
-        {/* Cualquier otra ruta redirige al panel */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-<Route path="/members/:id/genograma" element={<GenogramaView />} />
-<Route path="/clanes" element={<ClanesView />} />
-<Route path="/constelacion" element={<ClanesGraphView />} />
-      </Routes>
-
-      <InstallPrompt />
-    </BrowserRouter>
-  );
-};
+const App = () => (
+  <BrowserRouter basename="/membresia">
+    <Routes>
+      <Route path="/login" element={<LoginView />} />
+      <Route path="/" element={guard(<AppLayout />)} />
+      <Route path="/clases" element={guard(<ClassManagementView />)} />
+      <Route path="/escuela-dominical/report" element={guard(<SundaySchoolReportPage />)} />
+      <Route path="/members/:id/edit" element={guard(<EditMemberPage />)} />
+      <Route path="/members/:id/genograma" element={guard(<GenogramaView />)} />
+      <Route path="/clanes" element={guard(<ClanesView />)} />
+      <Route path="/constelacion" element={guard(<ClanesGraphView />)} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+    <InstallPrompt />
+  </BrowserRouter>
+);
 
 export default App;

@@ -1,4 +1,4 @@
-import { useStat, useEffecte } from 'react';
+import { useState, useEffect } from 'react';
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 

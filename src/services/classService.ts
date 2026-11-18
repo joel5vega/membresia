@@ -34,30 +34,7 @@ export const createOrUpdateClass = async (classData: Omit<Class, 'id'> & { id?: 
 
 // Obtener todas las clases
 export const getClasses = async (): Promise<Class[]> => {
-  try {
-        // Check cache first
-            const { classes, timestamp } = await getCachedClasses();
-                if (classes.length > 0 && isCacheValid(timestamp)) {
-                        console.log('✓ Using cached classes');
-                              return classes;
-                                  }
-
-                                      console.log('→ Fetching classes from Firebase');
-    const classesCol = collection(db, 'classes');
-    const classesSnapshot = await getDocs(classesCol);
-                  
-// Cache the fetched data
-const classesToCache = classesSnapshot.docs.map(doc => ({
-  id: doc.id,
-  ...doc.data(),
-} as Class));
-
-await cacheClasses(classesToCache);
-return classesToCache;
-  } catch (error) {
-    console.error('Error obteniendo clases:', error);
-    throw error;
-  }
+ const snap = await getDocs(collection(db, 'classes')); return snap.docs.map(d => ({ id: d.id, ...d.data() } as Class));
 };
 
 // Obtener una clase por ID

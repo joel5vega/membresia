@@ -19,10 +19,10 @@ const LoginView = () => {
     try {
       if (mode === 'login') {
         await login(email, password);
-                navigate('/dashboard');
+                navigate('/');
       } else {
         await register(email, password);
-                navigate('/dashboard');
+                navigate('/');
       }
     } catch (err) {
       console.error(err);

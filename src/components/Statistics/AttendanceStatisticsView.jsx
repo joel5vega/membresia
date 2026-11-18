@@ -34,9 +34,9 @@ const AttendanceStatisticsView = () => {
         } else if (selectedPeriod === 'monthly') {
           data = await getMonthlyStatistics(selectedDate);
         } else if (selectedPeriod === 'quarterly') {
-          data = await getQuarterlyStatistics(year, month);
+          data = await getQuarterlyStatistics(selectedDate);
         } else {
-          data = await getYearlyStatistics(year);
+          data = await getYearlyStatistics(selectedDate);
         }
 
         setStatistics(data);

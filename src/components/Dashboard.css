@@ -76,7 +76,7 @@
   background: var(--card);
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 4px 12px #ffffff;
+  box-shadow: none;
   margin-bottom: 16px;
   border: 1px solid var(--border);
 }
