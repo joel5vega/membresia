@@ -1,63 +1,58 @@
-import React, { useState, useMemo } from 'react';
-import { Pencil, Trash2, EyeOff, Eye } from 'lucide-react';
-import { norm } from '../../genograma/relationUtils';
+import React, { useState } from 'react';
+import { UserPlus } from 'lucide-react';
+import { splitName } from '../../genograma/people';
 
-export default function ExternalActions({ person, people, isHidden, onRename, onDelete, onToggleHide }) {
-  const [name, setName] = useState(person.nombre);
+const CLASES = [
+  'Sociedad de Caballeros "Emanuel"', 'Sociedad de Señoras "Shaddai"',
+  'Sociedad de Matrimonios jóvenes "Ebenezer"', 'Sociedad de Jóvenes "Soldados de la Fe"',
+  'Sociedad de prejuveniles "Vencedores"', 'Clase de Exploradores', 'Clase de Estrellitas',
+  'Clase de joyitas', 'Av. Jireh', 'Av. Luz del evangelio', 'Av. Elohim', 'Av. Jesús es el camino',
+];
+
+export default function ConvertToMember({ person, onConvert }) {
+  const [form, setForm] = useState(() => ({
+    ...splitName(person.nombre),
+    sexo: person.sexo === 'M' || person.sexo === 'F' ? person.sexo : '',
+    clase: '', celular: '', fechaNacimiento: '',
+  }));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const suggestions = useMemo(() => {
-    const q = norm(name);
-    const first = norm(person.nombre).split(' ')[0];
-    return people
-      .filter((p) => p.id !== person.key &&
-        ((q.length > 2 && norm(p.nombre).includes(q)) || norm(p.nombre).split(' ')[0] === first))
-      .sort((a, b) => Number(b.esMiembroIglesia) - Number(a.esMiembroIglesia))
-      .slice(0, 5);
-  }, [people, name, person]);
-
-  const run = async (fn) => {
+  const submit = async () => {
+    if (!form.nombre.trim()) return setError('El nombre es obligatorio.');
     setBusy(true); setError('');
-    try { await fn(); } catch (e) { setError(e.message); } finally { setBusy(false); }
+    try { await onConvert(form); }
+    catch (e) { setError(e.message); setBusy(false); }
   };
 
-  const changed = name.trim() && norm(name) !== person.key;
-
   return (
-    <>
-      <h4>Corregir familiar externo</h4>
-      <div className="mt-row" style={{ borderBottom: 0, flexWrap: 'nowrap' }}>
-        <input className="mt-input" value={name} onChange={(e) => setName(e.target.value)} />
-        <button className="mt-btn" disabled={busy || !changed} onClick={() => run(() => onRename(person.nombre, name))}>
-          <Pencil size={14} /> Aplicar
-        </button>
-      </div>
+    <details className="mt-details">
+      <summary><UserPlus size={16} /> Registrar como miembro</summary>
 
-      {suggestions.length > 0 && (
-        <>
-          <small className="mt-muted">¿Es la misma persona? Toca para fusionar:</small>
-          <div className="mt-chips">
-            {suggestions.map((p) => (
-              <button key={p.id} className="mt-chip" onClick={() => setName(p.nombre)}>
-                {p.nombre}{!p.esMiembroIglesia && ' · ext.'}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      <label className="mt-label">Nombres</label>
+      <input className="mt-input" value={form.nombre} onChange={set('nombre')} />
+      <label className="mt-label">Apellidos (paterno y materno)</label>
+      <input className="mt-input" value={form.apellido} onChange={set('apellido')} />
 
-      <div className="mt-row" style={{ borderBottom: 0, marginTop: 8 }}>
-        <button className="mt-btn mt-btn--gray" style={{ flex: 1 }} disabled={busy}
-                onClick={() => onToggleHide(person.key, !isHidden)}>
-          {isHidden ? <><Eye size={14} /> Mostrar</> : <><EyeOff size={14} /> Ocultar</>}
-        </button>
-        <button className="mt-btn mt-btn--accent" style={{ flex: 1 }} disabled={busy}
-                onClick={() => window.confirm(`¿Quitar a "${person.nombre}" de todos los genogramas?`) && run(() => onDelete(person.nombre))}>
-          <Trash2 size={14} /> Eliminar
-        </button>
+      <div className="mt-row" style={{ borderBottom: 0 }}>
+        <select className="mt-input" value={form.sexo} onChange={set('sexo')}>
+          <option value="">Sexo…</option><option value="M">Varón</option><option value="F">Mujer</option>
+        </select>
+        <input className="mt-input" type="date" value={form.fechaNacimiento} onChange={set('fechaNacimiento')} />
       </div>
+      <select className="mt-input" value={form.clase} onChange={set('clase')}>
+        <option value="">Clase / sociedad…</option>
+        {CLASES.map((c) => <option key={c}>{c}</option>)}
+      </select>
+      <input className="mt-input" style={{ marginTop: 8 }} placeholder="Celular"
+             value={form.celular} onChange={set('celular')} />
+
+      <button className="mt-btn mt-btn--green" style={{ marginTop: 12, width: '100%' }}
+              disabled={busy} onClick={submit}>
+        {busy ? 'Registrando…' : 'Crear miembro'}
+      </button>
       {error && <p className="mt-error">{error}</p>}
-    </>
+    </details>
   );
 }

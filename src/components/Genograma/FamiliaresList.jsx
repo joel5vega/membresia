@@ -1,7 +1,8 @@
 import React from 'react';
 import { COLOR_SEXO } from '../../genograma/model';
+import { norm } from '../../genograma/names';
 
-export default function FamiliaresList({ nodes, selectedIndex, onSelect }) {
+export default function FamiliaresList({ nodes, selectedKey, onSelect }) {
   const familiares = nodes.filter((n) => !n.esRaiz);
   if (!familiares.length) return null;
 
@@ -10,9 +11,9 @@ export default function FamiliaresList({ nodes, selectedIndex, onSelect }) {
       {familiares.map((n) => (
         <button
           key={n.id}
-          className={`gn-tile ${selectedIndex === n.genogramaIndex ? 'is-active' : ''}`}
+          className={`gn-tile ${selectedKey === norm(n.nombre) ? 'is-active' : ''}`}
           style={{ background: COLOR_SEXO[n.sexo] }}
-          onClick={() => onSelect(n.genogramaIndex)}
+          onClick={() => onSelect(norm(n.nombre))}
         >
           <span className="gn-tile__rel">{n.relacionOriginal}</span>
           <strong className="gn-tile__name">{n.nombre}</strong>

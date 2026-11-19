@@ -27,13 +27,15 @@ export default function ClusterList({ clusters, onOpen }) {
 
   return (
     <>
-      <input className="mt-input" style={{ marginBottom: 8 }} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar familia…" />
+      <input className="mt-input" style={{ marginBottom: 8 }} value={q}
+             onChange={(e) => setQ(e.target.value)} placeholder="Buscar familia…" />
       <div className="mt-seg">
         {SORTS.map(([id, label]) => (
           <button key={id} className={sort === id ? 'is-on' : ''} onClick={() => setSort(id)}>{label}</button>
         ))}
       </div>
-      <BandChips value={band} onChange={setBand} counts={counts} total={clusters.flatMap((c) => c.miembros).length} />
+      <BandChips value={band} onChange={setBand} counts={counts}
+                 total={clusters.flatMap((c) => c.miembros).length} />
 
       <div className="mt-tiles">
         {list.map((c, i) => {
@@ -43,8 +45,9 @@ export default function ClusterList({ clusters, onOpen }) {
               <span className="mt-tile__num">{c.miembros.length}</span>
               <span className="mt-tile__name">{c.nombre}</span>
               <span className="mt-tile__meta">
-  {c.registrados} registrados{c.otros.length ? ` · también ${c.otros.join(', ')}` : ''}
-</span>
+                {c.registrados} registrados · encabeza {c.referente.split(' ')[0]}
+                {c.otros.length ? ` · también ${c.otros.join(', ')}` : ''}
+              </span>
               <span className="mt-agebar">
                 {BANDS.map((b) => dist[b.id] && (
                   <i key={b.id} style={{ width: `${(dist[b.id] / c.miembros.length) * 100}%`, background: b.color }} />

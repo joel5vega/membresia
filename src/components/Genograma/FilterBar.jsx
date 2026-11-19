@@ -2,6 +2,7 @@ import React from 'react';
 
 const ITEMS = [
   ['externos', 'Ver externos'],
+  ['amistades', 'Ver amistades'],
   ['fallecidos', 'Ver fallecidos'],
   ['inactivos', 'Ver no asisten'],
 ];
@@ -16,7 +17,7 @@ export default function FilterBar({ filters, onChange, counts }) {
         </button>
       ))}
       <span className="mt-muted" style={{ fontSize: '.75rem', alignSelf: 'center', whiteSpace: 'nowrap' }}>
-        ● miembro · ○ externo · ✝ fallecido · ┄ no asiste
+        ● miembro · ○ externo · ✝ fallecido · ┄ no asiste · <span style={{ color: '#00aba9' }}>◯ núcleo</span>
       </span>
     </div>
   );

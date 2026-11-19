@@ -168,7 +168,7 @@ const App = () => (
       <Route path="/escuela-dominical/report" element={guard(<SundaySchoolReportPage />)} />
       <Route path="/members/:id/edit" element={guard(<EditMemberPage />)} />
       <Route path="/members/:id/genograma" element={guard(<GenogramaView />)} />
-      <Route path="/clanes" element={guard(<ClanesView />)} />
+      <Route path="/clanes" element={guard(<FamiliasView />)} />
       <Route path="/constelacion" element={guard(<ClanesGraphView />)} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

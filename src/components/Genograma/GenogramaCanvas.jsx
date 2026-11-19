@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { layoutByGenerationSmart, canvasSize } from '../../genograma/layout';
 import { SEX, COLORES_RELACION, COLOR_SEXO } from '../../genograma/model';
+import { norm } from '../../genograma/names';
 
 const SIZE = 48;
 const ROOT = 60;
@@ -25,7 +26,7 @@ function Shape({ sexo, size, stroke, sw }) {
   return <polygon points={`0,${-h} ${h},0 0,${h} ${-h},0`} {...p} />;
 }
 
-export default function GenogramaCanvas({ nodes, edges, selectedIndex, onNodeClick }) {
+export default function GenogramaCanvas({ nodes, edges, selectedKey, onNodeClick }) {
   const size = useMemo(() => canvasSize(nodes), [nodes]);
   const pos = useMemo(() => layoutByGenerationSmart(nodes, size), [nodes, size]);
 
@@ -42,7 +43,7 @@ export default function GenogramaCanvas({ nodes, edges, selectedIndex, onNodeCli
           const p = pos.get(n.id);
           if (!p) return null;
           const s = n.esRaiz ? ROOT : SIZE;
-          const active = n.genogramaIndex === selectedIndex && !n.esRaiz;
+          const active = !n.esRaiz && norm(n.nombre) === selectedKey;
           return (
             <g key={n.id} transform={`translate(${p.x},${p.y})`}
                style={{ cursor: n.esRaiz ? 'default' : 'pointer' }}

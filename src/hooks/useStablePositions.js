@@ -1,8 +1,9 @@
 import { useRef, useMemo } from 'react';
 import { forceLayout } from '../genograma/forceLayout';
+import { packNuclei } from '../genograma/nuclei';
 
 /** Calcula el layout una sola vez; los nodos nuevos aparecen junto a un vecino. */
-export function useStablePositions({ nodes, edges }) {
+export function useStablePositions({ nodes, edges }, nuclei = []) {
   const store = useRef(new Map());
 
   return useMemo(() => {
@@ -11,6 +12,7 @@ export function useStablePositions({ nodes, edges }) {
 
     if (pos.size === 0) {
       forceLayout(nodes, edges).forEach((v, k) => pos.set(k, v));
+      packNuclei(pos, nuclei);                       // compacta y separa núcleos
     } else {
       nodes.forEach((n) => {
         if (pos.has(n.id)) return;
@@ -24,5 +26,5 @@ export function useStablePositions({ nodes, edges }) {
       });
     }
     return new Map(pos); // copia: fuerza a recalcular halos y aristas
-  }, [nodes, edges]);
+  }, [nodes, edges, nuclei]);
 }
