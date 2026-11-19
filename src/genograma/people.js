@@ -33,7 +33,7 @@ export function buildPeople(members, nodes) {
     return {
       ...n,
       edad: (m && ageFromBirth(m.fechaNacimiento)) ?? declared.get(n.id) ?? null,
-      surnames: own.length ? own : toks(n.nombre).slice(-2),
+      surnames: own.length ? own : (() => { const t = toks(n.nombre); return t.length >= 3 ? t.slice(-2) : t.slice(-1); })(),
       celular: m?.celular || '',
       zona: m?.zona || '',
       clase: m?.clase || '',
@@ -46,3 +46,19 @@ export function buildPeople(members, nodes) {
 export const toPerson = (p) => ({
   key: p.id, nombre: p.nombre, realId: p.realId, sexo: p.sexo, esMiembro: p.esMiembroIglesia,
 });
+
+/** "Juan Carlos Pérez Mamani" → { nombre: "Juan Carlos", apellido: "Pérez Mamani" } */
+export function splitName(full) {
+  const words = String(full || '').trim().split(/\s+/).filter(Boolean);
+  const units = []; // cada unidad = una palabra con sus partículas ("de la Cruz")
+  for (let i = words.length - 1; i >= 0; i--) {
+    if (STOP.has(norm(words[i])) && units.length) units[0].unshift(words[i]);
+    else units.unshift([words[i]]);
+  }
+  const k = units.length >= 3 ? 2 : units.length === 2 ? 1 : 0;
+  const cut = units.length - k;
+  return {
+    nombre: units.slice(0, cut).flat().join(' '),
+    apellido: units.slice(cut).flat().join(' '),
+  };
+}

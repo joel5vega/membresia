@@ -161,3 +161,7 @@
 .mt-sugg { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border-soft); }
 .mt-agebar { display: flex; width: 100%; height: 6px; margin-top: 8px; background: rgba(0,0,0,.35); }
 .mt-agebar i { display: block; height: 100%; }
+
+.mt-details { margin-top: 16px; padding: 12px; background: var(--card-soft); }
+.mt-details summary { display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.mt-details .mt-label { display: block; margin: 12px 0 4px; }

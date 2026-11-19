@@ -6,10 +6,10 @@ import { useFamilyHalos } from '../../hooks/useFamilyHalos';
 import { usePanZoom } from '../../hooks/usePanZoom';
 import { norm } from '../../genograma/relationUtils';
 import { buildPeople } from '../../genograma/people';
-import ConstellationSearch from './ConstellationSearch';
-import PersonPanel from './PersonPanel';
-import FilterBar from './FilterBar';
 import { DEFAULT_FILTERS, applyFilters, countFilters } from '../../genograma/graphFilters';
+import ConstellationSearch from './ConstellationSearch';
+import FilterBar from './FilterBar';
+import PersonPanel from './PersonPanel';
 
 const colorOf = (n) =>
   n.cluster === 'familia' ? '#2d89ef' : n.cluster === 'amigos' ? '#fa6800' : '#a6a6a6';
@@ -19,6 +19,7 @@ export default function ClanesGraphView() {
   const {
     members, graph, positions, hidden, status, setStatus, loading, error,
     setRelation, removeRelation, renamePerson, deletePerson, toggleHidden,
+    convertToMember,
   } = useConstellation();
 
   const { transform, setTransform, svgRef, handlers, wasDragged } =
@@ -28,20 +29,26 @@ export default function ClanesGraphView() {
   const [selectedKey, setSelectedKey] = useState(null);
   const [query, setQuery] = useState('');
   const [showHidden, setShowHidden] = useState(false);
-const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
-const people = useMemo(() => buildPeople(members, graph.nodes), [members, graph.nodes]);
 
-  // Vista: el layout usa el grafo completo; aquí solo se filtran los ocultos
+  // 1. Vista filtrada (el layout usa el grafo completo; aquí solo se filtra)
   const view = useMemo(
-() => applyFilters(graph, filters, { hiddenSet, showHidden, status }),
-[graph, filters, hiddenSet, showHidden, status]);
-const counts = useMemo(() => countFilters(graph, status), [graph, status]);
+    () => applyFilters(graph, filters, { hiddenSet, showHidden, status }),
+    [graph, filters, hiddenSet, showHidden, status]
+  );
+  const counts = useMemo(() => countFilters(graph, status), [graph, status]);
 
-  const halos = useFamilyHalos(view, positions);
+  // 2. Personas enriquecidas y halos
+  const people = useMemo(() => buildPeople(members, graph.nodes), [members, graph.nodes]);
+  const viewPeople = useMemo(() => {
+    const ids = new Set(view.nodes.map((n) => n.id));
+    return people.filter((p) => ids.has(p.id));
+  }, [people, view.nodes]);
+  const halos = useFamilyHalos({ nodes: viewPeople, edges: view.edges }, positions);
 
-  // Persona seleccionada, siempre sincronizada con el grafo actual
+  // 3. Persona seleccionada, sincronizada con el grafo actual
   const person = useMemo(() => {
     const n = graph.nodes.find((x) => x.id === selectedKey);
     return n && {
@@ -50,7 +57,7 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
     };
   }, [graph.nodes, selectedKey]);
 
-  // Coincidencias de la búsqueda (null = sin filtro)
+  // 4. Coincidencias de la búsqueda (null = sin filtro)
   const matches = useMemo(() => {
     const q = norm(query);
     return q
@@ -98,7 +105,7 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
           </p>
         </div>
 
-        <FilterBar filters={filters} onChange={setFilters} counts={counts} />
+        <ConstellationSearch nodes={view.nodes} query={query} onQuery={setQuery} onPick={pick} />
 
         {hidden.length > 0 && (
           <button onClick={() => setShowHidden((v) => !v)} style={pillBtn}>
@@ -106,6 +113,8 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
             {showHidden ? 'Ocultar' : `Ver ocultos (${hidden.length})`}
           </button>
         )}
+
+        <FilterBar filters={filters} onChange={setFilters} counts={counts} />
       </div>
 
       {error && <div style={errorBar}>{error}</div>}
@@ -115,8 +124,8 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
            style={{ cursor: 'grab', touchAction: 'none' }}>
         <defs>
           <radialGradient id="familyHalo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(545,137,239,0.12)" />
-            <stop offset="100%" stopColor="rgba(545,137,239,0)" />
+            <stop offset="0%" stopColor="rgba(45,137,239,0.12)" />
+            <stop offset="100%" stopColor="rgba(45,137,239,0)" />
           </radialGradient>
         </defs>
 
@@ -125,7 +134,7 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
           {halos.map((h, i) => (
             <g key={i}>
               <circle cx={h.cx} cy={h.cy} r={h.radius}
-                      fill="url(#familyHalo)" stroke="rgba(545,137,239,0.2)" strokeWidth={1} />
+                      fill="url(#familyHalo)" stroke="rgba(45,137,239,0.2)" strokeWidth={1} />
               <text x={h.cx} y={h.cy} textAnchor="middle" alignmentBaseline="middle"
                     fill="rgba(255,255,255,0.3)" fontSize={36} fontWeight={900}
                     style={{ pointerEvents: 'none', textTransform: 'uppercase', letterSpacing: 4 }}>
@@ -169,18 +178,23 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
                  onMouseEnter={() => setHovered(n.id)}
                  onMouseLeave={() => setHovered(null)}
                  onClick={() => !wasDragged() && pick(n)}>
+                {/* Zona táctil ampliada */}
                 <circle r={Math.max(size, 24 / transform.scale)} fill="transparent" />
-<circle r={size}
-        fill={st === 'fallecido' ? '#6b6b6b' : n.esMiembroIglesia ? colorOf(n) : '#0d0d0d'}
-        stroke={ring !== 'transparent' ? ring : st === 'fallecido' ? '#6b6b6b' : colorOf(n)}
-        strokeWidth={ring !== 'transparent' ? 3 : 2}
-        strokeDasharray={st === 'no-asiste' ? '3 3' : undefined} />
-{st === 'fallecido' && <text x={size} y={-size + 2} fontSize={16} fill="#fff">✝</text>}
+
+                <circle r={size}
+                        fill={st === 'fallecido' ? '#6b6b6b' : n.esMiembroIglesia ? colorOf(n) : '#0d0d0d'}
+                        stroke={ring !== 'transparent' ? ring : st === 'fallecido' ? '#6b6b6b' : colorOf(n)}
+                        strokeWidth={ring !== 'transparent' ? 3 : 2}
+                        strokeDasharray={st === 'no-asiste' ? '3 3' : undefined} />
+
+                {st === 'fallecido' && <text x={size} y={-size + 2} fontSize={16} fill="#fff">✝</text>}
+
                 {n.photoUrl && (
                   <image href={n.photoUrl} x={-size + 2} y={-size + 2}
                          width={(size - 2) * 2} height={(size - 2) * 2}
-                        style={{ clipPath: 'circle(50%)', filter: st === 'fallecido' ? 'grayscale(1)' : undefined }}/>
+                         style={{ clipPath: 'circle(50%)', filter: st === 'fallecido' ? 'grayscale(1)' : undefined }} />
                 )}
+
                 {(hovered === n.id || matches?.has(n.id)) && (
                   <g transform={`translate(0, ${size + 16})`}>
                     <rect x={-70} y={-12} width={140} height={24} rx={6} fill="rgba(0,0,0,0.9)" />
@@ -203,10 +217,14 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
           members={members}
           people={people}
           isHidden={hiddenSet.has(person.key)}
-status={status[person.key]}
-onSetStatus={(v) => setStatus(person.key, v)}
+          status={status[person.key]}
+          onSetStatus={(v) => setStatus(person.key, v)}
           onSetRelation={setRelation}
           onRemoveRelation={removeRelation}
+          onConvert={async (data) => {
+            const full = await convertToMember(person, data);
+            setSelectedKey(norm(full));
+          }}
           onRename={handleRename}
           onDelete={async (name) => { await deletePerson(name); setSelectedKey(null); }}
           onToggleHide={(key, hide) => { toggleHidden(key, hide); if (hide) setSelectedKey(null); }}

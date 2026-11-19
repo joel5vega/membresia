@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useGenograma } from '../../hooks/useGenograma';
@@ -8,12 +8,16 @@ import GenogramaCanvas from './GenogramaCanvas';
 import GenogramaLegend from './GenogramaLegend';
 import FamiliaresList from './FamiliaresList';
 import PersonaEditor from './PersonaEditor';
+import { memberService } from '../../services/memberService';
+import { norm, fullName } from '../../genograma/relationUtils';
 import './genograma.css';
 
 export default function GenogramaView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { member, graph, familiares, loading, saving, error, add, update, remove } = useGenograma(id);
+  const { member, graph, familiares, loading, saving, error, add, update, remove, convert } = useGenograma(id);
+const [members, setMembers] = useState([]);
+useEffect(() => { memberService.getMembers().then(setMembers).catch(() => {}); }, []);
   const [editing, setEditing] = useState(null); // { index: number | null }
 
   if (loading) return <div className="gn"><p>Cargando genograma…</p></div>;
@@ -79,6 +83,8 @@ export default function GenogramaView() {
           onSave={handleSave}
           onDelete={handleDelete}
           onClose={() => setEditing(null)}
+          isMember={!isNew && members.some((m) => norm(fullName(m)) === norm(familiares[editing.index]?.nombre))}
+onConvert={async (data) => { await convert(editing.index, data); setEditing(null); }}
         />
       )}
     </div>

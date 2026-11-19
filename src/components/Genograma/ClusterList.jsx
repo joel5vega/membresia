@@ -42,7 +42,9 @@ export default function ClusterList({ clusters, onOpen }) {
             <button key={c.miembros[0].id} className={`mt-tile ${TILES[i % TILES.length]}`} onClick={() => onOpen(c)}>
               <span className="mt-tile__num">{c.miembros.length}</span>
               <span className="mt-tile__name">{c.nombre}</span>
-              <span className="mt-tile__meta">{c.registrados} registrados</span>
+              <span className="mt-tile__meta">
+  {c.registrados} registrados{c.otros.length ? ` · también ${c.otros.join(', ')}` : ''}
+</span>
               <span className="mt-agebar">
                 {BANDS.map((b) => dist[b.id] && (
                   <i key={b.id} style={{ width: `${(dist[b.id] / c.miembros.length) * 100}%`, background: b.color }} />

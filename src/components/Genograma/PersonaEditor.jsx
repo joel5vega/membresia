@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
 import { RELACION_OPCIONES } from '../../genograma/relaciones';
+import ConvertToMember from './ConvertToMember';
 import './genograma.css';
 
-export default function PersonaEditor({ initial, isNew, saving, onSave, onDelete, onClose }) {
+export default function PersonaEditor({ initial, isNew, saving, isMember, onConvert, onSave, onDelete, onClose }) {
   const [form, setForm] = useState(initial);
   const set = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
@@ -44,7 +45,9 @@ export default function PersonaEditor({ initial, isNew, saving, onSave, onDelete
           <input type="checkbox" checked={!!form.viveConElMiembro} onChange={set('viveConElMiembro')} />
           Vive en la misma vivienda
         </label>
-
+        {!isNew && !isMember && onConvert && (
+          <ConvertToMember lockName person={{ nombre: form.nombre, sexo: form.sexo }} onConvert={onConvert} />
+        )}
         <footer className="gn-row">
           <button className="gn-btn" disabled={!valido || saving} onClick={() => onSave(form)}>
             <Save size={16} /> {saving ? 'Guardando…' : 'Guardar'}

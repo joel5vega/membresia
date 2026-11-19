@@ -5,10 +5,11 @@ import { RELACIONES, norm, relationsOf } from '../../genograma/relationUtils';
 import ExternalActions from './ExternalActions';
 import SuggestionsList from './SuggestionsList';
 import StatusActions from './StatusActions';
+import ConvertToMember from './ConvertToMember';
 import { STATUS_LABEL } from '../../genograma/statuses';
 export default function PersonPanel({
   person, members, people, isHidden, status, onSetStatus,
-  onSetRelation, onRemoveRelation, onRename, onDelete, onToggleHide, onClose,
+  onSetRelation, onRemoveRelation, onRename, onDelete, onToggleHide, onConvert, onClose,
 }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -130,10 +131,13 @@ export default function PersonPanel({
 
       {error && <p className="mt-error">{error}</p>}
 
-      {!person.esMiembro && (
-        <ExternalActions person={person} people={people} isHidden={isHidden}
-                         onRename={onRename} onDelete={onDelete} onToggleHide={onToggleHide} />
-      )}
+{!person.esMiembro && (
+  <>
+    <ConvertToMember person={person} onConvert={onConvert} />
+    <ExternalActions person={person} people={people} isHidden={isHidden}
+                     onRename={onRename} onDelete={onDelete} onToggleHide={onToggleHide} />
+  </>
+)}
     </div>
   );
 }

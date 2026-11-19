@@ -1,4 +1,19 @@
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const title = (s) => s.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+/** Pareja de apellidos (paterno + materno) más frecuente = familia nuclear. */
+export function familyName(items) {
+  const tally = new Map();
+  items.forEach((p) => {
+    const s = (p.surnames || []).slice(0, 2);
+    if (!s.length) return;
+    const key = s.join(' ');
+    const e = tally.get(key) || { key, n: 0, reg: 0 };
+    e.n++; if (p.esMiembroIglesia) e.reg++;
+    tally.set(key, e);
+  });
+  const ranked = [...tally.values()].sort((a, b) => b.n - a.n || b.reg - a.reg);
+  return { top: ranked[0] ? title(ranked[0].key) : 'Sin apellido', others: ranked.slice(1, 3).map((e) => title(e.key)) };
+}
 
 /** Familias = componentes conexos del grafo (incluye relaciones inferidas). */
 export function buildClusters(people, edges) {
@@ -16,12 +31,11 @@ export function buildClusters(people, edges) {
   people.forEach((p) => { const r = find(p.id); groups.set(r, [...(groups.get(r) || []), p]); });
 
   return [...groups.values()].filter((g) => g.length > 1).map((miembros) => {
-    const counts = {};
-    miembros.forEach((p) => p.surnames.forEach((t) => { counts[t] = (counts[t] || 0) + 1; }));
-    const top = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || 'sin apellido';
+    const { top, others } = familyName(miembros);
     return {
-      apellido: cap(top),
-      nombre: `Familia ${cap(top)}`,
+      apellido: top,
+      nombre: `Familia ${top}`,
+      otros: others,
       miembros,
       registrados: miembros.filter((p) => p.esMiembroIglesia).length,
     };

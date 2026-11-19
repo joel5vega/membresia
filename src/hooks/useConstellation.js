@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { memberService } from '../services/memberService';
 import { getHidden, saveHidden, getStatus, saveStatus } from '../services/constellationSettings';
 import { buildGlobalGraph } from '../genograma/globalBuilder';
-import { planSet, planRemove, planRename, planDeletePerson } from '../genograma/relationUtils';
+import { planSet, planRemove, planRename, planDeletePerson, relationsOf, norm } from '../genograma/relationUtils';
 import { useStablePositions } from './useStablePositions';
 
 const EMPTY = { nodes: [], edges: [] };
@@ -53,12 +53,42 @@ getStatus().then(setStatusMap).catch(() => {});
     try { await saveStatus(next); }
     catch (e) { setError('No se pudo guardar el estado: ' + e.message); }
   };
+
+    // Externo → miembro: crea el documento, copia sus vínculos y unifica el nombre
+  const convertToMember = async (person, data) => {
+    const nombre = data.nombre.trim();
+    const apellido = (data.apellido || '').trim();
+    const full = `${nombre} ${apellido}`.trim();
+    const current = latest.current;
+
+    if (norm(full) !== norm(person.nombre) &&
+        current.some((m) => norm(`${m.nombre || ''} ${m.apellido || ''}`) === norm(full))) {
+      throw new Error('Ya existe un miembro con ese nombre. Usa "Corregir familiar externo" para fusionarlo.');
+    }
+
+    // Vínculos ya declarados por otros miembros → pasan a su propio genograma
+    const genograma = relationsOf({ ...person, realId: null }, current)
+      .filter((r) => !r.inferida)
+      .map((r) => ({ nombre: r.nombre, relacion: r.relacion, edad: '', viveConElMiembro: false }));
+
+    const payload = {
+      nombre, apellido, sexo: data.sexo, clase: data.clase, celular: data.celular,
+      fechaNacimiento: data.fechaNacimiento, correo: '', zona: '',
+      areasInteres: [], donesEspirituales: [], genograma,
+    };
+    const id = await memberService.addMember(payload);
+    setMembers((ms) => [...ms, { id, ...payload }]);
+
+    if (norm(full) !== norm(person.nombre)) await commit(planRename(person.nombre, full, current));
+    return full;
+  };
+
   return {
     members, graph, positions, hidden, status, setStatus, loading, error,
     setRelation: (a, b, rel) => commit(planSet(a, b, rel, latest.current)),
     removeRelation: (a, b) => commit(planRemove(a, b, latest.current)),
     renamePerson: (from, to) => commit(planRename(from, to, latest.current)),
     deletePerson: (name) => commit(planDeletePerson(name, latest.current)),
-    toggleHidden,
+    toggleHidden,convertToMember
   };
 }

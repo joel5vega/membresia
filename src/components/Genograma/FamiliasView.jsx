@@ -10,6 +10,7 @@ import OrphanQueue from './OrphanQueue';
 import ClusterList from './ClusterList';
 import ClusterDetail from './ClusterDetail';
 import PersonPanel from './PersonPanel';
+import ConstellationSearch from './ConstellationSearch';
 import FilterBar from './FilterBar';
 import { DEFAULT_FILTERS, isVisible, countFilters } from '../../genograma/graphFilters';
 
@@ -18,12 +19,14 @@ export default function FamiliasView() {
   const {
     members, graph, hidden, status, setStatus, loading, error,
     setRelation, removeRelation, renamePerson, deletePerson, toggleHidden,
+    convertToMember
   } = useConstellation({ layout: false });
 
   const [tab, setTab] = useState('orphans');
 const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [clusterKey, setClusterKey] = useState(null);   // cualquier persona del clan abierto
   const [personKey, setPersonKey] = useState(null);
+const [query, setQuery] = useState('');
 
   const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
   const people = useMemo(
@@ -68,7 +71,8 @@ const counts = useMemo(() => countFilters(graph, status), [graph, status]);
             </button>
           </div>
 
-          <FilterBar filters={filters} onChange={setFilters} counts={counts} />
+          <ConstellationSearch nodes={visible} query={query} onQuery={setQuery} onPick={(n) => setPersonKey(n.id)} />
+<FilterBar filters={filters} onChange={setFilters} counts={counts} />
 {tab === 'orphans'
             ? <OrphanQueue orphans={orphans} suggest={suggest} onOpen={setPersonKey} onLink={setRelation} />
             : <ClusterList clusters={clusters} onOpen={(c) => setClusterKey(c.miembros[0].id)} />}
