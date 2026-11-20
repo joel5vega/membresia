@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MESES, parseBirth, buildBirth } from '../genograma/birthdate';
 
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
 
-/** value/onChange usan el string "AAAA-MM-DD" (o "0000-MM-DD"). */
+/** value/onChange usan "AAAA-MM-DD" (o "0000-MM-DD" sin año). */
 export default function BirthInput({ value, onChange, onKeyDown }) {
-  const p = parseBirth(value);
-  const set = (patch) => onChange(buildBirth({ ...p, ...patch }));
+  const [p, setP] = useState(() => parseBirth(value));
+
+  // Si el valor cambia desde fuera (otra fila, cancelar), se resincroniza
+  useEffect(() => {
+    if (value !== buildBirth(p)) setP(parseBirth(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const set = (patch) => {
+    const next = { ...p, ...patch };
+    setP(next);                       // el estado parcial se conserva
+    onChange(buildBirth(next));       // '' hasta que haya día y mes
+  };
 
   return (
     <div className="bi">
