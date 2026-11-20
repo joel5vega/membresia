@@ -1,94 +1,56 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Cake, Phone, Mail } from "lucide-react";
 import { memberService } from "../services/memberService";
+import { parseBirth } from "../genograma/birthdate";
 import "./BirthdaysView.css";
+
+const monthNames = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+const fullName = (m) =>
+  m.nombreCompleto || `${m.nombre || ""} ${m.apellido || ""}`.trim();
 
 const BirthdaysView = () => {
   const [members, setMembers] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [birthdaysByMonth, setBirthdaysByMonth] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const monthNames = [
-    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-  ];
-
   useEffect(() => {
-    const loadMembers = async () => {
-      try {
-        setLoading(true);
-        const allMembers = await memberService.getMembers();
-        setMembers(allMembers);
-        organizeBirthdaysByMonth(allMembers);
-      } catch (err) {
-        setError("Error loading members: " + err.message);
+    memberService.getMembers()
+      .then(setMembers)
+      .catch((err) => {
+        setError("Error al cargar miembros: " + err.message);
         console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMembers();
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const organizeBirthdaysByMonth = (membersList) => {
+  // { 1: [...], 2: [...] } con día y mes leídos directo del texto (sin Date)
+  const byMonth = useMemo(() => {
     const grouped = {};
-
-    membersList.forEach((member) => {
-      if (member.fechaNacimiento) {
-        try {
-          const { m, d } = parseBirth(member.fechaNacimiento);
-const date = new Date(Date.UTC(2000, Number(m) - 1, Number(d)));
-          const month = date.getUTCMonth() + 1; // 1-12
-
-          if (!grouped[month]) grouped[month] = [];
-
-          grouped[month].push({
-            ...member,
-            dayOfMonth: date.getUTCDate(),
-          });
-        } catch (e) {
-          console.error("Invalid date for member:", member.id, member.fechaNacimiento);
-        }
-      }
+    members.forEach((m) => {
+      const { m: mm, d } = parseBirth(m.fechaNacimiento);
+      const month = Number(mm);
+      const day = Number(d);
+      if (!month || !day || month > 12) return;
+      (grouped[month] ||= []).push({ ...m, dayOfMonth: day });
     });
+    Object.values(grouped).forEach((list) => list.sort((a, b) => a.dayOfMonth - b.dayOfMonth));
+    return grouped;
+  }, [members]);
 
-    Object.keys(grouped).forEach((month) => {
-      grouped[month].sort((a, b) => a.dayOfMonth - b.dayOfMonth);
-    });
-
-    setBirthdaysByMonth(grouped);
-  };
-
-  const getMonthBirthdays = () => birthdaysByMonth[selectedMonth] || [];
-
-  const getBirthdayCount = (month) =>
-    (birthdaysByMonth[month] || []).length;
-
-  const getAge = (fechaNacimiento) => {
-    if (!fechaNacimiento) return null;
-    const today = new Date();
-    const birthDate = new Date(fechaNacimiento);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getUTCMonth() - birthDate.getUTCMonth();
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getUTCDate() < birthDate.getUTCDate())
-    ) {
-      age--;
-    }
-    return age;
-  };
-
-  const currentBirthdays = getMonthBirthdays();
+  const current = byMonth[selectedMonth] || [];
+  const today = new Date();
+  const isUpcoming = (day) =>
+    selectedMonth === today.getMonth() + 1 && day >= today.getDate();
 
   return (
     <div className="birthdays-view">
       <div className="birthdays-header">
         <h1>Cumpleaños</h1>
-       
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -97,91 +59,54 @@ const date = new Date(Date.UTC(2000, Number(m) - 1, Number(d)));
         <div className="loading">Cargando miembros...</div>
       ) : (
         <>
-          {/* Selector de meses compacto */}
           <div className="month-selector">
             <div className="month-buttons month-selector-scroll">
-              {monthNames.map((month, index) => {
-                const monthNum = index + 1;
-                const count = getBirthdayCount(monthNum);
+              {monthNames.map((name, i) => {
+                const num = i + 1;
+                const count = (byMonth[num] || []).length;
                 return (
                   <button
-                    key={monthNum}
-                    className={`month-button month-chip ${
-                      selectedMonth === monthNum ? "active" : ""
-                    } ${count > 0 ? "has-birthdays" : ""}`}
-                    onClick={() => setSelectedMonth(monthNum)}
-                    title={`${month}: ${count} cumpleaños`}
+                    key={num}
+                    className={`month-button month-chip ${selectedMonth === num ? "active" : ""} ${count ? "has-birthdays" : ""}`}
+                    onClick={() => setSelectedMonth(num)}
+                    title={`${name}: ${count} cumpleaños`}
                   >
-                    <span className="month-name m-name">
-                      {month.substring(0, 3)}
-                    </span>
-                    {count > 0 && (
-                      <span className="birthday-badge m-count">{count}</span>
-                    )}
+                    <span className="month-name m-name">{name.substring(0, 3)}</span>
+                    {count > 0 && <span className="birthday-badge m-count">{count}</span>}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Versión de tarjetas grande (desktop) */}
+          {/* Versión grande (escritorio) */}
           <div className="birthdays-container birthdays-desktop">
             <div className="birthdays-header-info">
               <h2>{monthNames[selectedMonth - 1]}</h2>
               <p className="count-info">
-                {currentBirthdays.length} cumpleaño
-                {currentBirthdays.length !== 1 ? "s" : ""} este mes
+                {current.length} cumpleaño{current.length !== 1 ? "s" : ""} este mes
               </p>
             </div>
 
-            {currentBirthdays.length > 0 ? (
+            {current.length ? (
               <div className="birthdays-grid">
-                {currentBirthdays.map((member) => {
-                  const birthDate = new Date(member.fechaNacimiento);
-                  const today = new Date();
-                  const isUpcoming =
-                    birthDate.getMonth() === today.getUTCMonth() &&
-                    birthDate.getUTCDate() >= today.getUTCDate();
-
-                  const fullName =
-                    member.nombreCompleto ||
-                    `${member.nombre || ""} ${member.apellido || ""}`.trim();
-
-                  return (
-                    <div
-                      key={member.id}
-                      className={`birthday-card ${
-                        isUpcoming ? "upcoming" : ""
-                      }`}
-                    >
-                      <div className="birthday-card-content">
-                        <div className="birthday-date">
-                          <span className="day">{member.dayOfMonth}</span>
-                          <span className="month">
-                            de {monthNames[selectedMonth - 1].toLowerCase()}
-                          </span>
-                        </div>
-                        <div className="member-info">
-                          <h3>{fullName}</h3>
-
-                          {getAge(member.fechaNacimiento) && (
-                            <p className="age-badge">
-                              <Cake size={12} /> {member.dayOfMonth} / {selectedMonth}
-                            </p>
-                          )}
-
-                          {member.celular && (
-                            <p className="contact">
-                              <i className="phone-icon">📱</i> {member.celular}
-                            </p>
-                          )}
-                          
-                        </div>
+                {current.map((m) => (
+                  <div key={m.id} className={`birthday-card ${isUpcoming(m.dayOfMonth) ? "upcoming" : ""}`}>
+                    <div className="birthday-card-content">
+                      <div className="birthday-date">
+                        <span className="day">{m.dayOfMonth}</span>
+                        <span className="month">de {monthNames[selectedMonth - 1].toLowerCase()}</span>
                       </div>
-                      <div className="birthday-icon">🎂</div>
+                      <div className="member-info">
+                        <h3>{fullName(m)}</h3>
+                        {m.celular && (
+                          <p className="contact"><i className="phone-icon">📱</i> {m.celular}</p>
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
+                    <div className="birthday-icon">🎂</div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="no-birthdays">
@@ -190,61 +115,37 @@ const date = new Date(Date.UTC(2000, Number(m) - 1, Number(d)));
             )}
           </div>
 
-          {/* Versión compacta (móvil / tarjetas pequeñas) */}
+          {/* Versión compacta (móvil) */}
           <div className="birthdays-compact-grid">
-            {currentBirthdays.length > 0 ? (
-              currentBirthdays.map((member) => {
-                const fullName =
-                  member.nombreCompleto ||
-                  `${member.nombre || ""} ${member.apellido || ""}`.trim();
+            {current.length ? (
+              current.map((m) => (
+                <div key={m.id} className="bday-card-compact">
+                  <div className="bday-day-tag">{m.dayOfMonth}</div>
 
-                return (
-                  <div key={member.id} className="bday-card-compact">
-                    <div className="bday-day-tag">{member.dayOfMonth}</div>
+                  <div className="bday-avatar-sm">
+                    {m.photoUrl ? (
+                      <img src={m.photoUrl} alt="" />
+                    ) : (
+                      <div className="bday-avatar-placeholder">{(m.nombre || fullName(m) || "?").charAt(0)}</div>
+                    )}
+                  </div>
 
-                    <div className="bday-avatar-sm">
-                      {member.photoUrl ? (
-                        <img src={member.photoUrl} alt="profile" />
-                      ) : (
-                        <div className="bday-avatar-placeholder">
-                          {(member.nombre || fullName || "?").charAt(0)}
-                        </div>
-                      )}
+                  <div className="bday-details-sm">
+                    <h3 className="bday-name-sm">{fullName(m)}</h3>
+                    <div className="bday-age-sm">
+                      <Cake size={12} /> {m.dayOfMonth} / {selectedMonth}
                     </div>
-
-                    <div className="bday-details-sm">
-                      <h3 className="bday-name-sm">{fullName}</h3>
-
-                      {getAge(member.fechaNacimiento) && (
-                        <div className="bday-age-sm">
-                          <Cake size={12} /> {member.dayOfMonth} / {selectedMonth}
-                        </div>
+                    <div className="bday-actions-sm">
+                      {m.celular && (
+                        <a href={`tel:${m.celular}`} className="action-icon" title="Llamar"><Phone size={14} /></a>
                       )}
-
-                      <div className="bday-actions-sm">
-                        {member.celular && (
-                          <a
-                            href={`tel:${member.celular}`}
-                            className="action-icon"
-                            title="Llamar"
-                          >
-                            <Phone size={14} />
-                          </a>
-                        )}
-                        {member.correo && (
-                          <a
-                            href={`mailto:${member.correo}`}
-                            className="action-icon"
-                            title="Enviar correo"
-                          >
-                            <Mail size={14} />
-                          </a>
-                        )}
-                      </div>
+                      {m.correo && (
+                        <a href={`mailto:${m.correo}`} className="action-icon" title="Enviar correo"><Mail size={14} /></a>
+                      )}
                     </div>
                   </div>
-                );
-              })
+                </div>
+              ))
             ) : (
               <div className="no-bdays">Sin celebraciones este mes 🎈</div>
             )}
