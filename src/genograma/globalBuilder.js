@@ -22,6 +22,7 @@ function registrarPersonas(members) {
         sexo: m.sexo || '?',
         photoUrl: m.photoUrl || null,
         esMiembroIglesia: true,
+clase: m.clase || '',
         connections: [],
       });
     }

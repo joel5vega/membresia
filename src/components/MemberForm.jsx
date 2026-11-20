@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { memberService } from '../services/memberService';
 import { compressImageToBase64 } from '../utils/imageCompressor';
+import BirthInput from './BirthInput';
+
 const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false, memberId = null, initialMember = null}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -340,14 +342,10 @@ const MemberForm = ({ onSuccess, onCancel , initialData = null, editMode = false
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Fecha de nacimiento
               </label>
-              <input
-                type="date"
-                name="fechaNacimiento"
-                value={formData.fechaNacimiento}
-                onChange={handleInputChange}
-                max={new Date().toISOString().split("T")[0]}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+           <BirthInput
+  value={formData.fechaNacimiento}
+  onChange={(v) => setFormData((prev) => ({ ...prev, fechaNacimiento: v }))}
+/>
             </div>
               <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

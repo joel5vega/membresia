@@ -44,7 +44,7 @@ export const getMembersFiltered = onCall(async (request) => {
 
 // ---------- auxiliar edad ----------
 function calcularEdadDesdeFecha(fecha: any): number | null {
-  if (!fecha) return null;
+  if (typeof fecha === "string" && fecha.startsWith("0000")) return null;
 
   let date: Date;
   if (fecha.toDate) {

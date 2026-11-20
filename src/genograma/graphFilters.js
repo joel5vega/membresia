@@ -1,10 +1,14 @@
-export const DEFAULT_FILTERS = { externos: true, fallecidos: true, inactivos: true, amistades: true };
+import { isAvanzada } from './churches';
+
+export const DEFAULT_FILTERS = {
+  externos: true, avanzadas: true, amistades: true, fallecidos: true, inactivos: true,
+};
 
 /** ¿Debe mostrarse este nodo con los filtros actuales? */
 export function isVisible(node, filters, status) {
   const st = status[node.id];
+  if (isAvanzada(node) && !filters.avanzadas) return false;
   if (!node.esMiembroIglesia && !filters.externos) return false;
-  // Externo que solo existe por una amistad
   if (!node.esMiembroIglesia && node.cluster === 'amigos' && !filters.amistades) return false;
   if (st === 'fallecido' && !filters.fallecidos) return false;
   if (st === 'no-asiste' && !filters.inactivos) return false;
@@ -23,9 +27,10 @@ export function applyFilters(graph, filters, { hiddenSet, showHidden, status }) 
 }
 
 export function countFilters(graph, status) {
-  const c = { externos: 0, fallecidos: 0, inactivos: 0, amistades: 0 };
+  const c = { externos: 0, avanzadas: 0, amistades: 0, fallecidos: 0, inactivos: 0 };
   graph.nodes.forEach((n) => {
     if (!n.esMiembroIglesia) c.externos++;
+    if (isAvanzada(n)) c.avanzadas++;
     if (status[n.id] === 'fallecido') c.fallecidos++;
     if (status[n.id] === 'no-asiste') c.inactivos++;
   });

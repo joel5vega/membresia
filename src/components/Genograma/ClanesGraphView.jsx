@@ -6,14 +6,19 @@ import { useFamilyHalos } from '../../hooks/useFamilyHalos';
 import { usePanZoom } from '../../hooks/usePanZoom';
 import { norm } from '../../genograma/relationUtils';
 import { toPerson } from '../../genograma/people';
+import { isAvanzada } from '../../genograma/churches';
 import { DEFAULT_FILTERS, applyFilters, countFilters } from '../../genograma/graphFilters';
 import ConstellationSearch from './ConstellationSearch';
 import FilterBar from './FilterBar';
 import PersonSheet from './PersonSheet';
 
 const NUCLEUS = '#00aba9';
+const CHURCH = '#6a00ff';
 const colorOf = (n) =>
-  n.cluster === 'familia' ? '#2d89ef' : n.cluster === 'amigos' ? '#fa6800' : '#a6a6a6';
+  isAvanzada(n) ? CHURCH
+  : n.cluster === 'familia' ? '#2d89ef'
+  : n.cluster === 'amigos' ? '#fa6800'
+  : '#a6a6a6';
 
 export default function ClanesGraphView() {
   const navigate = useNavigate();
@@ -45,7 +50,7 @@ export default function ClanesGraphView() {
   }, [people, view.nodes]);
   const halos = useFamilyHalos({ nodes: viewPeople, edges: view.edges }, positions);
 
-  // 3. Núcleos visibles: forma (círculo) y pertenencia
+  // 3. Núcleos visibles
   const viewNuclei = useMemo(() => {
     const ids = new Set(view.nodes.map((n) => n.id));
     return nuclei
@@ -148,7 +153,7 @@ export default function ClanesGraphView() {
             </g>
           ))}
 
-          {/* Núcleos familiares (destacados) */}
+          {/* Núcleos familiares */}
           {shapes.map((s) => (
             <g key={s.id} style={{ pointerEvents: 'none' }}>
               <circle cx={s.cx} cy={s.cy} r={s.r}
@@ -163,7 +168,7 @@ export default function ClanesGraphView() {
             </g>
           ))}
 
-          {/* Aristas: las del núcleo, más gruesas; las inferidas, punteadas */}
+          {/* Aristas */}
           {view.edges.map((e, i) => {
             const a = positions.get(e.source);
             const b = positions.get(e.target);
@@ -185,6 +190,7 @@ export default function ClanesGraphView() {
             const p = positions.get(n.id);
             if (!p) return null;
             const size = n.esMiembroIglesia ? 14 : 9;
+            const church = isAvanzada(n);
             const dim = matches && !matches.has(n.id);
             const st = status[n.id];
             const ring =
@@ -192,6 +198,12 @@ export default function ClanesGraphView() {
               : matches?.has(n.id) ? '#facc15'
               : hovered === n.id ? '#fff'
               : 'transparent';
+            const common = {
+              fill: st === 'fallecido' ? '#6b6b6b' : n.esMiembroIglesia ? colorOf(n) : '#0d0d0d',
+              stroke: ring !== 'transparent' ? ring : st === 'fallecido' ? '#6b6b6b' : colorOf(n),
+              strokeWidth: ring !== 'transparent' ? 3 : 2,
+              strokeDasharray: st === 'no-asiste' ? '3 3' : undefined,
+            };
 
             return (
               <g key={n.id} transform={`translate(${p.x}, ${p.y})`}
@@ -201,16 +213,14 @@ export default function ClanesGraphView() {
                  onMouseLeave={() => setHovered(null)}
                  onClick={() => !wasDragged() && pick(n)}>
                 <circle r={Math.max(size, 24 / transform.scale)} fill="transparent" />
-                <circle r={size}
-                        fill={st === 'fallecido' ? '#6b6b6b' : n.esMiembroIglesia ? colorOf(n) : '#0d0d0d'}
-                        stroke={ring !== 'transparent' ? ring : st === 'fallecido' ? '#6b6b6b' : colorOf(n)}
-                        strokeWidth={ring !== 'transparent' ? 3 : 2}
-                        strokeDasharray={st === 'no-asiste' ? '3 3' : undefined} />
+                {church
+                  ? <rect x={-size} y={-size} width={size * 2} height={size * 2} {...common} />
+                  : <circle r={size} {...common} />}
                 {st === 'fallecido' && <text x={size} y={-size + 2} fontSize={16} fill="#fff">✝</text>}
                 {n.photoUrl && (
                   <image href={n.photoUrl} x={-size + 2} y={-size + 2}
                          width={(size - 2) * 2} height={(size - 2) * 2}
-                         style={{ clipPath: 'circle(50%)', filter: st === 'fallecido' ? 'grayscale(1)' : undefined }} />
+                         style={{ clipPath: church ? 'inset(0)' : 'circle(50%)', filter: st === 'fallecido' ? 'grayscale(1)' : undefined }} />
                 )}
                 {(hovered === n.id || matches?.has(n.id)) && (
                   <g transform={`translate(0, ${size + 16})`}>

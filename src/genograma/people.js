@@ -24,7 +24,8 @@ export function cleanSurnames(member, name) {
 
 export function ageFromBirth(iso) {
   if (!iso) return null;
-  const d = new Date(iso);
+  if (String(iso).startsWith('0000')) return null;
+const d = new Date(iso);
   if (isNaN(d)) return null;
   const now = new Date();
   let age = now.getFullYear() - d.getUTCFullYear();
@@ -66,7 +67,7 @@ padres: [...(parents.get(n.id) || [])],
 
 /** Objeto que esperan PersonSheet y los hooks de relaciones. */
 export const toPerson = (p) => p && ({
-  key: p.id, nombre: p.nombre, realId: p.realId, sexo: p.sexo, esMiembro: p.esMiembroIglesia,
+  key: p.id, nombre: p.nombre, realId: p.realId, sexo: p.sexo, esMiembro: p.esMiembroIglesia, clase: p.clase,
 });
 
 /** "Juan Carlos Pérez Mamani" → { nombre: "Juan Carlos", apellido: "Pérez Mamani" } */

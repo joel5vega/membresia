@@ -1,6 +1,8 @@
 import { useRef, useMemo } from 'react';
 import { forceLayout } from '../genograma/forceLayout';
 import { packNuclei } from '../genograma/nuclei';
+import { packClusters } from '../genograma/clusterPack';
+import { familyComponents } from '../genograma/familyComponents';
 
 /** Calcula el layout una sola vez; los nodos nuevos aparecen junto a un vecino. */
 export function useStablePositions({ nodes, edges }, nuclei = []) {
@@ -12,7 +14,8 @@ export function useStablePositions({ nodes, edges }, nuclei = []) {
 
     if (pos.size === 0) {
       forceLayout(nodes, edges).forEach((v, k) => pos.set(k, v));
-      packNuclei(pos, nuclei);                       // compacta y separa núcleos
+      packNuclei(pos, nuclei);                              // núcleos dentro de cada familia
+      packClusters(pos, familyComponents(nodes, edges));    // familias entre sí
     } else {
       nodes.forEach((n) => {
         if (pos.has(n.id)) return;
@@ -25,6 +28,6 @@ export function useStablePositions({ nodes, edges }, nuclei = []) {
         pos.set(n.id, { x: base.x + Math.cos(a) * 70, y: base.y + Math.sin(a) * 70 });
       });
     }
-    return new Map(pos); // copia: fuerza a recalcular halos y aristas
+    return new Map(pos);
   }, [nodes, edges, nuclei]);
 }

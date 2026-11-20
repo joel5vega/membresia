@@ -39,7 +39,8 @@ const BirthdaysView = () => {
     membersList.forEach((member) => {
       if (member.fechaNacimiento) {
         try {
-          const date = new Date(member.fechaNacimiento);
+          const { m, d } = parseBirth(member.fechaNacimiento);
+const date = new Date(Date.UTC(2000, Number(m) - 1, Number(d)));
           const month = date.getUTCMonth() + 1; // 1-12
 
           if (!grouped[month]) grouped[month] = [];

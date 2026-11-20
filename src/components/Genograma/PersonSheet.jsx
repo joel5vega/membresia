@@ -8,6 +8,7 @@ import RelationsSection from './RelationsSection';
 import DetailsSection from './DetailsSection';
 import ConvertToMember from './ConvertToMember';
 import ExternalActions from './ExternalActions';
+import { isAvanzada } from '../../genograma/churches';
 
 /**
  * person:  { key, nombre, realId, sexo, esMiembro }
@@ -29,7 +30,7 @@ export default function PersonSheet({ person, people, ctl, context, onClose, onK
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 className="mt-sheet__title">{person.nombre}</h3>
           <small className="mt-muted">
-            {person.esMiembro ? 'Miembro registrado' : 'Familiar externo'}
+            {person.esMiembro ? (isAvanzada(person) ? 'Avanzada · otra iglesia' : 'Miembro registrado') : 'Familiar externo'}
             {status && status !== 'activo' ? ` · ${STATUS_LABEL[status]}` : ''}
           </small>
         </div>
