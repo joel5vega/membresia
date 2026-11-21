@@ -13,12 +13,12 @@ import AttendanceStatisticsView from './components/Statistics/AttendanceStatisti
 import Dashboard from './components/Dashboard';
 import BirthdaysView from './components/BirthdaysView';
 import SundaySchoolReportPage from './pages/SundaySchoolReportPage';
+import PublicBirthdays from './pages/PublicBirthdays';
 import ClassManagementView from './components/ClassManagementView';
 import AttendanceSummaryView from './components/Attendance/AttendanceSummaryView';
 import AttendanceHistoryView from './components/Attendance/AttendanceHistoryView';
 import BulkAttendanceForm from './components/Attendance/BulkAttendanceForm';
 import GenogramaView from './components/Genograma/GenogramaView';
-import ClanesView from './components/Genograma/ClanesView';
 import FamiliasView from './components/Genograma/FamiliasView';
 import ClanesGraphView from './components/Genograma/ClanesGraphView';
 import InstallPrompt from './components/InstallPrompt';
@@ -29,16 +29,16 @@ import { memberService } from './services/memberService';
 import MembresiaIcon from './assets/membresia-icon.png';
 import './App.css';
 
-/* ── Navegación: una sola fuente de verdad ─────────────────────────── */
+/* ── Navegación: una sola fuente de verdad ── */
 const MENU = [
-  { id: 'panel',              label: 'Inicio',          icon: Home,           tile: 't-blue' },
-  { id: 'members',            label: 'Miembros',        icon: Users,          tile: 't-red' },
-  { id: 'classes',            label: 'Asistencia',      icon: ClipboardCheck, tile: 't-green' },
-  { id: 'statistics',         label: 'Estadísticas',    icon: BarChart3,      tile: 't-purple' },
-  { id: 'cumpleanos',         label: 'Cumpleaños',      icon: Cake,           tile: 't-orange' },
-  { id: 'clanes',             label: 'Familias',          icon: Network,        tile: 't-teal' },
-  { id: 'attendance-history', label: 'Historial',       icon: History,        tile: 't-purple' },
-  { id: 'bulk-attendance',    label: 'Ingreso masivo',  icon: FileText,       tile: 't-green' },
+  { id: 'panel',              label: 'Inicio',         icon: Home,           tile: 't-blue' },
+  { id: 'members',            label: 'Miembros',       icon: Users,          tile: 't-red' },
+  { id: 'classes',            label: 'Asistencia',     icon: ClipboardCheck, tile: 't-green' },
+  { id: 'statistics',         label: 'Estadísticas',   icon: BarChart3,      tile: 't-purple' },
+  { id: 'cumpleanos',         label: 'Cumpleaños',     icon: Cake,           tile: 't-orange' },
+  { id: 'clanes',             label: 'Familias',       icon: Network,        tile: 't-teal' },
+  { id: 'attendance-history', label: 'Historial',      icon: History,        tile: 't-purple' },
+  { id: 'bulk-attendance',    label: 'Ingreso masivo', icon: FileText,       tile: 't-green' },
 ];
 
 const EXTRA_TITLES = {
@@ -71,7 +71,7 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
-/* ── Shell ─────────────────────────────────────────────────────────── */
+/* ── Shell ── */
 const AppLayout = () => {
   const [page, setPage] = useState('panel');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -81,7 +81,7 @@ const AppLayout = () => {
   const { user, logout, loading: authLoading } = useAuth();
   const username = user?.email?.split('@')[0] || 'Admin';
 
-  // Precarga de miembros
+  // Precarga: llena la caché compartida una sola vez
   useEffect(() => {
     if (!user || isDataPreloaded) return;
     (async () => {
@@ -156,13 +156,15 @@ const AppLayout = () => {
   );
 };
 
-/* ── Rutas ─────────────────────────────────────────────────────────── */
+/* ── Rutas ── */
 const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
+const isPublic = () => window.location.pathname.endsWith('/cumpleanos');
 
 const App = () => (
   <BrowserRouter basename="/membresia">
     <Routes>
       <Route path="/login" element={<LoginView />} />
+      <Route path="/cumpleanos" element={<PublicBirthdays />} />   {/* pública */}
       <Route path="/" element={guard(<AppLayout />)} />
       <Route path="/clases" element={guard(<ClassManagementView />)} />
       <Route path="/escuela-dominical/report" element={guard(<SundaySchoolReportPage />)} />
@@ -172,7 +174,7 @@ const App = () => (
       <Route path="/constelacion" element={guard(<ClanesGraphView />)} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-    <InstallPrompt />
+    {!isPublic() && <InstallPrompt />}
   </BrowserRouter>
 );
 

@@ -454,3 +454,18 @@
     display: none;
   }
 }
+
+
+/* Filtros y resumen */
+.bd-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+.bd-select { flex: 1 1 200px; max-width: 320px; }
+.bd-summary { text-align: center; color: var(--text-muted); font-size: .8rem; letter-spacing: .06em;
+  text-transform: uppercase; margin: 12px 0 4px; }
+
+/* Cumpleaños de hoy */
+.bday-card-compact.is-today { border-color: var(--tile-orange); background: #2a1608; }
+.bday-card-compact.is-today .bday-day-tag { background: var(--tile-orange); }
+
+/* Más tarjetas por pantalla y toques más fáciles */
+.birthdays-compact-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.bday-actions-sm .action-icon { padding: 6px; }
